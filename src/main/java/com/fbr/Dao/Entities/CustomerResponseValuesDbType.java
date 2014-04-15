@@ -9,9 +9,11 @@ package com.fbr.Dao.Entities;
 import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.io.Serializable;
 
-public class CustomerResponseValuesDbType implements ProjectEntity<CustomerResponseValuesPrimaryKey> {
+@Entity
+@Table(name = "customer_response_values")
+public class CustomerResponseValuesDbType implements Serializable, ProjectEntity<CustomerResponseValuesPrimaryKey> {
     @EmbeddedId
     @AttributeOverrides({
             @AttributeOverride(name = "responseId", column = @Column(name = "response_id", nullable = false)),
