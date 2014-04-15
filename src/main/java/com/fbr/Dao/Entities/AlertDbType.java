@@ -18,7 +18,7 @@ public class AlertDbType implements ProjectEntity<String> {
     @Column(name = "alert_id", nullable = false)
     String alertId;
     @Column(name = "company_id", nullable = false)
-    String companyId;
+    int companyId;
     @Column(name = "branch_id", nullable = false)
     int branchId;
     @Column(name = "timestamp", nullable = false)
@@ -63,11 +63,11 @@ public class AlertDbType implements ProjectEntity<String> {
     }
 
 
-    public String getCompanyId() {
+    public int getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(String companyId) {
+    public void setCompanyId(int companyId) {
         this.companyId = companyId;
     }
 

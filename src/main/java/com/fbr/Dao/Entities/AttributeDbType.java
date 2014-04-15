@@ -12,20 +12,20 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "attributes")
-public class AttributeDbType implements ProjectEntity<String>{
+public class AttributeDbType implements ProjectEntity<Integer>{
     @Column(name = "attribute_id", unique = true, nullable = false)
     @Id
-    String attributeId;
+    int attributeId;
     @Column(name = "attribute_string", nullable = false)
     String attributeString;
     @Column(name = "parent_id")
-    String parentId;
+    int parentId;
 
-    public String getAttributeId() {
+    public int getAttributeId() {
         return attributeId;
     }
 
-    public void setAttributeId(String attributeId) {
+    public void setAttributeId(int attributeId) {
         this.attributeId = attributeId;
     }
 
@@ -37,22 +37,22 @@ public class AttributeDbType implements ProjectEntity<String>{
         this.attributeString = attributeString;
     }
 
-    public String getParentId() {
+    public int getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
+    public void setParentId(int parentId) {
         this.parentId = parentId;
     }
 
     @Override
     @Transient
-    public void setId(String s) {
+    public void setId(Integer s) {
         this.attributeId = s;
     }
 
     @Override
-    public String getId(){
+    public Integer getId(){
         return this.attributeId;
     }
 }

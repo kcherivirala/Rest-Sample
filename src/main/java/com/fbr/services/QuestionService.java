@@ -34,7 +34,7 @@ public class QuestionService {
 
 
     @Transactional
-    public void addQuestionAndAnswers(String companyId, List<Question> questions) {
+    public void addQuestionAndAnswers(int companyId, List<Question> questions) {
         for (Question question : questions) {
             addQuestion(companyId, question);
 
@@ -44,15 +44,22 @@ public class QuestionService {
         }
     }
 
-    public List<Question> getQuestionAndAnswers(String companyId) {
+    public List<Question> getQuestionAndAnswers(int companyId) {
         List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId);
         List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
 
         return matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
     }
 
+    public List<Question> getQuestionAndAnswers(int companyId, int questionId) {
+        List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId, questionId);
+        List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
+
+        return matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
+    }
+
     @Transactional
-    public void updateQuestionAndAnswers(String companyId, int questionId, Question question) {
+    public void updateQuestionAndAnswers(int companyId, int questionId, Question question) {
         QuestionPrimaryKey key = new QuestionPrimaryKey();
         key.setCompanyId(companyId);
         key.setQuestionId(questionId);
@@ -78,7 +85,7 @@ public class QuestionService {
     }
     */
 
-    private void updateAnswers(String companyId, List<AnswerDbType> answerDbEntries, Question question) {
+    private void updateAnswers(int companyId, List<AnswerDbType> answerDbEntries, Question question) {
         List<Answer> inputAnswers = question.getAnswers();
         Collections.sort(answerDbEntries, COMPARE_DB_ANSWERS);
         Collections.sort(inputAnswers, COMPARE_DOMAIN_ANSWERS);
@@ -133,7 +140,7 @@ public class QuestionService {
         return questionList;
     }
 
-    private void addQuestion(String companyId, Question inputQuestion) {
+    private void addQuestion(int companyId, Question inputQuestion) {
         QuestionDbType questionDbEntry = getQuestionDbEntry(companyId, inputQuestion);
         questionDao.add(questionDbEntry);
     }
@@ -163,7 +170,7 @@ public class QuestionService {
             answerDbEntry.setAnswerString(inputAnswer.getAnswer());
             updated = true;
         }
-        if (!answerDbEntry.getAttributeId().equals(inputAnswer.getAttributeId())) {
+        if (answerDbEntry.getAttributeId()!=(inputAnswer.getAttributeId())) {
             answerDbEntry.setAttributeId(inputAnswer.getAttributeId());
             updated = true;
         }
@@ -185,12 +192,12 @@ public class QuestionService {
         answerDao.delete(answerDbEntry);
     }
 
-    private void addAnswer(String companyId, Question inputQuestion, Answer inputAnswer) {
+    private void addAnswer(int companyId, Question inputQuestion, Answer inputAnswer) {
         AnswerDbType answerDbEntry = getAnswerDbEntry(companyId, inputQuestion, inputAnswer);
         answerDao.add(answerDbEntry);
     }
 
-    private AnswerDbType getAnswerDbEntry(String companyId, Question question, Answer answer) {
+    private AnswerDbType getAnswerDbEntry(int companyId, Question question, Answer answer) {
         AnswerDbType answerDbEntry = new AnswerDbType();
         AnswerPrimaryKey aKey = new AnswerPrimaryKey();
         answerDbEntry.setId(aKey);
@@ -207,7 +214,7 @@ public class QuestionService {
         return answerDbEntry;
     }
 
-    private QuestionDbType getQuestionDbEntry(String companyId, Question question) {
+    private QuestionDbType getQuestionDbEntry(int companyId, Question question) {
         QuestionDbType questionDbEntry = new QuestionDbType();
         QuestionPrimaryKey qKey = new QuestionPrimaryKey();
         questionDbEntry.setId(qKey);

@@ -13,15 +13,15 @@ import java.io.Serializable;
 @Embeddable
 public class QuestionPrimaryKey implements Serializable {
     @Column(name = "company_id", nullable = false)
-    String companyId;
+    int companyId;
     @Column(name = "question_id", nullable = false)
     int questionId;
 
-    public String getCompanyId() {
+    public int getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(String companyId) {
+    public void setCompanyId(int companyId) {
         this.companyId = companyId;
     }
 

@@ -9,7 +9,7 @@ package com.fbr.domain;
 public class Answer {
     int answerId;
     String answer;
-    String attributeId;
+    int attributeId;
     int maxValue;
     int attainedValue;
 
@@ -29,11 +29,11 @@ public class Answer {
         this.answer = answer;
     }
 
-    public String getAttributeId() {
+    public int getAttributeId() {
         return attributeId;
     }
 
-    public void setAttributeId(String attributeId) {
+    public void setAttributeId(int attributeId) {
         this.attributeId = attributeId;
     }
 

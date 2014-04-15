@@ -9,16 +9,16 @@ package com.fbr.domain;
 import java.util.List;
 
 public class AttributeAggregateInfo {
-    String attributeId;
+    int attributeId;
     List<Integer> dates;
     List<Integer> obtainedValues;
     List<Integer> totalValues;
 
-    public String getAttributeId() {
+    public int getAttributeId() {
         return attributeId;
     }
 
-    public void setAttributeId(String attributeId) {
+    public void setAttributeId(int attributeId) {
         this.attributeId = attributeId;
     }
 

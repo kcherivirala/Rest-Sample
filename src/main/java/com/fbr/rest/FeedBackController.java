@@ -71,7 +71,7 @@ public class FeedBackController {
     }
 
     @RequestMapping(value = {"/attribute/{attrId}"}, method = { RequestMethod.GET })
-    public ModelAndView getAttribute(@PathVariable("attrId") String attrId){
+    public ModelAndView getAttribute(@PathVariable("attrId") int attrId){
         try{
             return new ModelAndView(jsonView_i, DATA_FIELD, attributeService.getAtribute(attrId));
         }catch (Exception e) {
@@ -96,7 +96,7 @@ public class FeedBackController {
     }
 
     @RequestMapping(value = {"/attribute/{attrId}"}, method = RequestMethod.DELETE)
-    public ModelAndView deleteAttribute(@PathVariable("attrId") String attrId,
+    public ModelAndView deleteAttribute(@PathVariable("attrId") int attrId,
                                         HttpServletResponse httpResponse_p){
         try {
             attributeService.delete(attrId);
@@ -113,7 +113,7 @@ public class FeedBackController {
 
 
     @RequestMapping(value = {"/company/{companyId}/questions"}, method = { RequestMethod.GET })
-    public ModelAndView getQuestionsAndAnswers(@PathVariable("companyId") String companyId){
+    public ModelAndView getQuestionsAndAnswers(@PathVariable("companyId") int companyId){
         try{
             return new ModelAndView(jsonView_i, DATA_FIELD, questionService.getQuestionAndAnswers(companyId));
         }catch (Exception e) {
@@ -123,7 +123,7 @@ public class FeedBackController {
     }
 
     @RequestMapping(value = {"/company/{companyId}/questions"}, method = { RequestMethod.POST })
-    public ModelAndView addQuestionsAndAnswers(@PathVariable("companyId") String companyId, @RequestBody QuestionList questionList,
+    public ModelAndView addQuestionsAndAnswers(@PathVariable("companyId") int companyId, @RequestBody QuestionList questionList,
                                      HttpServletResponse httpResponse_p, WebRequest request_p){
         try {
             questionService.addQuestionAndAnswers(companyId, questionList.getQuestions());
@@ -136,9 +136,19 @@ public class FeedBackController {
         return new ModelAndView(jsonView_i, DATA_FIELD, null);
     }
 
+    @RequestMapping(value = {"/company/{companyId}/question/{questionId}"}, method = { RequestMethod.GET })
+    public ModelAndView getQuestionAndAnswers(@PathVariable("companyId") int companyId, @PathVariable("questionId") int questionId){
+        try{
+            return new ModelAndView(jsonView_i, DATA_FIELD, questionService.getQuestionAndAnswers(companyId, questionId));
+        }catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+    }
+
 
     @RequestMapping(value = {"/company/{companyId}/question/{questionId}"}, method = { RequestMethod.PUT })
-    public ModelAndView updateQuestionAndAnswers(@PathVariable("companyId") String companyId, @PathVariable("questionId") int questionId, @RequestBody Question question,
+    public ModelAndView updateQuestionAndAnswers(@PathVariable("companyId") int companyId, @PathVariable("questionId") int questionId, @RequestBody Question question,
                                                  HttpServletResponse httpResponse_p, WebRequest request_p){
         try {
             questionService.updateQuestionAndAnswers(companyId, questionId, question);
@@ -152,10 +162,8 @@ public class FeedBackController {
 
     }
 
-
-
     @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/responses"}, method = { RequestMethod.POST })
-    public ModelAndView addResponses(@PathVariable("companyId") String companyId, @PathVariable("branchId") int branchId,
+    public ModelAndView addResponses(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId,
                                     @RequestBody ResponseList responseList, HttpServletResponse httpResponse_p, WebRequest request_p){
         try {
             responseService.processResponse(companyId, branchId, responseList.getResponses());
@@ -168,8 +176,9 @@ public class FeedBackController {
         return new ModelAndView(jsonView_i, DATA_FIELD, null);
     }
 
+
     @RequestMapping(value = {"/company/{companyId}/aggregate"}, method = { RequestMethod.GET })
-    public ModelAndView getAggregate(@PathVariable("companyId") String companyId){
+    public ModelAndView getAggregate(@PathVariable("companyId") int companyId){
         try {
             return new ModelAndView(jsonView_i, DATA_FIELD, responseService.getAggregateInfo(companyId));
         } catch (Exception e) {

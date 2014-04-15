@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository("customerResponseDao")
-public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, CustomerResponsePrimaryKey> {
+public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, String> {
     public CustomerResponseDao() {
         this.entityClass = CustomerResponseDbType.class;
     }

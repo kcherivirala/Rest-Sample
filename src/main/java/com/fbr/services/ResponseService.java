@@ -8,6 +8,7 @@ package com.fbr.services;
 
 import com.fbr.Dao.CustomerDao;
 import com.fbr.Dao.CustomerResponseDao;
+import com.fbr.Dao.CustomerResponseValuesDao;
 import com.fbr.Dao.Entities.*;
 import com.fbr.Dao.ResponseAggregateDao;
 import com.fbr.domain.AttributeAggregateInfo;
@@ -26,6 +27,8 @@ public class ResponseService {
     @Autowired
     private CustomerResponseDao customerResponseDao;
     @Autowired
+    private CustomerResponseValuesDao customerResponseValuesDao;
+    @Autowired
     private CustomerDao customerDao;
     @Autowired
     private AlertService alertService;
@@ -40,6 +43,7 @@ public class ResponseService {
 
     @PostConstruct
     public void init() {
+        /*
         timer = new Timer();
 
         Calendar cal = Calendar.getInstance();
@@ -50,10 +54,11 @@ public class ResponseService {
 
         UpdateAggregateTask task = new UpdateAggregateTask(responseAggregateDao);
         timer.schedule(task, cal.getTime(), AGGREGATE_TIME_INTERVAL);
+        */
     }
 
     @Transactional
-    public void processResponse(String companyId, int branchId, List<Response> responseList) {
+    public void processResponse(int companyId, int branchId, List<Response> responseList) {
         //processes teh list of responses from various customer for the given company and branch.
         List<AttributeDbType> attributeDbEntries = attributeService.getAttributesByCompany(companyId);
         for (Response response : responseList) {
@@ -91,32 +96,43 @@ public class ResponseService {
         }
     }
 
-    private void addToResponseDb(String companyId, int branchId, String customerId, List<AttributeTuple> attributeResponseTuples) {
+    private void addToResponseDb(int companyId, int branchId, String customerId, List<AttributeTuple> attributeResponseTuples) {
         //adds the feedback of one customer into the DB.
+        String responseId = UUID.randomUUID().toString();
+        customerResponseDao.add(getCustomerResponseDbEntry(responseId, companyId, branchId, customerId));
         for (AttributeTuple attributeTuple : attributeResponseTuples) {
-            customerResponseDao.add(getCustomerResponseDbEntry(companyId, branchId, customerId, attributeTuple));
+            customerResponseValuesDao.add(getCustomerResponseValuesDbEntry(responseId, attributeTuple));
         }
     }
 
-    private CustomerResponseDbType getCustomerResponseDbEntry(String companyId, int branchId, String customerId, AttributeTuple attributeTuple) {
+    private CustomerResponseDbType getCustomerResponseDbEntry(String responseId, int companyId, int branchId, String customerId) {
         CustomerResponseDbType customerResponseDbEntry = new CustomerResponseDbType();
-        CustomerResponsePrimaryKey key = new CustomerResponsePrimaryKey();
-        customerResponseDbEntry.setId(key);
 
-        key.setCompanyId(companyId);
-        key.setCustomerId(customerId);
-        key.setBranchId(branchId);
-        key.setAttributeId(attributeTuple.getAttributeId());
-        key.setTimestamp(new Date());
-
-        customerResponseDbEntry.setMaxValue(attributeTuple.getMaxValue());
-        customerResponseDbEntry.setObtainedValue(attributeTuple.getObtainedValue());
-        customerResponseDbEntry.setResponse(attributeTuple.getResponseString());
+        customerResponseDbEntry.setResponseId(responseId);
+        customerResponseDbEntry.setCompanyId(companyId);
+        customerResponseDbEntry.setBranchId(branchId);
+        customerResponseDbEntry.setCustomerId(customerId);
+        customerResponseDbEntry.setTimestamp(new Date());
 
         return customerResponseDbEntry;
     }
 
-    private void addToAggregateDb(String companyId, int branchId, List<AttributeTuple> attributeResponseTuples) {
+    private CustomerResponseValuesDbType getCustomerResponseValuesDbEntry(String responseId, AttributeTuple attributeTuple){
+        CustomerResponseValuesDbType dbEntry = new CustomerResponseValuesDbType();
+        CustomerResponseValuesPrimaryKey key = new CustomerResponseValuesPrimaryKey();
+
+        key.setResponseId(responseId);
+        key.setAttributeId(attributeTuple.getAttributeId());
+
+        dbEntry.setId(key);
+        dbEntry.setMaxValue(attributeTuple.getMaxValue());
+        dbEntry.setObtainedValue(attributeTuple.getObtainedValue());
+        dbEntry.setResponse(attributeTuple.getResponseString());
+
+        return dbEntry;
+    }
+
+    private void addToAggregateDb(int companyId, int branchId, List<AttributeTuple> attributeResponseTuples) {
         for (AttributeTuple attributeTuple : attributeResponseTuples) {
             ResponseAggregatePrimaryKey key = getResponseAggregatePrKey(companyId, branchId, attributeTuple);
             ResponseAggregateDbType responseAggregateDbEntry = responseAggregateDao.find(key);
@@ -130,7 +146,7 @@ public class ResponseService {
         }
     }
 
-    private ResponseAggregateDbType getResponseAggreagteDbEntry(String companyId, int branchId, AttributeTuple attributeTuple) {
+    private ResponseAggregateDbType getResponseAggreagteDbEntry(int companyId, int branchId, AttributeTuple attributeTuple) {
         ResponseAggregatePrimaryKey key = getResponseAggregatePrKey(companyId, branchId, attributeTuple);
         ResponseAggregateDbType dbentry = new ResponseAggregateDbType();
         dbentry.setId(key);
@@ -146,7 +162,7 @@ public class ResponseService {
         responseAggregateDbEntry.setTotalValue(responseAggregateDbEntry.getTotalValue() + attributeTuple.getMaxValue());
     }
 
-    private ResponseAggregatePrimaryKey getResponseAggregatePrKey(String companyId, int branchId, AttributeTuple attributeTuple) {
+    private ResponseAggregatePrimaryKey getResponseAggregatePrKey(int companyId, int branchId, AttributeTuple attributeTuple) {
         ResponseAggregatePrimaryKey key = new ResponseAggregatePrimaryKey();
         key.setAttributeId(attributeTuple.getAttributeId());
         key.setBranchId(branchId);
@@ -155,7 +171,7 @@ public class ResponseService {
         return key;
     }
 
-    public List<BranchAggregateInfo> getAggregateInfo(String companyId) {
+    public List<BranchAggregateInfo> getAggregateInfo(int companyId) {
         List<ResponseAggregateDbType> responseAggregateDbTypeList = responseAggregateDao.getAggregateInfo(companyId);
         Collections.sort(responseAggregateDbTypeList, aggregateComparator);
 
@@ -192,7 +208,7 @@ public class ResponseService {
         return i;
     }
 
-    private int addAttributeInfo(int branchId, String attributeId,
+    private int addAttributeInfo(int branchId, int attributeId,
                                  List<ResponseAggregateDbType> responseAggregateDbTypeList, int index, BranchAggregateInfo branchAggregateInfo) {
         AttributeAggregateInfo attributeInfo = new AttributeAggregateInfo();
         branchAggregateInfo.getListAttributeAggregateInfo().add(attributeInfo);
@@ -209,7 +225,7 @@ public class ResponseService {
         int i = index;
         while (i < responseAggregateDbTypeList.size()) {
             ResponseAggregateDbType aggregateDbEntry = responseAggregateDbTypeList.get(i);
-            if (!attributeId.equals(aggregateDbEntry.getId().getAttributeId()) || branchId != aggregateDbEntry.getId().getBranchId()) {
+            if (attributeId != (aggregateDbEntry.getId().getAttributeId()) || branchId != aggregateDbEntry.getId().getBranchId()) {
                 return i;
             }
 
@@ -227,7 +243,7 @@ public class ResponseService {
             if (first.getId().getBranchId() < second.getId().getBranchId()) return -1;
             else if (first.getId().getBranchId() > second.getId().getBranchId()) return 1;
             else {
-                return first.getId().getAttributeId().compareTo(second.getId().getAttributeId());
+                return first.getId().getAttributeId()-(second.getId().getAttributeId());
             }
         }
     };

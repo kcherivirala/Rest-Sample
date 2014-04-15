@@ -9,58 +9,71 @@ package com.fbr.Dao.Entities;
 import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "customer_response")
-public class CustomerResponseDbType implements ProjectEntity<CustomerResponsePrimaryKey>{
-    @EmbeddedId
-    @AttributeOverrides({
-            @AttributeOverride(name = "customerId", column = @Column(name = "customer_id", nullable = false)),
-            @AttributeOverride(name = "attributeId", column = @Column(name = "attribute_id", nullable = false)),
-            @AttributeOverride(name = "companyId", column = @Column(name = "company_id", nullable = false)),
-            @AttributeOverride(name = "branchId", column = @Column(name = "branch_id", nullable = false)),
-            @AttributeOverride(name = "timestamp", column = @Column(name = "timestamp", nullable = false))
-    })
-    CustomerResponsePrimaryKey id;
-    @Column(name = "max_value")
-    int maxValue;
-    @Column(name = "obtained_value")
-    int obtainedValue;
-    @Column(name = "response")
-    String response;
+public class CustomerResponseDbType implements ProjectEntity<String>{
 
-    public int getMaxValue() {
-        return maxValue;
+    @Column(name = "response_id", nullable = false)
+    @Id
+    String responseId;
+    @Column(name = "customer_id", nullable = false)
+    String customerId;
+    @Column(name = "company_id", nullable = false)
+    int companyId;
+    @Column(name = "branch_id", nullable = false)
+    int branchId;
+    @Column(name = "timestamp", nullable = false)
+    Date timestamp;
+
+    public String getResponseId() {
+        return responseId;
     }
 
-    public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue;
+    public void setResponseId(String responseId) {
+        this.responseId = responseId;
     }
 
-    public int getObtainedValue() {
-        return obtainedValue;
+    public String getCustomerId() {
+        return customerId;
     }
 
-    public void setObtainedValue(int obtainedValue) {
-        this.obtainedValue = obtainedValue;
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
     }
 
-    public String getResponse() {
-        return response;
+    public int getCompanyId() {
+        return companyId;
     }
 
-    public void setResponse(String response) {
-        this.response = response;
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public int getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(int branchId) {
+        this.branchId = branchId;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
-    @Transient
-    public CustomerResponsePrimaryKey getId() {
-        return this.id;
+    public String getId() {
+        return responseId;
     }
 
     @Override
-    public void setId(CustomerResponsePrimaryKey customerResponsePrimaryKey) {
-        this.id = customerResponsePrimaryKey;
+    public void setId(String s) {
+        this.responseId = s;
     }
 }

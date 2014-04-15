@@ -13,27 +13,27 @@ import java.io.Serializable;
 @Embeddable
 public class ResponseAggregatePrimaryKey implements Serializable{
     @Column(name = "attribute_id", nullable = false)
-    String attributeId;
+    int attributeId;
     @Column(name = "company_id", nullable = false)
-    String companyId;
+    int companyId;
     @Column(name = "branch_id", nullable = false)
     int branchId;
     @Column(name = "date", nullable = false)
     int date;
 
-    public String getAttributeId() {
+    public int getAttributeId() {
         return attributeId;
     }
 
-    public void setAttributeId(String attributeId) {
+    public void setAttributeId(int attributeId) {
         this.attributeId = attributeId;
     }
 
-    public String getCompanyId() {
+    public int getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(String companyId) {
+    public void setCompanyId(int companyId) {
         this.companyId = companyId;
     }
 

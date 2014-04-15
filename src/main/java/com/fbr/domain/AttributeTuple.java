@@ -7,7 +7,7 @@ package com.fbr.domain;
  */
 
 public class AttributeTuple {
-    String attributeId;
+    int attributeId;
     int maxValue;
     int obtainedValue;
     String responseString;
@@ -36,11 +36,11 @@ public class AttributeTuple {
         this.maxValue = maxValue;
     }
 
-    public String getAttributeId() {
+    public int getAttributeId() {
         return attributeId;
     }
 
-    public void setAttributeId(String attributeId) {
+    public void setAttributeId(int attributeId) {
         this.attributeId = attributeId;
     }
 }

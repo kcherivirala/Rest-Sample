@@ -53,16 +53,16 @@ public class AttributeService {
         return list;
     }
 
-    public Attribute getAtribute(String attrId){
+    public Attribute getAtribute(int attrId){
         AttributeDbType attributeDbEntry = attributeDao.find(attrId);
         return getAttribute(attributeDbEntry);
     }
 
-    public void delete(String attrId){
+    public void delete(int attrId){
         attributeDao.delete(attrId);
     }
 
-    public List<AttributeDbType> getAttributesByCompany(String companyId){
+    public List<AttributeDbType> getAttributesByCompany(int companyId){
         return attributeDao.getAttributesByCompany(companyId);
     }
 
@@ -77,7 +77,7 @@ public class AttributeService {
 
     private AttributeDbType getAttributeDbEntry(Attribute attribute){
         AttributeDbType attributeDbEntry = new AttributeDbType();
-        String Id = UUID.randomUUID().toString();
+        int Id = attributeDao.getMaxAttributeIdValue() + 1;
         attributeDbEntry.setAttributeId(Id);
         attributeDbEntry.setAttributeString(attribute.getAttributeString());
         attributeDbEntry.setParentId(attribute.getParentId());

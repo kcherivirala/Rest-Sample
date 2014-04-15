@@ -7,15 +7,15 @@ package com.fbr.domain;
  */
 
 public class Attribute {
-    String attributeId;
+    int attributeId;
     String attributeString;
-    String parentId;
+    int parentId;
 
-    public String getAttributeId() {
+    public int getAttributeId() {
         return attributeId;
     }
 
-    public void setAttributeId(String attributeId) {
+    public void setAttributeId(int attributeId) {
         this.attributeId = attributeId;
     }
 
@@ -27,11 +27,11 @@ public class Attribute {
         this.attributeString = attributeString;
     }
 
-    public String getParentId() {
+    public int getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
+    public void setParentId(int parentId) {
         this.parentId = parentId;
     }
 }

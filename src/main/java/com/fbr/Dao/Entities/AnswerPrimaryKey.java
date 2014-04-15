@@ -13,17 +13,17 @@ import java.io.Serializable;
 @Embeddable
 public class AnswerPrimaryKey implements Serializable {
     @Column(name = "company_id", nullable = false)
-    String companyId;
+    int companyId;
     @Column(name = "question_id", nullable = false)
     int questionId;
     @Column(name = "answer_id", nullable = false)
     int answerId;
 
-    public String getCompanyId() {
+    public int getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(String companyId) {
+    public void setCompanyId(int companyId) {
         this.companyId = companyId;
     }
 
