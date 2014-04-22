@@ -10,6 +10,8 @@ import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
 
+@Entity
+@Table(name = "attribute_values")
 public class AttributeValuesDbType implements ProjectEntity<AttributeValuesPrimaryKey> {
     @EmbeddedId
     @AttributeOverrides({
