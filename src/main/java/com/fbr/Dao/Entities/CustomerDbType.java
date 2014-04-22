@@ -12,15 +12,15 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "customers")
-public class CustomerDbType implements ProjectEntity<String>{
+public class CustomerDbType implements ProjectEntity<String> {
     @Column(name = "customer_id", unique = true, nullable = false)
     @Id
     String customerId;
-    @Column(name = "phone", unique=true)
+    @Column(name = "phone", unique = true)
     String phone;
-    @Column(name = "mail", unique=true)
+    @Column(name = "mail", unique = true)
     String mail;
-    @Column(name = "name", unique=true)
+    @Column(name = "name", unique = true)
     String name;
 
     public String getName() {
@@ -62,7 +62,7 @@ public class CustomerDbType implements ProjectEntity<String>{
     }
 
     @Override
-    public String getId(){
+    public String getId() {
         return this.customerId;
     }
 }

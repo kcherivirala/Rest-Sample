@@ -6,10 +6,11 @@ package com.fbr.Dao;
  *  ***********************************************************
  */
 
-import java.util.List;
-import javax.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.List;
 
 public class ProjectDaoImpl<T extends ProjectEntity<ID>, ID> implements ProjectDao<T, ID> {
 

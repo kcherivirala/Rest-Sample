@@ -117,7 +117,7 @@ public class ResponseService {
         return customerResponseDbEntry;
     }
 
-    private CustomerResponseValuesDbType getCustomerResponseValuesDbEntry(String responseId, AttributeTuple attributeTuple){
+    private CustomerResponseValuesDbType getCustomerResponseValuesDbEntry(String responseId, AttributeTuple attributeTuple) {
         CustomerResponseValuesDbType dbEntry = new CustomerResponseValuesDbType();
         CustomerResponseValuesPrimaryKey key = new CustomerResponseValuesPrimaryKey();
 
@@ -243,7 +243,7 @@ public class ResponseService {
             if (first.getId().getBranchId() < second.getId().getBranchId()) return -1;
             else if (first.getId().getBranchId() > second.getId().getBranchId()) return 1;
             else {
-                return first.getId().getAttributeId()-(second.getId().getAttributeId());
+                return first.getId().getAttributeId() - (second.getId().getAttributeId());
             }
         }
     };

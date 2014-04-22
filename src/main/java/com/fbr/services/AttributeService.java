@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class AttributeService {
@@ -24,7 +23,7 @@ public class AttributeService {
     @Autowired
     private AttributeDao attributeDao;
 
-    public Attribute addAttribute(Attribute attribute){
+    public Attribute addAttribute(Attribute attribute) {
         AttributeDbType attributeDbEntry = getAttributeDbEntry(attribute);
         attributeDao.add(attributeDbEntry);
 
@@ -33,54 +32,57 @@ public class AttributeService {
     }
 
     @Transactional
-    public Attribute updateAttribute(Attribute attribute){
+    public Attribute updateAttribute(Attribute attribute) {
         AttributeDbType dbEntry = attributeDao.find(attribute.getAttributeId());
         dbEntry.setAttributeString(attribute.getAttributeString());
         dbEntry.setParentId(attribute.getParentId());
+        dbEntry.setType(attribute.getType());
 
         attributeDao.update(dbEntry);
         return attribute;
     }
 
-    public List<Attribute> getAllAttributes(){
+    public List<Attribute> getAllAttributes() {
         List<Attribute> list = new ArrayList<Attribute>();
 
         List<AttributeDbType> listDb = attributeDao.findAll();
-        for(AttributeDbType attributeDbEntry: listDb){
+        for (AttributeDbType attributeDbEntry : listDb) {
             Attribute attribute = getAttribute(attributeDbEntry);
             list.add(attribute);
         }
         return list;
     }
 
-    public Attribute getAtribute(int attrId){
+    public Attribute getAtribute(int attrId) {
         AttributeDbType attributeDbEntry = attributeDao.find(attrId);
         return getAttribute(attributeDbEntry);
     }
 
-    public void delete(int attrId){
+    public void delete(int attrId) {
         attributeDao.delete(attrId);
     }
 
-    public List<AttributeDbType> getAttributesByCompany(int companyId){
+    public List<AttributeDbType> getAttributesByCompany(int companyId) {
         return attributeDao.getAttributesByCompany(companyId);
     }
 
-    private Attribute getAttribute(AttributeDbType attributeDbEntry){
+    private Attribute getAttribute(AttributeDbType attributeDbEntry) {
         Attribute attribute = new Attribute();
         attribute.setAttributeId(attributeDbEntry.getAttributeId());
         attribute.setAttributeString(attributeDbEntry.getAttributeString());
         attribute.setParentId(attributeDbEntry.getParentId());
+        attribute.setType(attributeDbEntry.getType());
 
         return attribute;
     }
 
-    private AttributeDbType getAttributeDbEntry(Attribute attribute){
+    private AttributeDbType getAttributeDbEntry(Attribute attribute) {
         AttributeDbType attributeDbEntry = new AttributeDbType();
         int Id = attributeDao.getMaxAttributeIdValue() + 1;
         attributeDbEntry.setAttributeId(Id);
         attributeDbEntry.setAttributeString(attribute.getAttributeString());
         attributeDbEntry.setParentId(attribute.getParentId());
+        attributeDbEntry.setType(attribute.getType());
 
         return attributeDbEntry;
     }

@@ -7,7 +7,6 @@ package com.fbr.Dao;
  */
 
 import com.fbr.Dao.Entities.CustomerDbType;
-import com.fbr.Dao.Entities.QuestionDbType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,14 +25,14 @@ public class CustomerDao extends ProjectDaoImpl<CustomerDbType, String> {
         super.add(entity);
     }
 
-    public CustomerDbType getCustomerWithMail(String mail){
+    public CustomerDbType getCustomerWithMail(String mail) {
         String hql = "select e from " + entityClass.getName() + " e where e.mail = ?1";
         TypedQuery<CustomerDbType> query = entityManager.createQuery(hql, entityClass);
         query.setParameter(1, mail);
         List<CustomerDbType> list = query.getResultList();
-        if(list.size()>0){
+        if (list.size() > 0) {
             return list.get(0);
-        }else{
+        } else {
             return null;
         }
     }

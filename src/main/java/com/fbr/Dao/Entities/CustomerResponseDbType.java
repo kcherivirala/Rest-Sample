@@ -8,12 +8,15 @@ package com.fbr.Dao.Entities;
 
 import com.fbr.Dao.ProjectEntity;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
 @Table(name = "customer_response")
-public class CustomerResponseDbType implements ProjectEntity<String>{
+public class CustomerResponseDbType implements ProjectEntity<String> {
 
     @Column(name = "response_id", nullable = false)
     @Id

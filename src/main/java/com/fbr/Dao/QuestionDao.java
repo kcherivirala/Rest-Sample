@@ -26,7 +26,7 @@ public class QuestionDao extends ProjectDaoImpl<QuestionDbType, QuestionPrimaryK
         super.add(entity);
     }
 
-    public List<QuestionDbType> getQuestions(int companyId){
+    public List<QuestionDbType> getQuestions(int companyId) {
         String hql = "select e from " + entityClass.getName() + " e where e.id.companyId = ?1";
         TypedQuery<QuestionDbType> query = entityManager.createQuery(hql, entityClass);
         query.setParameter(1, companyId);
@@ -34,7 +34,7 @@ public class QuestionDao extends ProjectDaoImpl<QuestionDbType, QuestionPrimaryK
         return query.getResultList();
     }
 
-    public List<QuestionDbType> getQuestions(int companyId, int questionId){
+    public List<QuestionDbType> getQuestions(int companyId, int questionId) {
         String hql = "select e from " + entityClass.getName() + " e where e.id.companyId = ?1 and e.id.questionId = ?2";
         TypedQuery<QuestionDbType> query = entityManager.createQuery(hql, entityClass);
         query.setParameter(1, companyId);

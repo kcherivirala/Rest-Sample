@@ -11,13 +11,14 @@
         <class>com.fbr.Dao.Entities.CustomerResponseDbType</class>
         <class>com.fbr.Dao.Entities.CustomerDbType</class>
         <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <!-- <property name="hibernate.hbm2ddl.auto" value="validate" />  -->
-            <property name="hibernate.show_sql" value="true" />
-            <property name="hibernate.format_sql" value="true" />
-            <property name="hibernate.show_sql_parameters" value="true" />
-            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider" />
-            <property name="hibernate.ejb.event.merge" value="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener" />
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.show_sql_parameters" value="true"/>
+            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider"/>
+            <property name="hibernate.ejb.event.merge"
+                      value="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener"/>
         </properties>
     </persistence-unit>
 </persistence>

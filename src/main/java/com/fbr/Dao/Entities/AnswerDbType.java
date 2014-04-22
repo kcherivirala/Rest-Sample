@@ -13,8 +13,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "answers")
-public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKey>
-{
+public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKey> {
     @EmbeddedId
     @AttributeOverrides({
             @AttributeOverride(name = "companyId", column = @Column(name = "company_id", nullable = false)),
@@ -26,7 +25,7 @@ public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKe
     @Column(name = "attribute_id", nullable = false)
     int attributeId;
     @Column(name = "max_value", nullable = false)
-    int  maxValue;
+    int maxValue;
     @Column(name = "attainable_value", nullable = false)
     int attainableValue;
 
@@ -70,7 +69,7 @@ public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKe
     }
 
     @Override
-    public AnswerPrimaryKey getId(){
+    public AnswerPrimaryKey getId() {
         return this.id;
     }
 }

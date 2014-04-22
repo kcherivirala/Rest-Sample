@@ -10,6 +10,7 @@ public class Attribute {
     int attributeId;
     String attributeString;
     int parentId;
+    String type;
 
     public int getAttributeId() {
         return attributeId;
@@ -33,5 +34,13 @@ public class Attribute {
 
     public void setParentId(int parentId) {
         this.parentId = parentId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

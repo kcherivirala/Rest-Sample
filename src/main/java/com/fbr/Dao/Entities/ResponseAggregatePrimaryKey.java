@@ -11,7 +11,7 @@ import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class ResponseAggregatePrimaryKey implements Serializable{
+public class ResponseAggregatePrimaryKey implements Serializable {
     @Column(name = "attribute_id", nullable = false)
     int attributeId;
     @Column(name = "company_id", nullable = false)

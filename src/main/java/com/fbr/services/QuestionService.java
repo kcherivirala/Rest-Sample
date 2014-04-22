@@ -170,7 +170,7 @@ public class QuestionService {
             answerDbEntry.setAnswerString(inputAnswer.getAnswer());
             updated = true;
         }
-        if (answerDbEntry.getAttributeId()!=(inputAnswer.getAttributeId())) {
+        if (answerDbEntry.getAttributeId() != (inputAnswer.getAttributeId())) {
             answerDbEntry.setAttributeId(inputAnswer.getAttributeId());
             updated = true;
         }

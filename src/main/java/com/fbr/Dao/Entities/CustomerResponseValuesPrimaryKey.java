@@ -11,7 +11,7 @@ import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class CustomerResponseValuesPrimaryKey implements Serializable{
+public class CustomerResponseValuesPrimaryKey implements Serializable {
     @Column(name = "response_id", nullable = false)
     String responseId;
     @Column(name = "attribute_id", nullable = false)
