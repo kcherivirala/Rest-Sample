@@ -6,11 +6,16 @@ package com.fbr.domain;
  *  ***********************************************************
  */
 
+import java.util.List;
+
 public class Attribute {
     int attributeId;
     String attributeString;
     int parentId;
     String type;
+
+    List<AttributeValue> attributeValues;
+
 
     public int getAttributeId() {
         return attributeId;
@@ -42,5 +47,13 @@ public class Attribute {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public List<AttributeValue> getAttributeValues() {
+        return attributeValues;
+    }
+
+    public void setAttributeValues(List<AttributeValue> attributeValues) {
+        this.attributeValues = attributeValues;
     }
 }

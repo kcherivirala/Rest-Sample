@@ -60,7 +60,7 @@ public class ResponseService {
     @Transactional
     public void processResponse(int companyId, int branchId, List<Response> responseList) {
         //processes teh list of responses from various customer for the given company and branch.
-        List<AttributeDbType> attributeDbEntries = attributeService.getAttributesByCompany(companyId);
+        List<AttributeDbType> attributeDbEntries = attributeService.getDbAttributesByCompany(companyId);
         for (Response response : responseList) {
             CustomerDbType customerDbEntry = addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
 

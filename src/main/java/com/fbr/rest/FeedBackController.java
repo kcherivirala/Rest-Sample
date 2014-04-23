@@ -45,7 +45,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/attributes"}, method = {RequestMethod.GET})
     public ModelAndView getAttributes() {
         try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, attributeService.getAllAttributes());
+            return new ModelAndView(jsonView_i, DATA_FIELD, attributeService.getAttributeAndValues());
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
@@ -55,22 +55,22 @@ public class FeedBackController {
     @RequestMapping(value = {"/attributes"}, method = {RequestMethod.POST})
     public ModelAndView addAttribute(@RequestBody Attribute attribute,
                                      HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Attribute dbEntry;
+        Attribute returnVal;
         try {
-            dbEntry = attributeService.addAttribute(attribute);
+            returnVal = attributeService.addAttributeAndValues(attribute);
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
         }
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
-        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/attribute/" + dbEntry.getAttributeId());
-        return new ModelAndView(jsonView_i, DATA_FIELD, dbEntry);
+        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/attribute/" + returnVal.getAttributeId());
+        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
     }
 
     @RequestMapping(value = {"/attribute/{attrId}"}, method = {RequestMethod.GET})
-    public ModelAndView getAttribute(@PathVariable("attrId") int attrId) {
+    public ModelAndView getAttributeAndValues(@PathVariable("attrId") int attrId) {
         try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, attributeService.getAtribute(attrId));
+            return new ModelAndView(jsonView_i, DATA_FIELD, attributeService.getAttributeAndValues(attrId));
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
@@ -78,11 +78,11 @@ public class FeedBackController {
     }
 
     @RequestMapping(value = {"/attribute/{attrId}"}, method = {RequestMethod.PUT})
-    public ModelAndView updateAttribute(@PathVariable("attrId") String attrId, @RequestBody Attribute attribute,
+    public ModelAndView updateAttributeAndValues(@PathVariable("attrId") int attrId, @RequestBody Attribute attribute,
                                         HttpServletResponse httpResponse_p, WebRequest request_p) {
         Attribute dbEntry;
         try {
-            dbEntry = attributeService.updateAttribute(attribute);
+            dbEntry = attributeService.updateAttributeAndValues(attrId, attribute);
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
@@ -93,10 +93,10 @@ public class FeedBackController {
     }
 
     @RequestMapping(value = {"/attribute/{attrId}"}, method = RequestMethod.DELETE)
-    public ModelAndView deleteAttribute(@PathVariable("attrId") int attrId,
+    public ModelAndView deleteAttributeAndValues(@PathVariable("attrId") int attrId,
                                         HttpServletResponse httpResponse_p) {
         try {
-            attributeService.delete(attrId);
+            attributeService.deleteAttributeAndValues(attrId);
         } catch (Exception e) {
             String sMessage = "Error invoking getFunds. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
