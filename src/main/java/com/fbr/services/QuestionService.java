@@ -32,16 +32,15 @@ public class QuestionService {
     @Autowired
     private QuestionDao questionDao;
 
-
-    @Transactional
-    public void addQuestionAndAnswers(int companyId, List<Question> questions) {
-        for (Question question : questions) {
-            addQuestion(companyId, question);
-
-            for (Answer answer : question.getAnswers()) {
-                addAnswer(companyId, question, answer);
-            }
+    public Question addQuestionAndAnswers(int companyId, Question question) {
+        int questionId = questionDao.getMaxAttributeIdValue(companyId) + 1;
+        addQuestion(companyId, questionId, question);
+        for (Answer answer : question.getAnswers()) {
+            addAnswer(companyId, question.getQuestionId(), answer);
         }
+
+        question.setQuestionId(questionId);
+        return question;
     }
 
     public List<Question> getQuestionAndAnswers(int companyId) {
@@ -59,7 +58,7 @@ public class QuestionService {
     }
 
     @Transactional
-    public void updateQuestionAndAnswers(int companyId, int questionId, Question question) {
+    public Question updateQuestionAndAnswers(int companyId, int questionId, Question question) {
         QuestionPrimaryKey key = new QuestionPrimaryKey();
         key.setCompanyId(companyId);
         key.setQuestionId(questionId);
@@ -68,12 +67,13 @@ public class QuestionService {
         List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
 
         updateQuestion(questionDbEntry, question);
-        updateAnswers(companyId, answerDbEntries, question);
+        updateAnswers(companyId, questionId, answerDbEntries, question.getAnswers());
+
+        return question;
     }
 
-    /*
     @Transactional
-    public void deleteQuestionAndAnswers(String companyId, int questionId, Question question){
+    public void deleteQuestionAndAnswers(int companyId, int questionId){
         QuestionPrimaryKey key = new QuestionPrimaryKey();
         key.setCompanyId(companyId);
         key.setQuestionId(questionId);
@@ -81,12 +81,10 @@ public class QuestionService {
         QuestionDbType questionDbEntry = questionDao.find(key);
         questionDao.delete(questionDbEntry);
 
-        answerDao.de
+        answerDao.deleteAnswersOfQuestion(companyId, questionId);
     }
-    */
 
-    private void updateAnswers(int companyId, List<AnswerDbType> answerDbEntries, Question question) {
-        List<Answer> inputAnswers = question.getAnswers();
+    private void updateAnswers(int companyId, int questionId, List<AnswerDbType> answerDbEntries, List<Answer> inputAnswers) {
         Collections.sort(answerDbEntries, COMPARE_DB_ANSWERS);
         Collections.sort(inputAnswers, COMPARE_DOMAIN_ANSWERS);
 
@@ -100,7 +98,7 @@ public class QuestionService {
                 dbIndex++;
                 inputIndex++;
             } else if (inputAnswers.get(inputIndex).getAnswerId() < answerDbEntries.get(dbIndex).getId().getAnswerId()) {
-                addAnswer(companyId, question, inputAnswer);
+                addAnswer(companyId, questionId, inputAnswer);
                 inputIndex++;
             } else {
                 deleteAnswer(answerDbEntry);
@@ -112,7 +110,7 @@ public class QuestionService {
             dbIndex++;
         }
         while (inputIndex < inputAnswers.size()) {
-            addAnswer(companyId, question, inputAnswers.get(inputIndex));
+            addAnswer(companyId, questionId, inputAnswers.get(inputIndex));
             inputIndex++;
         }
     }
@@ -128,10 +126,12 @@ public class QuestionService {
             QuestionDbType questionDbentry = questionDbEntries.get(qIndex);
             int questionId = questionDbentry.getId().getQuestionId();
 
-            Question question = getQuestion(questionDbentry);
+            Question question = Conversions.getQuestion(questionDbentry);
+            List<Answer> answerList = new ArrayList<Answer>();
+            question.setAnswers(answerList);
 
             while (aIndex < answerDbEntries.size() && answerDbEntries.get(aIndex).getId().getQuestionId() == questionId) {
-                addAnswerToQuestion(question, answerDbEntries.get(aIndex));
+                answerList.add(Conversions.getAnswer(answerDbEntries.get(aIndex)));
                 aIndex++;
             }
             questionList.add(question);
@@ -140,8 +140,8 @@ public class QuestionService {
         return questionList;
     }
 
-    private void addQuestion(int companyId, Question inputQuestion) {
-        QuestionDbType questionDbEntry = getQuestionDbEntry(companyId, inputQuestion);
+    private void addQuestion(int companyId, int questionId, Question inputQuestion) {
+        QuestionDbType questionDbEntry = Conversions.getQuestionDbEntry(companyId, inputQuestion);
         questionDao.add(questionDbEntry);
     }
 
@@ -192,67 +192,9 @@ public class QuestionService {
         answerDao.delete(answerDbEntry);
     }
 
-    private void addAnswer(int companyId, Question inputQuestion, Answer inputAnswer) {
-        AnswerDbType answerDbEntry = getAnswerDbEntry(companyId, inputQuestion, inputAnswer);
+    private void addAnswer(int companyId, int questionId, Answer inputAnswer) {
+        AnswerDbType answerDbEntry = Conversions.getAnswerDbEntry(companyId, questionId, inputAnswer);
         answerDao.add(answerDbEntry);
-    }
-
-    private AnswerDbType getAnswerDbEntry(int companyId, Question question, Answer answer) {
-        AnswerDbType answerDbEntry = new AnswerDbType();
-        AnswerPrimaryKey aKey = new AnswerPrimaryKey();
-        answerDbEntry.setId(aKey);
-
-        aKey.setCompanyId(companyId);
-        aKey.setQuestionId(question.getQuestionId());
-        aKey.setAnswerId(answer.getAnswerId());
-
-        answerDbEntry.setAnswerString(answer.getAnswer());
-        answerDbEntry.setAttributeId(answer.getAttributeId());
-        answerDbEntry.setAttainableValue(answer.getAttainedValue());
-        answerDbEntry.setMaxValue(answer.getMaxValue());
-
-        return answerDbEntry;
-    }
-
-    private QuestionDbType getQuestionDbEntry(int companyId, Question question) {
-        QuestionDbType questionDbEntry = new QuestionDbType();
-        QuestionPrimaryKey qKey = new QuestionPrimaryKey();
-        questionDbEntry.setId(qKey);
-
-        qKey.setCompanyId(companyId);
-        qKey.setQuestionId(question.getQuestionId());
-
-        questionDbEntry.setParentId(question.getParentId());
-        questionDbEntry.setFunction(question.getFunction());
-        questionDbEntry.setQuestionString(question.getQuestion());
-
-        return questionDbEntry;
-    }
-
-    private Question getQuestion(QuestionDbType questionDbEntry) {
-        Question question = new Question();
-
-        question.setFunction(questionDbEntry.getFunction());
-        question.setParentId(questionDbEntry.getParentId());
-        question.setQuestion(questionDbEntry.getQuestionString());
-        question.setQuestionId(questionDbEntry.getId().getQuestionId());
-
-        return question;
-    }
-
-    private void addAnswerToQuestion(Question question, AnswerDbType answerDbEntry) {
-        if (question.getAnswers() == null) {
-            question.setAnswers(new ArrayList<Answer>());
-        }
-        Answer answer = new Answer();
-
-        answer.setAnswer(answerDbEntry.getAnswerString());
-        answer.setAnswerId(answerDbEntry.getId().getAnswerId());
-        answer.setAttainedValue(answerDbEntry.getAttainableValue());
-        answer.setMaxValue(answerDbEntry.getMaxValue());
-        answer.setAttributeId(answerDbEntry.getAttributeId());
-
-        question.getAnswers().add(answer);
     }
 
     private static Comparator<AnswerDbType> COMPARE_DB_ANSWERS = new Comparator<AnswerDbType>() {
@@ -277,4 +219,62 @@ public class QuestionService {
             return first.getId().getQuestionId() - second.getId().getQuestionId();
         }
     };
+
+    static class Conversions {
+        public static AnswerDbType getAnswerDbEntry(int companyId, int questionId, Answer answer) {
+            AnswerDbType answerDbEntry = new AnswerDbType();
+            AnswerPrimaryKey aKey = new AnswerPrimaryKey();
+            answerDbEntry.setId(aKey);
+
+            aKey.setCompanyId(companyId);
+            aKey.setQuestionId(questionId);
+            aKey.setAnswerId(answer.getAnswerId());
+
+            answerDbEntry.setAnswerString(answer.getAnswer());
+            answerDbEntry.setAttributeId(answer.getAttributeId());
+            answerDbEntry.setAttainableValue(answer.getAttainedValue());
+            answerDbEntry.setMaxValue(answer.getMaxValue());
+
+            return answerDbEntry;
+        }
+
+        public static QuestionDbType getQuestionDbEntry(int companyId, Question question) {
+            QuestionDbType questionDbEntry = new QuestionDbType();
+            QuestionPrimaryKey qKey = new QuestionPrimaryKey();
+            questionDbEntry.setId(qKey);
+
+            qKey.setCompanyId(companyId);
+            qKey.setQuestionId(question.getQuestionId());
+
+            questionDbEntry.setParentId(question.getParentId());
+            questionDbEntry.setFunction(question.getFunction());
+            questionDbEntry.setQuestionString(question.getQuestion());
+
+            return questionDbEntry;
+        }
+
+        public static Question getQuestion(QuestionDbType questionDbEntry) {
+            Question question = new Question();
+
+            question.setFunction(questionDbEntry.getFunction());
+            question.setParentId(questionDbEntry.getParentId());
+            question.setQuestion(questionDbEntry.getQuestionString());
+            question.setQuestionId(questionDbEntry.getId().getQuestionId());
+
+            return question;
+        }
+
+        public static Answer getAnswer(AnswerDbType answerDbEntry) {
+            Answer answer = new Answer();
+
+            answer.setAnswer(answerDbEntry.getAnswerString());
+            answer.setAnswerId(answerDbEntry.getId().getAnswerId());
+            answer.setAttainedValue(answerDbEntry.getAttainableValue());
+            answer.setMaxValue(answerDbEntry.getMaxValue());
+            answer.setAttributeId(answerDbEntry.getAttributeId());
+
+            return answer;
+        }
+
+    }
 }

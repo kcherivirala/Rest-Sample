@@ -11,6 +11,7 @@ import com.fbr.Dao.Entities.QuestionPrimaryKey;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -41,6 +42,16 @@ public class QuestionDao extends ProjectDaoImpl<QuestionDbType, QuestionPrimaryK
         query.setParameter(2, questionId);
 
         return query.getResultList();
+    }
+
+    public int getMaxAttributeIdValue(int companyId) {
+        Query q = entityManager.createQuery("select max(e.id.questionId) from " + entityClass.getName() + " e where e.id.companyId = ?1");
+        q.setParameter(1, companyId);
+        List x = q.getResultList();
+        if (x.get(0) != null) {
+            return ((Number) x.get(0)).intValue();
+        }
+        return -1;
     }
 }
 

@@ -34,7 +34,8 @@ public class AttributeService {
 
     @Transactional
     public Attribute addAttributeAndValues(Attribute attribute) {
-        AttributeDbType attributeDbEntry = getAttributeDbEntry(attribute);
+        int id = attributeDao.getMaxAttributeIdValue() + 1;
+        AttributeDbType attributeDbEntry = Conversions.getAttributeDbEntry(id, attribute);
         attributeDao.add(attributeDbEntry);
 
         for (AttributeValue attributeValue : attribute.getAttributeValues()) {
@@ -50,7 +51,7 @@ public class AttributeService {
         List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attributeId);
 
         updateAttributeDbEntry(dbEntry, attribute);
-        updateAttributeValues(dbEntry.getAttributeId(), attributeValuesDbEntries, attribute);
+        updateAttributeValues(dbEntry.getAttributeId(), attributeValuesDbEntries, attribute.getAttributeValues());
         return attribute;
     }
 
@@ -74,72 +75,18 @@ public class AttributeService {
         return matchAttributeAndValues(attributeDbEntry, attributeValuesDbEntries);
     }
 
-
-
-
     public List<Attribute> getAttributesByCompany(int companyId) {
-        List<AttributeDbType> attributeList = getDbAttributesByCompany(companyId);
-        List<AttributeValuesDbType> attributeValuesList = getDbAttributeValuesByCompany(companyId);
+        List<AttributeDbType> attributeList = attributeDao.getAttributesByCompany(companyId);
+        List<AttributeValuesDbType> attributeValuesList = attributeValuesDao.getAttributeValuesByCompany(companyId);
 
         return matchAttributesAndValues(attributeList, attributeValuesList);
     }
 
-    public List<AttributeDbType> getDbAttributesByCompany(int companyId) {
+    public List<AttributeDbType> getDbAttributesByCompany(int companyId){
         return attributeDao.getAttributesByCompany(companyId);
     }
 
-    public List<AttributeValuesDbType> getDbAttributeValuesByCompany(int companyId) {
-        return attributeValuesDao.getAttributeValuesByCompany(companyId);
-    }
-
-
-
-    private Attribute getAttribute(AttributeDbType attributeDbEntry) {
-        Attribute attribute = new Attribute();
-        attribute.setAttributeId(attributeDbEntry.getAttributeId());
-        attribute.setAttributeString(attributeDbEntry.getAttributeString());
-        attribute.setParentId(attributeDbEntry.getParentId());
-        attribute.setType(attributeDbEntry.getType());
-
-        return attribute;
-    }
-
-    private AttributeValue getAttributeValue(AttributeValuesDbType attributeValuesDbEntry) {
-        AttributeValue attributeValue = new AttributeValue();
-
-        attributeValue.setMaxValue(attributeValuesDbEntry.getMaxValue());
-        attributeValue.setName(attributeValuesDbEntry.getName());
-        attributeValue.setValue(attributeValuesDbEntry.getId().getValue());
-
-        return attributeValue;
-    }
-
-    private AttributeDbType getAttributeDbEntry(Attribute attribute) {
-        AttributeDbType attributeDbEntry = new AttributeDbType();
-        int Id = attributeDao.getMaxAttributeIdValue() + 1;
-        attributeDbEntry.setAttributeId(Id);
-        attributeDbEntry.setAttributeString(attribute.getAttributeString());
-        attributeDbEntry.setParentId(attribute.getParentId());
-        attributeDbEntry.setType(attribute.getType());
-
-        return attributeDbEntry;
-    }
-
-    private AttributeValuesDbType getAttributeValueDbEntry(int attributeId, AttributeValue attributeValue) {
-        AttributeValuesDbType attributeValuesDbEntry = new AttributeValuesDbType();
-        AttributeValuesPrimaryKey id = new AttributeValuesPrimaryKey();
-        attributeValuesDbEntry.setId(id);
-
-        id.setAttributeId(attributeId);
-        id.setValue(attributeValue.getValue());
-
-        attributeValuesDbEntry.setMaxValue(attributeValue.getMaxValue());
-        attributeValuesDbEntry.setName(attributeValue.getName());
-
-        return attributeValuesDbEntry;
-    }
-
-
+    /*          Private functions           */
 
     private void updateAttributeDbEntry(AttributeDbType attributeDbEntry, Attribute attribute) {
         attributeDbEntry.setAttributeString(attribute.getAttributeString());
@@ -164,10 +111,8 @@ public class AttributeService {
             attributeValuesDao.update(attributeValueDbEntry);
     }
 
-
-
     private void addAttributeValueDbEntry(int attributeId, AttributeValue attributeValue){
-        AttributeValuesDbType attributeValuesDbEntry = getAttributeValueDbEntry(attributeId, attributeValue);
+        AttributeValuesDbType attributeValuesDbEntry = Conversions.getAttributeValueDbEntry(attributeId, attributeValue);
         attributeValuesDao.add(attributeValuesDbEntry);
     }
 
@@ -175,8 +120,7 @@ public class AttributeService {
         attributeValuesDao.delete(attributeValuesDbEntry);
     }
 
-    private void updateAttributeValues(int attributeId, List<AttributeValuesDbType> attributeValuesDbEntries, Attribute attribute) {
-        List<AttributeValue> inputValues = attribute.getAttributeValues();
+    private void updateAttributeValues(int attributeId, List<AttributeValuesDbType> attributeValuesDbEntries, List<AttributeValue> inputValues) {
         Collections.sort(attributeValuesDbEntries, COMPARE_ATTRIBUTE_VALUES);
         Collections.sort(inputValues, COMPARE_DOMAIN_ATTRIBUTE_VALUES);
 
@@ -224,12 +168,12 @@ public class AttributeService {
             AttributeDbType attributeDbEntry = attributeList.get(aIndex);
             int attributeId = attributeDbEntry.getAttributeId();
 
-            Attribute outAttribute = getAttribute(attributeDbEntry);
+            Attribute outAttribute = Conversions.getAttribute(attributeDbEntry);
             List<AttributeValue> valueList = new ArrayList<AttributeValue>();
             outAttribute.setAttributeValues(valueList);
 
             while (vIndex < attributeValuesList.size() && attributeId == attributeValuesList.get(vIndex).getId().getAttributeId()) {
-                AttributeValue attributeValue = getAttributeValue(attributeValuesList.get(vIndex));
+                AttributeValue attributeValue = Conversions.getAttributeValue(attributeValuesList.get(vIndex));
                 valueList.add(attributeValue);
                 vIndex++;
             }
@@ -264,4 +208,51 @@ public class AttributeService {
             return first.getValue() - second.getValue();
         }
     };
+
+    static class Conversions{
+        public static Attribute getAttribute(AttributeDbType attributeDbEntry) {
+            Attribute attribute = new Attribute();
+            attribute.setAttributeId(attributeDbEntry.getAttributeId());
+            attribute.setAttributeString(attributeDbEntry.getAttributeString());
+            attribute.setParentId(attributeDbEntry.getParentId());
+            attribute.setType(attributeDbEntry.getType());
+
+            return attribute;
+        }
+
+        public static AttributeValue getAttributeValue(AttributeValuesDbType attributeValuesDbEntry) {
+            AttributeValue attributeValue = new AttributeValue();
+
+            attributeValue.setMaxValue(attributeValuesDbEntry.getMaxValue());
+            attributeValue.setName(attributeValuesDbEntry.getName());
+            attributeValue.setValue(attributeValuesDbEntry.getId().getValue());
+
+            return attributeValue;
+        }
+
+        public static AttributeDbType getAttributeDbEntry(int attributeId, Attribute attribute) {
+            AttributeDbType attributeDbEntry = new AttributeDbType();
+            attributeDbEntry.setAttributeId(attributeId);
+            attributeDbEntry.setAttributeString(attribute.getAttributeString());
+            attributeDbEntry.setParentId(attribute.getParentId());
+            attributeDbEntry.setType(attribute.getType());
+
+            return attributeDbEntry;
+        }
+
+        public static AttributeValuesDbType getAttributeValueDbEntry(int attributeId, AttributeValue attributeValue) {
+            AttributeValuesDbType attributeValuesDbEntry = new AttributeValuesDbType();
+            AttributeValuesPrimaryKey id = new AttributeValuesPrimaryKey();
+            attributeValuesDbEntry.setId(id);
+
+            id.setAttributeId(attributeId);
+            id.setValue(attributeValue.getValue());
+
+            attributeValuesDbEntry.setMaxValue(attributeValue.getMaxValue());
+            attributeValuesDbEntry.setName(attributeValue.getName());
+
+            return attributeValuesDbEntry;
+        }
+    }
+
 }

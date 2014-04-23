@@ -44,7 +44,7 @@ public class AnswerDao extends ProjectDaoImpl<AnswerDbType, AnswerPrimaryKey> {
     }
 
     @Transactional
-    public void deleteAnswersOfQuestion(String companyId, int questionId) {
+    public void deleteAnswersOfQuestion(int companyId, int questionId) {
 
     }
 }
