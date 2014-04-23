@@ -13,13 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository("trendFiltersDao")
 public class TrendFiltersDao extends ProjectDaoImpl<TrendFiltersDbType, TrendFiltersPrimaryKey> {
-public TrendFiltersDao() {
+    public TrendFiltersDao() {
         this.entityClass = TrendFiltersDbType.class;
-}
+    }
 
-@Override
-@Transactional
-public void add(TrendFiltersDbType entity) {
+    @Override
+    @Transactional
+    public void add(TrendFiltersDbType entity) {
         super.add(entity);
+    }
 }
-        }

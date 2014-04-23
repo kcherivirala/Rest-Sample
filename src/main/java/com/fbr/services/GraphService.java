@@ -6,5 +6,8 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
+import org.springframework.stereotype.Service;
+
+@Service("graphService")
 public class GraphService {
 }

@@ -73,7 +73,7 @@ public class QuestionService {
     }
 
     @Transactional
-    public void deleteQuestionAndAnswers(int companyId, int questionId){
+    public void deleteQuestionAndAnswers(int companyId, int questionId) {
         QuestionPrimaryKey key = new QuestionPrimaryKey();
         key.setCompanyId(companyId);
         key.setQuestionId(questionId);

@@ -11,7 +11,6 @@ import com.fbr.Dao.AttributeValuesDao;
 import com.fbr.Dao.Entities.AttributeDbType;
 import com.fbr.Dao.Entities.AttributeValuesDbType;
 import com.fbr.Dao.Entities.AttributeValuesPrimaryKey;
-import com.fbr.domain.Answer;
 import com.fbr.domain.Attribute;
 import com.fbr.domain.AttributeValue;
 import org.apache.log4j.Logger;
@@ -82,7 +81,7 @@ public class AttributeService {
         return matchAttributesAndValues(attributeList, attributeValuesList);
     }
 
-    public List<AttributeDbType> getDbAttributesByCompany(int companyId){
+    public List<AttributeDbType> getDbAttributesByCompany(int companyId) {
         return attributeDao.getAttributesByCompany(companyId);
     }
 
@@ -96,14 +95,14 @@ public class AttributeService {
         attributeDao.update(attributeDbEntry);
     }
 
-    private void updateAttributeValueDbEntry(AttributeValuesDbType attributeValueDbEntry, AttributeValue attributeValue){
+    private void updateAttributeValueDbEntry(AttributeValuesDbType attributeValueDbEntry, AttributeValue attributeValue) {
         boolean updated = false;
-        if(attributeValueDbEntry.getMaxValue()!=attributeValue.getMaxValue()){
+        if (attributeValueDbEntry.getMaxValue() != attributeValue.getMaxValue()) {
             attributeValueDbEntry.setMaxValue(attributeValue.getMaxValue());
             updated = true;
         }
 
-        if(!attributeValueDbEntry.getName().equals(attributeValue.getName())){
+        if (!attributeValueDbEntry.getName().equals(attributeValue.getName())) {
             attributeValueDbEntry.setName(attributeValue.getName());
             updated = true;
         }
@@ -111,12 +110,12 @@ public class AttributeService {
             attributeValuesDao.update(attributeValueDbEntry);
     }
 
-    private void addAttributeValueDbEntry(int attributeId, AttributeValue attributeValue){
+    private void addAttributeValueDbEntry(int attributeId, AttributeValue attributeValue) {
         AttributeValuesDbType attributeValuesDbEntry = Conversions.getAttributeValueDbEntry(attributeId, attributeValue);
         attributeValuesDao.add(attributeValuesDbEntry);
     }
 
-    private void deleteAttributeValueDbEntry(AttributeValuesDbType attributeValuesDbEntry){
+    private void deleteAttributeValueDbEntry(AttributeValuesDbType attributeValuesDbEntry) {
         attributeValuesDao.delete(attributeValuesDbEntry);
     }
 
@@ -152,7 +151,7 @@ public class AttributeService {
 
     }
 
-    private Attribute matchAttributeAndValues(AttributeDbType attributeDbEntry, List<AttributeValuesDbType> attributeValuesList){
+    private Attribute matchAttributeAndValues(AttributeDbType attributeDbEntry, List<AttributeValuesDbType> attributeValuesList) {
         List<AttributeDbType> list = new ArrayList<AttributeDbType>(1);
         list.add(attributeDbEntry);
         return matchAttributesAndValues(list, attributeValuesList).get(0);
@@ -209,7 +208,7 @@ public class AttributeService {
         }
     };
 
-    static class Conversions{
+    static class Conversions {
         public static Attribute getAttribute(AttributeDbType attributeDbEntry) {
             Attribute attribute = new Attribute();
             attribute.setAttributeId(attributeDbEntry.getAttributeId());

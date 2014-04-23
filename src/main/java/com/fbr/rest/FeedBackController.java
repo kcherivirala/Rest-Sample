@@ -2,7 +2,6 @@ package com.fbr.rest;
 
 import com.fbr.domain.Attribute;
 import com.fbr.domain.Question;
-import com.fbr.domain.QuestionList;
 import com.fbr.domain.ResponseList;
 import com.fbr.services.AttributeService;
 import com.fbr.services.QuestionService;
@@ -103,12 +102,6 @@ public class FeedBackController {
     }
 
 
-
-
-
-
-
-
     @RequestMapping(value = {"/company/{companyId}/questions"}, method = {RequestMethod.POST})
     public ModelAndView addQuestionsAndAnswers(@PathVariable("companyId") int companyId, @RequestBody Question question,
                                                HttpServletResponse httpResponse_p, WebRequest request_p) {
@@ -175,12 +168,6 @@ public class FeedBackController {
     }
 
 
-
-
-
-
-
-
     @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/responses"}, method = {RequestMethod.POST})
     public ModelAndView addResponses(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId,
                                      @RequestBody ResponseList responseList, HttpServletResponse httpResponse_p, WebRequest request_p) {
@@ -205,11 +192,6 @@ public class FeedBackController {
             return createErrorResponse(String.format(sMessage, e.toString()));
         }
     }
-
-
-
-
-
 
 
     private ModelAndView createErrorResponse(String sMessage) {

@@ -26,20 +26,20 @@ public class AttributeValuesDao extends ProjectDaoImpl<AttributeValuesDbType, At
         super.add(entity);
     }
 
-    public List<AttributeValuesDbType>  getAttributeValuesByCompany(int companyId){
+    public List<AttributeValuesDbType> getAttributeValuesByCompany(int companyId) {
         Query q = entityManager.createQuery("select distinct a from AttributeValuesDbType  a, AnswerDbType b  where b.id.companyId = ?1 and a.id.attributeId = b.attributeId", entityClass);
         q.setParameter(1, companyId);
         return q.getResultList();
     }
 
-    public List<AttributeValuesDbType>  getAttributeValues(int attributeId){
+    public List<AttributeValuesDbType> getAttributeValues(int attributeId) {
         Query q = entityManager.createQuery("select distinct a from AttributeValuesDbType a  where a.id.attributeId= ?1 ", entityClass);
         q.setParameter(1, attributeId);
         return q.getResultList();
     }
 
     @Transactional
-    public void deleteAttributeValues(int attributeId){
+    public void deleteAttributeValues(int attributeId) {
         Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.attributId = ?1");
         q.setParameter(1, attributeId);
         q.executeUpdate();
