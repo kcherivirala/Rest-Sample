@@ -33,7 +33,7 @@ public class QuestionService {
     private QuestionDao questionDao;
 
     public Question addQuestionAndAnswers(int companyId, Question question) {
-        int questionId = questionDao.getMaxAttributeIdValue(companyId) + 1;
+        int questionId = questionDao.getMaxQuestionIdValue(companyId) + 1;
         addQuestion(companyId, questionId, question);
         for (Answer answer : question.getAnswers()) {
             addAnswer(companyId, question.getQuestionId(), answer);

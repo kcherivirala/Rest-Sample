@@ -15,6 +15,7 @@ import com.fbr.domain.AttributeAggregateInfo;
 import com.fbr.domain.AttributeTuple;
 import com.fbr.domain.BranchAggregateInfo;
 import com.fbr.domain.Response;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.*;
 
 @Service
 public class ResponseService {
+    private static final Logger logger = Logger.getLogger(ResponseService.class);
     @Autowired
     private CustomerResponseDao customerResponseDao;
     @Autowired

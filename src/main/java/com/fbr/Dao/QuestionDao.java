@@ -44,7 +44,7 @@ public class QuestionDao extends ProjectDaoImpl<QuestionDbType, QuestionPrimaryK
         return query.getResultList();
     }
 
-    public int getMaxAttributeIdValue(int companyId) {
+    public int getMaxQuestionIdValue(int companyId) {
         Query q = entityManager.createQuery("select max(e.id.questionId) from " + entityClass.getName() + " e where e.id.companyId = ?1");
         q.setParameter(1, companyId);
         List x = q.getResultList();
