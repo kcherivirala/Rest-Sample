@@ -20,12 +20,6 @@ public class AnswerDao extends ProjectDaoImpl<AnswerDbType, AnswerPrimaryKey> {
         this.entityClass = AnswerDbType.class;
     }
 
-    @Override
-    @Transactional
-    public void add(AnswerDbType entity) {
-        super.add(entity);
-    }
-
     public List<AnswerDbType> getAnswers(int companyId) {
         String hql = "select e from " + entityClass.getName() + " e where e.id.companyId = ?1";
         TypedQuery<AnswerDbType> query = entityManager.createQuery(hql, entityClass);

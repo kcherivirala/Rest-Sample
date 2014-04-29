@@ -16,10 +16,4 @@ public class TrendFiltersDao extends ProjectDaoImpl<TrendFiltersDbType, TrendFil
     public TrendFiltersDao() {
         this.entityClass = TrendFiltersDbType.class;
     }
-
-    @Override
-    @Transactional
-    public void add(TrendFiltersDbType entity) {
-        super.add(entity);
-    }
 }

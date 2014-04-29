@@ -16,10 +16,4 @@ public class CustomerResponseValuesDao extends ProjectDaoImpl<CustomerResponseVa
     public CustomerResponseValuesDao() {
         this.entityClass = CustomerResponseValuesDbType.class;
     }
-
-    @Override
-    @Transactional
-    public void add(CustomerResponseValuesDbType entity) {
-        super.add(entity);
-    }
 }

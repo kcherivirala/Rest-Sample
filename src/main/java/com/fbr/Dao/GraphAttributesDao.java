@@ -17,10 +17,4 @@ public class GraphAttributesDao extends ProjectDaoImpl<GraphAttributesDbType, Gr
     public GraphAttributesDao() {
         this.entityClass = GraphAttributesDbType.class;
     }
-
-    @Override
-    @Transactional
-    public void add(GraphAttributesDbType entity) {
-        super.add(entity);
-    }
 }

@@ -15,10 +15,4 @@ public class TrendsDao extends ProjectDaoImpl<TrendDbType, String> {
     public TrendsDao() {
         this.entityClass = TrendDbType.class;
     }
-
-    @Override
-    @Transactional
-    public void add(TrendDbType entity) {
-        super.add(entity);
-    }
 }

@@ -16,10 +16,4 @@ public class GraphFiltersDao extends ProjectDaoImpl<GraphFiltersDbType, GraphFil
     public GraphFiltersDao() {
         this.entityClass = GraphFiltersDbType.class;
     }
-
-    @Override
-    @Transactional
-    public void add(GraphFiltersDbType entity) {
-        super.add(entity);
-    }
 }

@@ -15,11 +15,5 @@ public class AlertDao extends ProjectDaoImpl<AlertDbType, String> {
     public AlertDao() {
         this.entityClass = AlertDbType.class;
     }
-
-    @Override
-    @Transactional
-    public void add(AlertDbType entity) {
-        super.add(entity);
-    }
 }
 

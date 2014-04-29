@@ -18,10 +18,4 @@ public class GraphsDao extends ProjectDaoImpl<GraphDbType, String> {
     public GraphsDao() {
         this.entityClass = GraphDbType.class;
     }
-
-    @Override
-    @Transactional
-    public void add(GraphDbType entity) {
-        super.add(entity);
-    }
 }

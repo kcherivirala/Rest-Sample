@@ -19,12 +19,6 @@ public class CustomerDao extends ProjectDaoImpl<CustomerDbType, String> {
         this.entityClass = CustomerDbType.class;
     }
 
-    @Override
-    @Transactional
-    public void add(CustomerDbType entity) {
-        super.add(entity);
-    }
-
     public CustomerDbType getCustomerWithMail(String mail) {
         String hql = "select e from " + entityClass.getName() + " e where e.mail = ?1";
         TypedQuery<CustomerDbType> query = entityManager.createQuery(hql, entityClass);

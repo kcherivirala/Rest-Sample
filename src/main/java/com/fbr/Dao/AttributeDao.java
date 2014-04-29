@@ -21,12 +21,6 @@ public class AttributeDao extends ProjectDaoImpl<AttributeDbType, Integer> {
 
     @Override
     @Transactional
-    public void add(AttributeDbType entity) {
-        super.add(entity);
-    }
-
-    @Override
-    @Transactional
     public AttributeDbType update(AttributeDbType entity) {
         return super.update(entity);
     }

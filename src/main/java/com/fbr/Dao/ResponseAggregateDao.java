@@ -20,12 +20,6 @@ public class ResponseAggregateDao extends ProjectDaoImpl<ResponseAggregateDbType
         this.entityClass = ResponseAggregateDbType.class;
     }
 
-    @Override
-    @Transactional
-    public void add(ResponseAggregateDbType entity) {
-        super.add(entity);
-    }
-
     public List<ResponseAggregateDbType> getAggregateInfo(int companyId) {
         String hql = "select e from " + entityClass.getName() + " e where e.id.companyId = ?1";
         TypedQuery<ResponseAggregateDbType> query = entityManager.createQuery(hql, entityClass);

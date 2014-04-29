@@ -20,12 +20,6 @@ public class AttributeValuesDao extends ProjectDaoImpl<AttributeValuesDbType, At
         this.entityClass = AttributeValuesDbType.class;
     }
 
-    @Override
-    @Transactional
-    public void add(AttributeValuesDbType entity) {
-        super.add(entity);
-    }
-
     public List<AttributeValuesDbType> getAttributeValuesByCompany(int companyId) {
         Query q = entityManager.createQuery("select distinct a from AttributeValuesDbType  a, AnswerDbType b  where b.id.companyId = ?1 and a.id.attributeId = b.attributeId", entityClass);
         q.setParameter(1, companyId);

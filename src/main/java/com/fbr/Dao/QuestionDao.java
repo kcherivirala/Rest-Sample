@@ -21,12 +21,6 @@ public class QuestionDao extends ProjectDaoImpl<QuestionDbType, QuestionPrimaryK
         this.entityClass = QuestionDbType.class;
     }
 
-    @Override
-    @Transactional
-    public void add(QuestionDbType entity) {
-        super.add(entity);
-    }
-
     public List<QuestionDbType> getQuestions(int companyId) {
         String hql = "select e from " + entityClass.getName() + " e where e.id.companyId = ?1";
         TypedQuery<QuestionDbType> query = entityManager.createQuery(hql, entityClass);
