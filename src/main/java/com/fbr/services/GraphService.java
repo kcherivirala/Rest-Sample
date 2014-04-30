@@ -46,9 +46,9 @@ public class GraphService {
     }
 
     @Transactional
-    public Graph updateGraph(String graphId, Graph graph){
+    public Graph updateGraph(String graphId, Graph graph) {
         GraphDbType graphDbEntry = graphsDao.find(graphId);
-        if(!graph.getName().equals(graphDbEntry.getName())){
+        if (!graph.getName().equals(graphDbEntry.getName())) {
             graphDbEntry.setName(graph.getName());
             graphsDao.update(graphDbEntry);
         }
@@ -59,7 +59,7 @@ public class GraphService {
     }
 
     @Transactional
-    public void deleteGraph(String graphId){
+    public void deleteGraph(String graphId) {
         GraphDbType graphDbEntry = graphsDao.find(graphId);
 
         graphsDao.delete(graphDbEntry);
@@ -81,7 +81,7 @@ public class GraphService {
         return matchGraphsAndAttributes(graphs, graphAttributes, graphFilters);
     }
 
-    public Graph getGraph(String graphId){
+    public Graph getGraph(String graphId) {
         GraphDbType graphDbEntry = graphsDao.find(graphId);
         List<GraphDbType> list = new ArrayList<GraphDbType>(1);
         list.add(graphDbEntry);
@@ -92,21 +92,21 @@ public class GraphService {
         return matchGraphsAndAttributes(list, graphAttributes, graphFilters).get(0);
     }
 
-    private void updateGraphAttributes(String graphId, List<Integer> attributeList){
+    private void updateGraphAttributes(String graphId, List<Integer> attributeList) {
         List<GraphAttributesDbType> graphAttributesDbEntries = graphAttributesDao.getGraphAttributes(graphId);
 
         Collections.sort(graphAttributesDbEntries, Comparators.COMPARE_GRAPH_ATTRIBUTES);
         Collections.sort(attributeList);
 
         int dbIndex = 0, inIndex = 0;
-        while(dbIndex<graphAttributesDbEntries.size() && inIndex< attributeList.size()){
+        while (dbIndex < graphAttributesDbEntries.size() && inIndex < attributeList.size()) {
             int attribute = attributeList.get(inIndex);
             GraphAttributesDbType graphAttributesDbEntry = graphAttributesDbEntries.get(dbIndex);
 
-            if(graphAttributesDbEntry.getId().getAttributeId() == attribute){
+            if (graphAttributesDbEntry.getId().getAttributeId() == attribute) {
                 dbIndex++;
                 inIndex++;
-            } else if (graphAttributesDbEntry.getId().getAttributeId() < attribute){
+            } else if (graphAttributesDbEntry.getId().getAttributeId() < attribute) {
                 graphAttributesDao.delete(graphAttributesDbEntry);
                 dbIndex++;
             } else {
@@ -115,32 +115,32 @@ public class GraphService {
                 inIndex++;
             }
         }
-        while(dbIndex<graphAttributesDbEntries.size()){
+        while (dbIndex < graphAttributesDbEntries.size()) {
             graphAttributesDao.delete(graphAttributesDbEntries.get(dbIndex));
             dbIndex++;
         }
-        while(inIndex< attributeList.size()){
+        while (inIndex < attributeList.size()) {
             graphAttributesDao.add(Conversions.getGraphAttributeDbEntry(graphId, attributeList.get(inIndex)));
             inIndex++;
         }
 
     }
 
-    private void updateGraphFilters(String graphId, List<Integer> filterList){
+    private void updateGraphFilters(String graphId, List<Integer> filterList) {
         List<GraphFiltersDbType> graphFiltersDbEntries = graphFiltersDao.getGraphFilters(graphId);
 
         Collections.sort(graphFiltersDbEntries, Comparators.COMPARE_GRAPH_FILTERS);
         Collections.sort(filterList);
 
         int dbIndex = 0, inIndex = 0;
-        while(dbIndex<graphFiltersDbEntries.size() && inIndex< filterList.size()){
+        while (dbIndex < graphFiltersDbEntries.size() && inIndex < filterList.size()) {
             int attribute = filterList.get(inIndex);
             GraphFiltersDbType graphFiltersDbEntry = graphFiltersDbEntries.get(dbIndex);
 
-            if(graphFiltersDbEntry.getId().getAttributeId() == attribute){
+            if (graphFiltersDbEntry.getId().getAttributeId() == attribute) {
                 dbIndex++;
                 inIndex++;
-            } else if (graphFiltersDbEntry.getId().getAttributeId() < attribute){
+            } else if (graphFiltersDbEntry.getId().getAttributeId() < attribute) {
                 graphFiltersDao.delete(graphFiltersDbEntry);
                 dbIndex++;
             } else {
@@ -149,11 +149,11 @@ public class GraphService {
                 inIndex++;
             }
         }
-        while(dbIndex<graphFiltersDbEntries.size()){
+        while (dbIndex < graphFiltersDbEntries.size()) {
             graphFiltersDao.delete(graphFiltersDbEntries.get(dbIndex));
             dbIndex++;
         }
-        while(inIndex< filterList.size()){
+        while (inIndex < filterList.size()) {
             graphFiltersDao.add(Conversions.getGraphFilterDbEntry(graphId, filterList.get(inIndex)));
             inIndex++;
         }

@@ -233,7 +233,7 @@ public class FeedBackController {
     public ModelAndView deleteGraph(@PathVariable("graphId") String graphId,
                                     HttpServletResponse httpResponse_p) {
         try {
-             graphService.deleteGraph(graphId);
+            graphService.deleteGraph(graphId);
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
