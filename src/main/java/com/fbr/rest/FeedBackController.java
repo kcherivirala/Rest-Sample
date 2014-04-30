@@ -1,9 +1,11 @@
 package com.fbr.rest;
 
 import com.fbr.domain.Attribute;
+import com.fbr.domain.Graph;
 import com.fbr.domain.Question;
 import com.fbr.domain.ResponseList;
 import com.fbr.services.AttributeService;
+import com.fbr.services.GraphService;
 import com.fbr.services.QuestionService;
 import com.fbr.services.ResponseService;
 import org.apache.log4j.Logger;
@@ -30,6 +32,8 @@ public class FeedBackController {
     private AttributeService attributeService;
     @Autowired
     private ResponseService responseService;
+    @Autowired
+    private GraphService graphService;
     @Autowired
     private View jsonView_i;
 
@@ -187,6 +191,71 @@ public class FeedBackController {
     public ModelAndView getAggregate(@PathVariable("companyId") int companyId) {
         try {
             return new ModelAndView(jsonView_i, DATA_FIELD, responseService.getAggregateInfo(companyId));
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+    }
+
+
+    @RequestMapping(value = {"/company/{companyId}/graphs"}, method = {RequestMethod.POST})
+    public ModelAndView addGraph(@PathVariable("companyId") int companyId, @RequestBody Graph graph,
+                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
+        Graph returnVal;
+        try {
+            returnVal = graphService.addGraph(companyId, graph);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/graph/" + returnVal.getGraphId());
+        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+    }
+
+    @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.PUT})
+    public ModelAndView updateGraph(@PathVariable("graphId") String graphId, @RequestBody Graph graph,
+                                    HttpServletResponse httpResponse_p, WebRequest request_p) {
+        Graph returnVal;
+        try {
+            returnVal = graphService.updateGraph(graphId, graph);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/graph/" + graphId);
+        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+    }
+
+    @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.DELETE})
+    public ModelAndView deleteGraph(@PathVariable("graphId") String graphId,
+                                    HttpServletResponse httpResponse_p) {
+        try {
+             graphService.deleteGraph(graphId);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+        httpResponse_p.setStatus(HttpStatus.OK.value());
+        return new ModelAndView(jsonView_i, DATA_FIELD, null);
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/graphs"}, method = {RequestMethod.GET})
+    public ModelAndView getGraphs(@PathVariable("companyId") int companyId) {
+        try {
+            return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getGraphs(companyId));
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+    }
+
+    @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.GET})
+    public ModelAndView getGraph(@PathVariable("graphId") String graphId) {
+        try {
+            return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getGraph(graphId));
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));

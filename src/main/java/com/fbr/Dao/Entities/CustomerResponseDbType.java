@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(name = "customer_response")
+@Table(name = "customer_responses")
 public class CustomerResponseDbType implements ProjectEntity<String> {
 
     @Column(name = "response_id", nullable = false)

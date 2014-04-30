@@ -8,7 +8,6 @@ package com.fbr.Dao;
 
 import com.fbr.Dao.Entities.AlertDbType;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository("alertDao")
 public class AlertDao extends ProjectDaoImpl<AlertDbType, String> {

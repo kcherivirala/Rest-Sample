@@ -9,7 +9,6 @@ package com.fbr.Dao;
 import com.fbr.Dao.Entities.TrendAttributesDbType;
 import com.fbr.Dao.Entities.TrendAttributesPrimaryKey;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository("trendAttributesDao")
 public class TrendAttributesDao extends ProjectDaoImpl<TrendAttributesDbType, TrendAttributesPrimaryKey> {

@@ -8,7 +8,6 @@ package com.fbr.Dao;
 
 import com.fbr.Dao.Entities.TrendDbType;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository("trendsDao")
 public class TrendsDao extends ProjectDaoImpl<TrendDbType, String> {

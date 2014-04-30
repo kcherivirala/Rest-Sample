@@ -9,9 +9,18 @@ package com.fbr.domain;
 import java.util.List;
 
 public class Graph {
+    String graphId;
     String name;
     List<Integer> attributeList;
     List<Integer> filterList;
+
+    public String getGraphId() {
+        return graphId;
+    }
+
+    public void setGraphId(String graphId) {
+        this.graphId = graphId;
+    }
 
     public String getName() {
         return name;

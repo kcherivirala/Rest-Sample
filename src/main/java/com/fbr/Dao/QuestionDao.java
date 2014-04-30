@@ -9,7 +9,6 @@ package com.fbr.Dao;
 import com.fbr.Dao.Entities.QuestionDbType;
 import com.fbr.Dao.Entities.QuestionPrimaryKey;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;

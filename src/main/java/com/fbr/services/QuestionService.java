@@ -86,8 +86,8 @@ public class QuestionService {
     }
 
     private void updateAnswers(int companyId, int questionId, List<AnswerDbType> answerDbEntries, List<Answer> inputAnswers) {
-        Collections.sort(answerDbEntries, COMPARE_DB_ANSWERS);
-        Collections.sort(inputAnswers, COMPARE_DOMAIN_ANSWERS);
+        Collections.sort(answerDbEntries, Comparators.COMPARE_DB_ANSWERS);
+        Collections.sort(inputAnswers, Comparators.COMPARE_DOMAIN_ANSWERS);
 
         int dbIndex = 0, inputIndex = 0;
         while (dbIndex < answerDbEntries.size() && inputIndex < inputAnswers.size()) {
@@ -119,8 +119,8 @@ public class QuestionService {
     private List<Question> matchQuestionAndAnswers(List<QuestionDbType> questionDbEntries, List<AnswerDbType> answerDbEntries) {
         List<Question> questionList = new ArrayList<Question>(questionDbEntries.size());
 
-        Collections.sort(questionDbEntries, COMPARE_DB_QUESTIONS);
-        Collections.sort(answerDbEntries, COMPARE_DB_ANSWERS);
+        Collections.sort(questionDbEntries, Comparators.COMPARE_DB_QUESTIONS);
+        Collections.sort(answerDbEntries, Comparators.COMPARE_DB_ANSWERS);
 
         int qIndex = 0, aIndex = 0;
         while (qIndex < questionDbEntries.size()) {
@@ -143,9 +143,9 @@ public class QuestionService {
 
     private void addQuestion(int companyId, int questionId, Question inputQuestion) {
         QuestionDbType questionDbEntry = Conversions.getQuestionDbEntry(companyId, questionId, inputQuestion);
-        try{
-        questionDao.add(questionDbEntry);
-        }catch (Exception e){
+        try {
+            questionDao.add(questionDbEntry);
+        } catch (Exception e) {
             logger.error("");
         }
 
@@ -203,30 +203,7 @@ public class QuestionService {
         answerDao.add(answerDbEntry);
     }
 
-    private static Comparator<AnswerDbType> COMPARE_DB_ANSWERS = new Comparator<AnswerDbType>() {
-        @Override
-        public int compare(AnswerDbType first, AnswerDbType second) {
-            if (first.getId().getQuestionId() == second.getId().getQuestionId())
-                return first.getId().getAnswerId() - second.getId().getAnswerId();
-            return first.getId().getQuestionId() - second.getId().getQuestionId();
-        }
-    };
-
-    private static Comparator<Answer> COMPARE_DOMAIN_ANSWERS = new Comparator<Answer>() {
-        @Override
-        public int compare(Answer first, Answer second) {
-            return first.getAnswerId() - second.getAnswerId();
-        }
-    };
-
-    private static Comparator<QuestionDbType> COMPARE_DB_QUESTIONS = new Comparator<QuestionDbType>() {
-        @Override
-        public int compare(QuestionDbType first, QuestionDbType second) {
-            return first.getId().getQuestionId() - second.getId().getQuestionId();
-        }
-    };
-
-    static class Conversions {
+    private static class Conversions {
         public static AnswerDbType getAnswerDbEntry(int companyId, int questionId, Answer answer) {
             AnswerDbType answerDbEntry = new AnswerDbType();
             AnswerPrimaryKey aKey = new AnswerPrimaryKey();
@@ -282,5 +259,30 @@ public class QuestionService {
             return answer;
         }
 
+    }
+
+    private static class Comparators {
+        private static Comparator<AnswerDbType> COMPARE_DB_ANSWERS = new Comparator<AnswerDbType>() {
+            @Override
+            public int compare(AnswerDbType first, AnswerDbType second) {
+                if (first.getId().getQuestionId() == second.getId().getQuestionId())
+                    return first.getId().getAnswerId() - second.getId().getAnswerId();
+                return first.getId().getQuestionId() - second.getId().getQuestionId();
+            }
+        };
+
+        private static Comparator<Answer> COMPARE_DOMAIN_ANSWERS = new Comparator<Answer>() {
+            @Override
+            public int compare(Answer first, Answer second) {
+                return first.getAnswerId() - second.getAnswerId();
+            }
+        };
+
+        private static Comparator<QuestionDbType> COMPARE_DB_QUESTIONS = new Comparator<QuestionDbType>() {
+            @Override
+            public int compare(QuestionDbType first, QuestionDbType second) {
+                return first.getId().getQuestionId() - second.getId().getQuestionId();
+            }
+        };
     }
 }

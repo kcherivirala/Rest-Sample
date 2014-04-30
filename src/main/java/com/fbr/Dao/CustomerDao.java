@@ -8,7 +8,6 @@ package com.fbr.Dao;
 
 import com.fbr.Dao.Entities.CustomerDbType;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 import java.util.List;

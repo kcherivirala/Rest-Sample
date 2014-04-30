@@ -19,7 +19,7 @@ public class StatisticsService {
     private CustomerResponseDao customerResponseDao;
 
     @PostConstruct
-    void preProcessInfo(){
+    void preProcessInfo() {
         List<CustomerResponseDao.CustomerResponse> listResponse = customerResponseDao.getResponses();
     }
 }

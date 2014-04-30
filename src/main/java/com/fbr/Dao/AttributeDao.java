@@ -19,12 +19,6 @@ public class AttributeDao extends ProjectDaoImpl<AttributeDbType, Integer> {
         this.entityClass = AttributeDbType.class;
     }
 
-    @Override
-    @Transactional
-    public AttributeDbType update(AttributeDbType entity) {
-        return super.update(entity);
-    }
-
     @Transactional
     public void delete(Integer attrId) {
         AttributeDbType entity = find(attrId);

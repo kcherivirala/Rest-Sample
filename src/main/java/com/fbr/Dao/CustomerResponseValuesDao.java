@@ -9,7 +9,6 @@ package com.fbr.Dao;
 import com.fbr.Dao.Entities.CustomerResponseValuesDbType;
 import com.fbr.Dao.Entities.CustomerResponseValuesPrimaryKey;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository("customerResponseValuesDao")
 public class CustomerResponseValuesDao extends ProjectDaoImpl<CustomerResponseValuesDbType, CustomerResponseValuesPrimaryKey> {

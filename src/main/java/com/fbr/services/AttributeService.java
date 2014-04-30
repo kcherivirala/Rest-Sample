@@ -120,8 +120,8 @@ public class AttributeService {
     }
 
     private void updateAttributeValues(int attributeId, List<AttributeValuesDbType> attributeValuesDbEntries, List<AttributeValue> inputValues) {
-        Collections.sort(attributeValuesDbEntries, COMPARE_ATTRIBUTE_VALUES);
-        Collections.sort(inputValues, COMPARE_DOMAIN_ATTRIBUTE_VALUES);
+        Collections.sort(attributeValuesDbEntries, Comparators.COMPARE_ATTRIBUTE_VALUES);
+        Collections.sort(inputValues, Comparators.COMPARE_DOMAIN_ATTRIBUTE_VALUES);
 
         int dbIndex = 0, inputIndex = 0;
         while (dbIndex < attributeValuesDbEntries.size() && inputIndex < inputValues.size()) {
@@ -159,8 +159,8 @@ public class AttributeService {
 
     private List<Attribute> matchAttributesAndValues(List<AttributeDbType> attributeList, List<AttributeValuesDbType> attributeValuesList) {
         List<Attribute> out = new ArrayList<Attribute>();
-        Collections.sort(attributeList, COMPARE_ATTRIBUTES);
-        Collections.sort(attributeValuesList, COMPARE_ATTRIBUTE_VALUES);
+        Collections.sort(attributeList, Comparators.COMPARE_ATTRIBUTES);
+        Collections.sort(attributeValuesList, Comparators.COMPARE_ATTRIBUTE_VALUES);
 
         int aIndex = 0, vIndex = 0;
         while (aIndex < attributeList.size()) {
@@ -183,32 +183,7 @@ public class AttributeService {
         return out;
     }
 
-
-    private static Comparator<AttributeDbType> COMPARE_ATTRIBUTES = new Comparator<AttributeDbType>() {
-        @Override
-        public int compare(AttributeDbType first, AttributeDbType second) {
-            return first.getAttributeId() - second.getAttributeId();
-        }
-    };
-
-    private static Comparator<AttributeValuesDbType> COMPARE_ATTRIBUTE_VALUES = new Comparator<AttributeValuesDbType>() {
-        @Override
-        public int compare(AttributeValuesDbType first, AttributeValuesDbType second) {
-            if (first.getId().getAttributeId() == second.getId().getAttributeId())
-                return first.getId().getValue() - second.getId().getValue();
-            else
-                return first.getId().getAttributeId() - second.getId().getAttributeId();
-        }
-    };
-
-    private static Comparator<AttributeValue> COMPARE_DOMAIN_ATTRIBUTE_VALUES = new Comparator<AttributeValue>() {
-        @Override
-        public int compare(AttributeValue first, AttributeValue second) {
-            return first.getValue() - second.getValue();
-        }
-    };
-
-    static class Conversions {
+    private static class Conversions {
         public static Attribute getAttribute(AttributeDbType attributeDbEntry) {
             Attribute attribute = new Attribute();
             attribute.setAttributeId(attributeDbEntry.getAttributeId());
@@ -254,4 +229,29 @@ public class AttributeService {
         }
     }
 
+    private static class Comparators {
+        private static Comparator<AttributeDbType> COMPARE_ATTRIBUTES = new Comparator<AttributeDbType>() {
+            @Override
+            public int compare(AttributeDbType first, AttributeDbType second) {
+                return first.getAttributeId() - second.getAttributeId();
+            }
+        };
+
+        private static Comparator<AttributeValuesDbType> COMPARE_ATTRIBUTE_VALUES = new Comparator<AttributeValuesDbType>() {
+            @Override
+            public int compare(AttributeValuesDbType first, AttributeValuesDbType second) {
+                if (first.getId().getAttributeId() == second.getId().getAttributeId())
+                    return first.getId().getValue() - second.getId().getValue();
+                else
+                    return first.getId().getAttributeId() - second.getId().getAttributeId();
+            }
+        };
+
+        private static Comparator<AttributeValue> COMPARE_DOMAIN_ATTRIBUTE_VALUES = new Comparator<AttributeValue>() {
+            @Override
+            public int compare(AttributeValue first, AttributeValue second) {
+                return first.getValue() - second.getValue();
+            }
+        };
+    }
 }
