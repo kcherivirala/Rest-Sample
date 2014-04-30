@@ -1,13 +1,7 @@
 package com.fbr.rest;
 
-import com.fbr.domain.Attribute;
-import com.fbr.domain.Graph;
-import com.fbr.domain.Question;
-import com.fbr.domain.ResponseList;
-import com.fbr.services.AttributeService;
-import com.fbr.services.GraphService;
-import com.fbr.services.QuestionService;
-import com.fbr.services.ResponseService;
+import com.fbr.domain.*;
+import com.fbr.services.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +28,8 @@ public class FeedBackController {
     private ResponseService responseService;
     @Autowired
     private GraphService graphService;
+    @Autowired
+    private TrendService trendService;
     @Autowired
     private View jsonView_i;
 
@@ -256,6 +252,71 @@ public class FeedBackController {
     public ModelAndView getGraph(@PathVariable("graphId") String graphId) {
         try {
             return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getGraph(graphId));
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+    }
+
+
+    @RequestMapping(value = {"/company/{companyId}/trends"}, method = {RequestMethod.POST})
+    public ModelAndView addTrend(@PathVariable("companyId") int companyId, @RequestBody Trend trend,
+                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
+        Trend returnVal;
+        try {
+            returnVal = trendService.addTrend(companyId, trend);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/trend/" + returnVal.getTrendId());
+        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+    }
+
+    @RequestMapping(value = {"/trend/{trendId}"}, method = {RequestMethod.PUT})
+    public ModelAndView updateTrend(@PathVariable("trendId") String trendId, @RequestBody Trend trend,
+                                    HttpServletResponse httpResponse_p, WebRequest request_p) {
+        Trend returnVal;
+        try {
+            returnVal = trendService.updateTrend(trendId, trend);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/trend/" + trendId);
+        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+    }
+
+    @RequestMapping(value = {"/trend/{trendId}"}, method = {RequestMethod.DELETE})
+    public ModelAndView deleteTrend(@PathVariable("trendId") String trendId,
+                                    HttpServletResponse httpResponse_p) {
+        try {
+            trendService.deleteTrend(trendId);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+        httpResponse_p.setStatus(HttpStatus.OK.value());
+        return new ModelAndView(jsonView_i, DATA_FIELD, null);
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/trends"}, method = {RequestMethod.GET})
+    public ModelAndView getTrends(@PathVariable("companyId") int companyId) {
+        try {
+            return new ModelAndView(jsonView_i, DATA_FIELD, trendService.getTrends(companyId));
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+    }
+
+    @RequestMapping(value = {"/trend/{trendId}"}, method = {RequestMethod.GET})
+    public ModelAndView getTrend(@PathVariable("trendId") String trendId) {
+        try {
+            return new ModelAndView(jsonView_i, DATA_FIELD, trendService.getTrend(trendId));
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));

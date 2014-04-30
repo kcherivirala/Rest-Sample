@@ -18,6 +18,8 @@ public class TrendDbType implements ProjectEntity<String> {
     String trendId;
     @Column(name = "company_id", nullable = false)
     int companyId;
+    @Column(name = "name", nullable = false)
+    String name;
 
     public String getTrendId() {
         return trendId;
@@ -33,6 +35,14 @@ public class TrendDbType implements ProjectEntity<String> {
 
     public void setCompanyId(int companyId) {
         this.companyId = companyId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

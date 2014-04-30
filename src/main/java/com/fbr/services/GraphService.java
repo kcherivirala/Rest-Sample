@@ -7,7 +7,9 @@ package com.fbr.services;
  */
 
 import com.fbr.Dao.Entities.*;
-import com.fbr.Dao.*;
+import com.fbr.Dao.GraphAttributesDao;
+import com.fbr.Dao.GraphFiltersDao;
+import com.fbr.Dao.GraphsDao;
 import com.fbr.domain.Graph;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +27,6 @@ public class GraphService {
     private GraphFiltersDao graphFiltersDao;
     @Autowired
     private GraphAttributesDao graphAttributesDao;
-    @Autowired
-    private TrendsDao trendsDao;
-    @Autowired
-    private TrendFiltersDao trendFiltersDao;
-    @Autowired
-    private TrendAttributesDao trendAttributesDao;
 
     @Transactional
     public Graph addGraph(int companyId, Graph graph) {
@@ -69,6 +65,10 @@ public class GraphService {
 
     public List<Graph> getGraphs(int companyId) {
         List<GraphDbType> graphs = graphsDao.getGraphs(companyId);
+
+        if (graphs.size() == 0) {
+            return null;
+        }
 
         List<String> graphIds = new ArrayList<String>(graphs.size());
         for (GraphDbType graph : graphs) {

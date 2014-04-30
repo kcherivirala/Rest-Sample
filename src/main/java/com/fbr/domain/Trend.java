@@ -10,8 +10,17 @@ import java.util.List;
 
 public class Trend {
     String name;
+    String trendId;
     List<Integer> attributeList;
     List<Integer> filterList;
+
+    public String getTrendId() {
+        return trendId;
+    }
+
+    public void setTrendId(String trendId) {
+        this.trendId = trendId;
+    }
 
     public String getName() {
         return name;
