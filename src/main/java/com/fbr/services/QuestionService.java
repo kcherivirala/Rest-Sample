@@ -6,14 +6,14 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.AnswerDao;
-import com.fbr.Dao.Entities.AnswerDbType;
-import com.fbr.Dao.Entities.AnswerPrimaryKey;
-import com.fbr.Dao.Entities.QuestionDbType;
-import com.fbr.Dao.Entities.QuestionPrimaryKey;
-import com.fbr.Dao.QuestionDao;
-import com.fbr.domain.Answer;
-import com.fbr.domain.Question;
+import com.fbr.Dao.Question.AnswerDao;
+import com.fbr.Dao.Question.Entities.AnswerDbType;
+import com.fbr.Dao.Question.Entities.AnswerPrimaryKey;
+import com.fbr.Dao.Question.Entities.QuestionDbType;
+import com.fbr.Dao.Question.Entities.QuestionPrimaryKey;
+import com.fbr.Dao.Question.QuestionDao;
+import com.fbr.domain.Question.Answer;
+import com.fbr.domain.Question.Question;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

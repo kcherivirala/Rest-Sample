@@ -6,15 +6,17 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.CustomerDao;
-import com.fbr.Dao.CustomerResponseDao;
-import com.fbr.Dao.CustomerResponseValuesDao;
-import com.fbr.Dao.Entities.*;
-import com.fbr.Dao.ResponseAggregateDao;
+import com.fbr.Dao.Attribute.Entities.AttributeDbType;
+import com.fbr.Dao.*;
+import com.fbr.Dao.Response.CustomerResponseDao;
+import com.fbr.Dao.Response.CustomerResponseValuesDao;
+import com.fbr.Dao.Response.Entities.CustomerResponseDbType;
+import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
+import com.fbr.Dao.Response.Entities.CustomerResponseValuesPrimaryKey;
 import com.fbr.domain.AttributeAggregateInfo;
-import com.fbr.domain.AttributeTuple;
 import com.fbr.domain.BranchAggregateInfo;
-import com.fbr.domain.Response;
+import com.fbr.domain.Response.AttributeTuple;
+import com.fbr.domain.Response.Response;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

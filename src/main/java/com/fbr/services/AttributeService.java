@@ -6,13 +6,13 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.AttributeDao;
-import com.fbr.Dao.AttributeValuesDao;
-import com.fbr.Dao.Entities.AttributeDbType;
-import com.fbr.Dao.Entities.AttributeValuesDbType;
-import com.fbr.Dao.Entities.AttributeValuesPrimaryKey;
-import com.fbr.domain.Attribute;
-import com.fbr.domain.AttributeValue;
+import com.fbr.Dao.Attribute.AttributeDao;
+import com.fbr.Dao.Attribute.AttributeValuesDao;
+import com.fbr.Dao.Attribute.Entities.AttributeDbType;
+import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
+import com.fbr.Dao.Attribute.Entities.AttributeValuesPrimaryKey;
+import com.fbr.domain.Attribute.Attribute;
+import com.fbr.domain.Attribute.AttributeValue;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -4,12 +4,12 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
     <persistence-unit name="project">
-        <class>com.fbr.Dao.Entities.QuestionDbType</class>
-        <class>com.fbr.Dao.Entities.AnswerDbType</class>
-        <class>com.fbr.Dao.Entities.AttributeDbType</class>
-        <class>com.fbr.Dao.Entities.AlertDbType</class>
-        <class>com.fbr.Dao.Entities.CustomerResponseDbType</class>
-        <class>com.fbr.Dao.Entities.CustomerDbType</class>
+        <class>com.fbr.Dao.Question.Entities.QuestionDbType</class>
+        <class>com.fbr.Dao.Question.Entities.AnswerDbType</class>
+        <class>com.fbr.Dao.Attribute.Entities.AttributeDbType</class>
+        <class>com.fbr.Dao.Response.Entities.AlertDbType</class>
+        <class>com.fbr.Dao.Response.Entities.CustomerResponseDbType</class>
+        <class>com.fbr.Dao.CustomerDbType</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <!-- <property name="hibernate.hbm2ddl.auto" value="validate" />  -->

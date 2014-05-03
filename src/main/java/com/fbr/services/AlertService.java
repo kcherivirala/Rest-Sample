@@ -6,11 +6,11 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.AlertDao;
-import com.fbr.Dao.Entities.AlertDbType;
-import com.fbr.Dao.Entities.AttributeDbType;
-import com.fbr.Dao.Entities.CustomerDbType;
-import com.fbr.domain.AttributeTuple;
+import com.fbr.Dao.Attribute.Entities.AttributeDbType;
+import com.fbr.Dao.CustomerDbType;
+import com.fbr.Dao.Response.AlertDao;
+import com.fbr.Dao.Response.Entities.AlertDbType;
+import com.fbr.domain.Response.AttributeTuple;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

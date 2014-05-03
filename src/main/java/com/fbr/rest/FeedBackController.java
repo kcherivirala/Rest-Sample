@@ -1,7 +1,14 @@
 package com.fbr.rest;
 
-import com.fbr.domain.*;
-import com.fbr.services.*;
+import com.fbr.domain.Attribute.Attribute;
+import com.fbr.domain.Graph.Graph;
+import com.fbr.domain.Graph.Trend;
+import com.fbr.domain.Question.Question;
+import com.fbr.domain.Response.ResponseList;
+import com.fbr.services.AttributeService;
+import com.fbr.services.GraphService;
+import com.fbr.services.QuestionService;
+import com.fbr.services.ResponseService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,8 +35,6 @@ public class FeedBackController {
     private ResponseService responseService;
     @Autowired
     private GraphService graphService;
-    @Autowired
-    private TrendService trendService;
     @Autowired
     private View jsonView_i;
 
@@ -264,7 +269,7 @@ public class FeedBackController {
                                  HttpServletResponse httpResponse_p, WebRequest request_p) {
         Trend returnVal;
         try {
-            returnVal = trendService.addTrend(companyId, trend);
+            returnVal = graphService.addTrend(companyId, trend);
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
@@ -279,7 +284,7 @@ public class FeedBackController {
                                     HttpServletResponse httpResponse_p, WebRequest request_p) {
         Trend returnVal;
         try {
-            returnVal = trendService.updateTrend(trendId, trend);
+            returnVal = graphService.updateTrend(trendId, trend);
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
@@ -294,7 +299,7 @@ public class FeedBackController {
     public ModelAndView deleteTrend(@PathVariable("trendId") String trendId,
                                     HttpServletResponse httpResponse_p) {
         try {
-            trendService.deleteTrend(trendId);
+            graphService.deleteTrend(trendId);
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
@@ -306,7 +311,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/company/{companyId}/trends"}, method = {RequestMethod.GET})
     public ModelAndView getTrends(@PathVariable("companyId") int companyId) {
         try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, trendService.getTrends(companyId));
+            return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getTrends(companyId));
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
@@ -316,7 +321,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/trend/{trendId}"}, method = {RequestMethod.GET})
     public ModelAndView getTrend(@PathVariable("trendId") String trendId) {
         try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, trendService.getTrend(trendId));
+            return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getTrend(trendId));
         } catch (Exception e) {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));

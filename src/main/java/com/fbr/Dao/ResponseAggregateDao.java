@@ -6,8 +6,6 @@ package com.fbr.Dao;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.Entities.ResponseAggregateDbType;
-import com.fbr.Dao.Entities.ResponseAggregatePrimaryKey;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
