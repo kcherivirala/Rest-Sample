@@ -1,0 +1,18 @@
+TOMCAT_HOME=/Users/sponnemkunnath/vmware/tools/apache-tomcat-7.0.47
+TOMCAT=$TOMCAT_HOME/bin/
+WEBAPP=$TOMCAT_HOME/webapps/
+
+if [ "$1" == "stop" ] || [ "$1" == "restart" ]
+then
+	echo "stopping the service"
+	$TOMCAT/shutdown.sh
+fi
+if [ "$1" == "start" ] || [ "$1" == "restart" ]
+then
+	echo "compiling the service"
+	rm -rf $WEBAPP/feedback*
+	mvn clean install
+	cp target/feedback-review.war $WEBAPP
+	echo "starting the service"
+	$TOMCAT/startup.sh
+fi

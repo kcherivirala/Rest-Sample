@@ -8,7 +8,7 @@ package com.fbr.domain.Statistic;
 
 import java.util.List;
 
-public class GraphStatistics {
+public class GraphLevelStatistics {
     String graphId;
     List<ConstraintLevelStatistics> listConstraintLevelStatistics;
 
