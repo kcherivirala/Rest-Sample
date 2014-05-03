@@ -7,7 +7,6 @@ package com.fbr.domain.Statistic;
  */
 
 
-
 import com.fbr.domain.Attribute.AttributeValue;
 
 import java.util.List;

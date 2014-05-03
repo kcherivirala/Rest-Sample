@@ -20,11 +20,11 @@ public class GraphLevelStatistics {
         this.graphId = graphId;
     }
 
-    public List<ConstraintLevelStatistics> getConstraintLevelStatistics() {
+    public List<ConstraintLevelStatistics> getListConstraintLevelStatistics() {
         return listConstraintLevelStatistics;
     }
 
-    public void setConstraintLevelStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics) {
+    public void setListConstraintLevelStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics) {
         this.listConstraintLevelStatistics = listConstraintLevelStatistics;
     }
 }

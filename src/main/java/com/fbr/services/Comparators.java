@@ -13,6 +13,7 @@ import com.fbr.Dao.Question.Entities.AnswerDbType;
 import com.fbr.Dao.Question.Entities.QuestionDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.Dao.ResponseAggregateDbType;
+import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
 import com.fbr.domain.Question.Answer;
 
@@ -128,6 +129,13 @@ public class Comparators {
         @Override
         public int compare(AttributeValue first, AttributeValue second) {
             return first.getValue() - second.getValue();
+        }
+    };
+
+    public static Comparator<Attribute> COMPARE_DOMAIN_ATTRIBUTES = new Comparator<Attribute>() {
+        @Override
+        public int compare(Attribute first, Attribute second) {
+            return first.getAttributeId() - second.getAttributeId();
         }
     };
 
