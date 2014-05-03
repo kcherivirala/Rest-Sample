@@ -260,29 +260,4 @@ public class QuestionService {
         }
 
     }
-
-    private static class Comparators {
-        private static Comparator<AnswerDbType> COMPARE_DB_ANSWERS = new Comparator<AnswerDbType>() {
-            @Override
-            public int compare(AnswerDbType first, AnswerDbType second) {
-                if (first.getId().getQuestionId() == second.getId().getQuestionId())
-                    return first.getId().getAnswerId() - second.getId().getAnswerId();
-                return first.getId().getQuestionId() - second.getId().getQuestionId();
-            }
-        };
-
-        private static Comparator<Answer> COMPARE_DOMAIN_ANSWERS = new Comparator<Answer>() {
-            @Override
-            public int compare(Answer first, Answer second) {
-                return first.getAnswerId() - second.getAnswerId();
-            }
-        };
-
-        private static Comparator<QuestionDbType> COMPARE_DB_QUESTIONS = new Comparator<QuestionDbType>() {
-            @Override
-            public int compare(QuestionDbType first, QuestionDbType second) {
-                return first.getId().getQuestionId() - second.getId().getQuestionId();
-            }
-        };
-    }
 }

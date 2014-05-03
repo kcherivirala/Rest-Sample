@@ -177,7 +177,7 @@ public class ResponseService {
 
     public List<BranchAggregateInfo> getAggregateInfo(int companyId) {
         List<ResponseAggregateDbType> responseAggregateDbTypeList = responseAggregateDao.getAggregateInfo(companyId);
-        Collections.sort(responseAggregateDbTypeList, aggregateComparator);
+        Collections.sort(responseAggregateDbTypeList, Comparators.aggregateComparator);
 
         List<BranchAggregateInfo> listBranchAggregateInfo = new ArrayList<BranchAggregateInfo>();
         int branchId = -1, i = 0;
@@ -240,15 +240,4 @@ public class ResponseService {
         }
         return i;
     }
-
-    private static Comparator<ResponseAggregateDbType> aggregateComparator = new Comparator<ResponseAggregateDbType>() {
-        @Override
-        public int compare(ResponseAggregateDbType first, ResponseAggregateDbType second) {
-            if (first.getId().getBranchId() < second.getId().getBranchId()) return -1;
-            else if (first.getId().getBranchId() > second.getId().getBranchId()) return 1;
-            else {
-                return first.getId().getAttributeId() - (second.getId().getAttributeId());
-            }
-        }
-    };
 }

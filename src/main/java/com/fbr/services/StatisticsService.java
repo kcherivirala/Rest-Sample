@@ -7,10 +7,13 @@ package com.fbr.services;
  */
 
 import com.fbr.Dao.Response.CustomerResponseDao;
+import com.fbr.domain.Attribute.Attribute;
+import com.fbr.domain.Graph.Graph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -19,36 +22,46 @@ import java.util.List;
 public class StatisticsService {
     @Autowired
     private CustomerResponseDao customerResponseDao;
+    @Autowired
+    private AttributeService attributeService;
+    @Autowired
+    private GraphService graphService;
 
     @PostConstruct
     void preProcessInfo() {
-        List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses();
-        Collections.sort(listResponse, Comparators.COMPARE_RESPONSES);
 
     }
 
-    private int processPerCompanyResponses(int index, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) { //sorted based on time
-        int i = index;
-        while (i < listResponse.size()) {
+    private int processPerCompanyResponses(int companyId, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) { //sorted based on time
+        int i=0;
+        Collections.sort(listResponse, Comparators.COMPARE_RESPONSES);
+        List<Attribute> listAttribute = attributeService.getAttributesByCompany(companyId);
+        List<Graph> listGraph = graphService.getGraphs(companyId);
 
+
+        for(Graph graph: listGraph){
+            List<Integer> listFilterId = graph.getFilterList();
+
+            List<Attribute> filterAttributes = getFilters(listFilterId, listAttribute);
+
+
+
+            i = 0;
+            while (i < listResponse.size() && listResponse.get(i).getResponse().getCompanyId()==companyId) {
+                CustomerResponseDao.CustomerResponseAndValues responseAndValues = listResponse.get(i);
+            }
         }
+
+
+
+
+
         return i;
     }
 
-    private static class Comparators {
-        private static Comparator<CustomerResponseDao.CustomerResponseAndValues> COMPARE_RESPONSES = new Comparator<CustomerResponseDao.CustomerResponseAndValues>() {
-            @Override
-            public int compare(CustomerResponseDao.CustomerResponseAndValues first, CustomerResponseDao.CustomerResponseAndValues second) {
-                if (first.getResponse().getCompanyId() == second.getResponse().getCompanyId()) {
-                    if (first.getResponse().getTimestamp().before(second.getResponse().getTimestamp())) {
-                        return 1;
-                    }
-                    return -1;
-                } else {
-                    return first.getResponse().getCompanyId() - second.getResponse().getCompanyId();
-                }
+    private List<Attribute> getFilters(List<Integer> listFiltersId, List<Attribute> listAttribute){
+        List<Attribute> out = new ArrayList<Attribute>(listFiltersId.size());
 
-            }
-        };
+        return out;
     }
 }

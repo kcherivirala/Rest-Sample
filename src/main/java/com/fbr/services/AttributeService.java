@@ -228,30 +228,4 @@ public class AttributeService {
             return attributeValuesDbEntry;
         }
     }
-
-    private static class Comparators {
-        private static Comparator<AttributeDbType> COMPARE_ATTRIBUTES = new Comparator<AttributeDbType>() {
-            @Override
-            public int compare(AttributeDbType first, AttributeDbType second) {
-                return first.getAttributeId() - second.getAttributeId();
-            }
-        };
-
-        private static Comparator<AttributeValuesDbType> COMPARE_ATTRIBUTE_VALUES = new Comparator<AttributeValuesDbType>() {
-            @Override
-            public int compare(AttributeValuesDbType first, AttributeValuesDbType second) {
-                if (first.getId().getAttributeId() == second.getId().getAttributeId())
-                    return first.getId().getValue() - second.getId().getValue();
-                else
-                    return first.getId().getAttributeId() - second.getId().getAttributeId();
-            }
-        };
-
-        private static Comparator<AttributeValue> COMPARE_DOMAIN_ATTRIBUTE_VALUES = new Comparator<AttributeValue>() {
-            @Override
-            public int compare(AttributeValue first, AttributeValue second) {
-                return first.getValue() - second.getValue();
-            }
-        };
-    }
 }

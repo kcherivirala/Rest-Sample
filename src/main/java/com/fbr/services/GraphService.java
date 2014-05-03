@@ -476,62 +476,6 @@ public class GraphService {
             return entry;
         }
     }
-
-    private static class Comparators {
-        private static Comparator<GraphDbType> COMPARE_GRAPHS = new Comparator<GraphDbType>() {
-            @Override
-            public int compare(GraphDbType first, GraphDbType second) {
-                return first.getGraphId().compareTo(second.getGraphId());
-            }
-        };
-
-        private static Comparator<GraphAttributesDbType> COMPARE_GRAPH_ATTRIBUTES = new Comparator<GraphAttributesDbType>() {
-            @Override
-            public int compare(GraphAttributesDbType first, GraphAttributesDbType second) {
-                if (first.getId().getGraphId().equals(second.getId().getGraphId())) {
-                    return first.getId().getAttributeId() - second.getId().getAttributeId();
-                }
-                return first.getId().getGraphId().compareTo(second.getId().getGraphId());
-            }
-        };
-
-        private static Comparator<GraphFiltersDbType> COMPARE_GRAPH_FILTERS = new Comparator<GraphFiltersDbType>() {
-            @Override
-            public int compare(GraphFiltersDbType first, GraphFiltersDbType second) {
-                if (first.getId().getGraphId().equals(second.getId().getGraphId())) {
-                    return first.getId().getAttributeId() - second.getId().getAttributeId();
-                }
-                return first.getId().getGraphId().compareTo(second.getId().getGraphId());
-            }
-        };
-
-        private static Comparator<TrendDbType> COMPARE_TRENDS = new Comparator<TrendDbType>() {
-            @Override
-            public int compare(TrendDbType first, TrendDbType second) {
-                return first.getTrendId().compareTo(second.getTrendId());
-            }
-        };
-
-        private static Comparator<TrendAttributesDbType> COMPARE_TREND_ATTRIBUTES = new Comparator<TrendAttributesDbType>() {
-            @Override
-            public int compare(TrendAttributesDbType first, TrendAttributesDbType second) {
-                if (first.getId().getTrendId().equals(second.getId().getTrendId())) {
-                    return first.getId().getAttributeId() - second.getId().getAttributeId();
-                }
-                return first.getId().getTrendId().compareTo(second.getId().getTrendId());
-            }
-        };
-
-        private static Comparator<TrendFiltersDbType> COMPARE_TREND_FILTERS = new Comparator<TrendFiltersDbType>() {
-            @Override
-            public int compare(TrendFiltersDbType first, TrendFiltersDbType second) {
-                if (first.getId().getTrendId().equals(second.getId().getTrendId())) {
-                    return first.getId().getAttributeId() - second.getId().getAttributeId();
-                }
-                return first.getId().getTrendId().compareTo(second.getId().getTrendId());
-            }
-        };
-    }
 }
 
 
