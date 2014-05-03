@@ -6,7 +6,6 @@ package com.fbr.Dao.Company;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Company.Entities.BranchDbType;
 import com.fbr.Dao.Company.Entities.BranchPrimaryKey;
 import com.fbr.Dao.ProjectDaoImpl;

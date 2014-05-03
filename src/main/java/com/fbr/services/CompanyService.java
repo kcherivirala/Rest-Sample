@@ -27,27 +27,27 @@ public class CompanyService {
     private BranchDao branchDao;
 
     @Transactional
-    public Company addCompany(Company company){
-        int id = companyDao.getMaxCompanyIdValue() +1;
+    public Company addCompany(Company company) {
+        int id = companyDao.getMaxCompanyIdValue() + 1;
         companyDao.add(Conversions.getCompanyDbEntry(id, company));
         company.setId(id);
         return company;
     }
 
     @Transactional
-    public Branch addBranch(int companyId, Branch branch){
+    public Branch addBranch(int companyId, Branch branch) {
         int id = branchDao.getMaxBranchIdValue(companyId);
         branchDao.add(Conversions.getBranchDbEntry(companyId, id, branch));
         branch.setId(id);
         return branch;
     }
 
-    public List<BranchDbType> getDbBranches(int companyId){
+    public List<BranchDbType> getDbBranches(int companyId) {
         return branchDao.getBranchesByCompany(companyId);
     }
 
-    private static class Conversions{
-        public static CompanyDbType getCompanyDbEntry(int companyId, Company company){
+    private static class Conversions {
+        public static CompanyDbType getCompanyDbEntry(int companyId, Company company) {
             CompanyDbType companyDbEntry = new CompanyDbType();
             companyDbEntry.setCompanyId(companyId);
             companyDbEntry.setInfo(company.getInfo());
@@ -55,7 +55,7 @@ public class CompanyService {
             return companyDbEntry;
         }
 
-        public static BranchDbType getBranchDbEntry(int companyId, int branchId, Branch branch){
+        public static BranchDbType getBranchDbEntry(int companyId, int branchId, Branch branch) {
             BranchDbType branchDbEntry = new BranchDbType();
             BranchPrimaryKey key = new BranchPrimaryKey();
 

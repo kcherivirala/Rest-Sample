@@ -93,7 +93,7 @@ public class StatisticsService {
         return out;
     }
 
-    private void populateStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics, List<CustomerResponseDao.CustomerResponseAndValues> listResponse){
+    private void populateStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
 
     }
 }
