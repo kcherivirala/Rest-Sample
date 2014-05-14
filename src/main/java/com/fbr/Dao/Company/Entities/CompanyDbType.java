@@ -16,6 +16,8 @@ public class CompanyDbType implements ProjectEntity<Integer> {
     @Column(name = "company_id", unique = true, nullable = false)
     @Id
     int companyId;
+    @Column(name = "name", nullable = false)
+    String name;
     @Column(name = "info", nullable = false)
     String info;
 
@@ -25,6 +27,14 @@ public class CompanyDbType implements ProjectEntity<Integer> {
 
     public void setCompanyId(int companyId) {
         this.companyId = companyId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getInfo() {

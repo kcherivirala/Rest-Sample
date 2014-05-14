@@ -84,6 +84,28 @@ public class AttributeService {
         return attributeDao.getAttributesByCompany(companyId);
     }
 
+    public List<Attribute> getAttributes(List<Integer> listFiltersId, List<Attribute> listAttribute) {
+        Collections.sort(listFiltersId);
+        List<Attribute> out = new ArrayList<Attribute>(listFiltersId.size());
+
+        int idIndex = 0, attrIndex = 0;
+        while (idIndex < listFiltersId.size() && attrIndex < listAttribute.size()) {
+            int id = listFiltersId.get(idIndex);
+            Attribute attribute = listAttribute.get(attrIndex);
+
+            if (id == attribute.getAttributeId()) {
+                out.add(attribute);
+                idIndex++;
+                attrIndex++;
+            } else if (id < attribute.getAttributeId()) {
+                idIndex++;
+            } else {
+                attrIndex++;
+            }
+        }
+        return out;
+    }
+
     /*          Private functions           */
 
     private void updateAttributeDbEntry(AttributeDbType attributeDbEntry, Attribute attribute) {

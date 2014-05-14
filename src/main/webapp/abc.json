@@ -1,0 +1,42 @@
+[
+{
+"attributeId":0,
+"name":"food",
+"listAttributeValue":[
+{"name":"poor", "value":1, "maxValue":5},
+{"name":"ok", "value":2, "maxValue":5},
+{"name":"good", "value":3, "maxValue":5},
+{"name":"better", "value":4, "maxValue":5},
+{"name":"best", "value":5, "maxValue":5}
+],
+"listDailyAttributeStatisticValues":[
+{"date":20140501, "listCountPPL":[0,1,2,3,4]},
+{"date":20140502, "listCountPPL":[0,1,2,3,4]},
+{"date":20140503, "listCountPPL":[0,1,2,3,4]},
+{"date":20140504, "listCountPPL":[0,1,2,3,4]},
+{"date":20140505, "listCountPPL":[0,1,2,3,4]},
+{"date":20140506, "listCountPPL":[0,1,2,3,4]},
+]
+},
+{
+"attributeId":1,
+"name":"service",
+"listAttributeValue":[
+{"name":"poor", "value":1, "maxValue":5},
+{"name":"ok", "value":2, "maxValue":5},
+{"name":"good", "value":3, "maxValue":5},
+{"name":"better", "value":4, "maxValue":5},
+{"name":"best", "value":5, "maxValue":5}
+],
+"listDailyAttributeStatisticValues":[
+{"date":20140501, "listCountPPL":[0,1,2,3,4]},
+{"date":20140502, "listCountPPL":[0,1,2,3,4]},
+{"date":20140503, "listCountPPL":[0,1,2,3,4]},
+{"date":20140504, "listCountPPL":[0,1,2,3,4]},
+{"date":20140505, "listCountPPL":[0,1,2,3,4]},
+{"date":20140506, "listCountPPL":[0,1,2,3,4]},
+]
+},
+{
+}
+]

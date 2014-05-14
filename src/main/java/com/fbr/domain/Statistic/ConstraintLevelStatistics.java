@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ConstraintLevelStatistics {
-    Map<String, String> constraints;
+    Map<String, Integer> constraints;
     List<AttributeLevelStatistics> listAttributeLevelStatistics;
 
-    public Map<String, String> getConstraints() {
+    public Map<String, Integer> getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(Map<String, String> constraints) {
+    public void setConstraints(Map<String, Integer> constraints) {
         this.constraints = constraints;
     }
 
