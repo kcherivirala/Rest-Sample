@@ -47,7 +47,11 @@ public class StatisticsService {
         for(CompanyDbType company: companies){
             listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), 20140401,20140501,30));
         }
-        System.out.println("");
+    }
+
+    public void resetCompanyData(int companyId){
+        CompanyDbType company =  companyDao.find(companyId);
+        listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), 20140428,20140501,5));
     }
 
     private CompanyData processPerCompanyResponses(int companyId, String companyName, int startDate, int endDate, int noOfDays) {
@@ -230,6 +234,8 @@ public class StatisticsService {
             int dateIndex = graphData.mapOfDates.get(date);
 
             for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                if(graphData.mapOfAttributes.get(responseValue.getId().getAttributeId()) == null) continue;
+
                 int attributeIndex = graphData.mapOfAttributes.get(responseValue.getId().getAttributeId());
                 int attributeValueIndex = getAttributeValueIndex(graphData.graphLevelStatistics.getListConstraintLevelStatistics().get(constraintIndex).getAttributeLevelStatistics().get(attributeIndex).getListAttributeValue(), responseValue.getObtainedValue());
                 List<Integer> countPPL = graphData.graphLevelStatistics.getListConstraintLevelStatistics().get(constraintIndex).getAttributeLevelStatistics().get(attributeIndex).getListDailyAttributeStatisticValues().get(dateIndex).getListCountPPL();
@@ -251,6 +257,7 @@ public class StatisticsService {
 
     private Map<String, Integer> getMapConstraintsFromResponse(List<Attribute> filterAttributes, CustomerResponseDao.CustomerResponseAndValues response) {
         Map<String, Integer> mapFilter = new HashMap<String, Integer>();
+        mapFilter.put("branch", response.getResponse().getBranchId());
         for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
             for (Attribute attribute : filterAttributes) {
                 if (attribute.getAttributeId() == responseValue.getId().getAttributeId()) {

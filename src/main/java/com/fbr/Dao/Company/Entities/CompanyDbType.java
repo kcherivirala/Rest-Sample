@@ -8,10 +8,10 @@ package com.fbr.Dao.Company.Entities;
 
 import com.fbr.Dao.ProjectEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
+@Entity
+@Table(name = "companies")
 public class CompanyDbType implements ProjectEntity<Integer> {
     @Column(name = "company_id", unique = true, nullable = false)
     @Id

@@ -5,10 +5,7 @@ import com.fbr.domain.Graph.Graph;
 import com.fbr.domain.Graph.Trend;
 import com.fbr.domain.Question.Question;
 import com.fbr.domain.Response.ResponseList;
-import com.fbr.services.AttributeService;
-import com.fbr.services.GraphService;
-import com.fbr.services.QuestionService;
-import com.fbr.services.ResponseService;
+import com.fbr.services.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +32,8 @@ public class FeedBackController {
     private ResponseService responseService;
     @Autowired
     private GraphService graphService;
+    @Autowired
+    private StatisticsService statisticsService;
     @Autowired
     private View jsonView_i;
 
@@ -326,6 +325,21 @@ public class FeedBackController {
             String sMessage = "Error creating new fund. [%1$s]";
             return createErrorResponse(String.format(sMessage, e.toString()));
         }
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
+    public ModelAndView refreshCompanyData(@PathVariable("companyId") int companyId,
+                                    HttpServletResponse httpResponse_p, WebRequest request_p) {
+        try {
+            statisticsService.resetCompanyData(companyId);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        //httpResponse_p.setHeader("Location", request_p.getContextPath() + "/trend/" + trendId);
+        return new ModelAndView(jsonView_i, DATA_FIELD, null);
     }
 
 

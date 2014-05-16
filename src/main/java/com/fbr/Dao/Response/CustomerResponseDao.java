@@ -22,11 +22,14 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
     }
 
     public List<CustomerResponseAndValues> getResponses(int companyId) {
-        Query q = entityManager.createQuery("select a.responseId, a.customerId, a.companyId, a.branchId, b.id.attributeId, b.maxValue, b.obtainedValue, b.response " +
-                "from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.responseId = b.id.responseId", entityClass);
+        try{
+        Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.responseId = b.id.responseId");
         q.setParameter(1, companyId);
         List<Object[]> listObject = q.getResultList();
         return processObjectList(listObject);
+        }catch (Exception e){
+            return null;
+        }
     }
 
     public List<CustomerResponseAndValues> getResponses() {
@@ -52,6 +55,8 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
             List<CustomerResponseValuesDbType> responseValues = new ArrayList<CustomerResponseValuesDbType>();
             response.response = responseDbEntry;
             response.responseValues = responseValues;
+
+            outList.add(response);
 
             i = addCustomerResponseValues(i, responseDbEntry.getResponseId(), listObject, responseValues);
         }
