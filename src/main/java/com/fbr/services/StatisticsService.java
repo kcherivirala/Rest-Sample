@@ -269,21 +269,22 @@ public class StatisticsService {
         return mapFilter;
     }
 
+    class GraphData {
+        String graphId;
+
+        Map<Map<String, Integer>, Integer> mapOFConstraints;
+        Map<Integer, Integer> mapOfDates;
+        Map<Integer, Integer> mapOfAttributes;
+
+        GraphLevelStatistics graphLevelStatistics;
+    }
+
+    class CompanyData {
+        int companyId;
+        String companyName;
+
+        List<GraphData> listGraphData;
+    }
 }
 
-class GraphData {
-    String graphId;
 
-    Map<Map<String, Integer>, Integer> mapOFConstraints;
-    Map<Integer, Integer> mapOfDates;
-    Map<Integer, Integer> mapOfAttributes;
-
-    GraphLevelStatistics graphLevelStatistics;
-}
-
-class CompanyData {
-    int companyId;
-    String companyName;
-
-    List<GraphData> listGraphData;
-}

@@ -8,6 +8,9 @@ package com.fbr.services;
 
 import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
+import com.fbr.Dao.Company.BranchDao;
+import com.fbr.Dao.Company.Entities.BranchDbType;
+import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Dao.Graph.Entities.*;
 import com.fbr.Dao.Question.Entities.AnswerDbType;
 import com.fbr.Dao.Question.Entities.QuestionDbType;
@@ -15,6 +18,7 @@ import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.Dao.ResponseAggregateDbType;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
+import com.fbr.domain.Company.Branch;
 import com.fbr.domain.Question.Answer;
 
 import java.util.Comparator;
@@ -152,6 +156,30 @@ public class Comparators {
                 return first.getResponse().getCompanyId() - second.getResponse().getCompanyId();
             }
 
+        }
+    };
+
+    public static Comparator<CompanyDbType> COMPARE_DB_COMPANIES = new Comparator<CompanyDbType>() {
+        @Override
+        public int compare(CompanyDbType companyDbType, CompanyDbType companyDbType2) {
+            return companyDbType.getCompanyId() - companyDbType2.getCompanyId();
+        }
+    };
+
+    public static Comparator<BranchDbType> COMPARE_DB_BRANCHES = new Comparator<BranchDbType>() {
+        @Override
+        public int compare(BranchDbType first, BranchDbType second) {
+            if (first.getId().getCompanyId() == second.getId().getBranchId()) {
+                return first.getId().getBranchId() - second.getId().getBranchId();
+            }
+            return first.getId().getCompanyId() - second.getId().getCompanyId();
+        }
+    };
+
+    public static Comparator<Branch> COMPARE_BRANCHES = new Comparator<Branch>() {
+        @Override
+        public int compare(Branch first, Branch second) {
+            return first.getId() - second.getId();
         }
     };
 }

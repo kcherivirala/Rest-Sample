@@ -1,6 +1,8 @@
 package com.fbr.rest;
 
 import com.fbr.domain.Attribute.Attribute;
+import com.fbr.domain.Company.Branch;
+import com.fbr.domain.Company.Company;
 import com.fbr.domain.Graph.Graph;
 import com.fbr.domain.Graph.Trend;
 import com.fbr.domain.Question.Question;
@@ -34,6 +36,8 @@ public class FeedBackController {
     private GraphService graphService;
     @Autowired
     private StatisticsService statisticsService;
+    @Autowired
+    private CompanyService companyService;
     @Autowired
     private View jsonView_i;
 
@@ -197,6 +201,55 @@ public class FeedBackController {
         }
     }
 
+    @RequestMapping(value = {"/companies"}, method = {RequestMethod.POST})
+    public ModelAndView addCompany(@RequestBody Company company,
+                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
+        Company returnVal;
+        try {
+            returnVal = companyService.addCompanyAndBranches(company);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/company/" + returnVal.getId());
+        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+    }
+
+    @RequestMapping(value = {"/company/{companyId}"}, method = {RequestMethod.PUT})
+    public ModelAndView updateCompany(@PathVariable("companyId") int companyId, @RequestBody Company company,
+                                   HttpServletResponse httpResponse_p, WebRequest request_p) {
+        Company returnVal;
+        try {
+            returnVal = companyService.updateCompanyAndBranches(companyId, company);
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/company/" + returnVal.getId());
+        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+    }
+
+    @RequestMapping(value = {"/companies"}, method = {RequestMethod.GET})
+    public ModelAndView getCompanies() {
+        try {
+            return new ModelAndView(jsonView_i, DATA_FIELD, companyService.getCompanies());
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+    }
+
+    @RequestMapping(value = {"/company/{companyId}"}, method = {RequestMethod.GET})
+    public ModelAndView getCompany(@PathVariable("companyId") int companyId) {
+        try {
+            return new ModelAndView(jsonView_i, DATA_FIELD, companyService.getCompany(companyId));
+        } catch (Exception e) {
+            String sMessage = "Error creating new fund. [%1$s]";
+            return createErrorResponse(String.format(sMessage, e.toString()));
+        }
+    }
 
     @RequestMapping(value = {"/company/{companyId}/graphs"}, method = {RequestMethod.POST})
     public ModelAndView addGraph(@PathVariable("companyId") int companyId, @RequestBody Graph graph,
@@ -326,6 +379,8 @@ public class FeedBackController {
             return createErrorResponse(String.format(sMessage, e.toString()));
         }
     }
+
+
 
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
     public ModelAndView refreshCompanyData(@PathVariable("companyId") int companyId,
