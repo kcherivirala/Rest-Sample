@@ -6,13 +6,24 @@ package com.fbr.domain.Graph;
  *  ***********************************************************
  */
 
+import com.fbr.domain.Attribute.Attribute;
+
 import java.util.List;
 
 public class Graph {
     String graphId;
     String name;
-    List<Integer> attributeList;
-    List<Integer> filterList;
+    String type;
+    List<Attribute> attributeList;
+    List<Attribute> filterList;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getGraphId() {
         return graphId;
@@ -30,19 +41,19 @@ public class Graph {
         this.name = name;
     }
 
-    public List<Integer> getAttributeList() {
+    public List<Attribute> getAttributeList() {
         return attributeList;
     }
 
-    public void setAttributeList(List<Integer> attributeList) {
+    public void setAttributeList(List<Attribute> attributeList) {
         this.attributeList = attributeList;
     }
 
-    public List<Integer> getFilterList() {
+    public List<Attribute> getFilterList() {
         return filterList;
     }
 
-    public void setFilterList(List<Integer> filterList) {
+    public void setFilterList(List<Attribute> filterList) {
         this.filterList = filterList;
     }
 }

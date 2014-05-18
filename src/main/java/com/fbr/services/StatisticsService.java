@@ -11,6 +11,8 @@ import com.fbr.Dao.Company.Entities.BranchDbType;
 import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
+import com.fbr.Utilities.Comparators;
+import com.fbr.Utilities.FeedbackUtilities;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
 import com.fbr.domain.Graph.Graph;
@@ -40,18 +42,18 @@ public class StatisticsService {
     private List<CompanyData> listCompanyData;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         List<CompanyDbType> companies = companyDao.findAll();
         listCompanyData = new ArrayList<CompanyData>(companies.size());
 
-        for(CompanyDbType company: companies){
-            listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), 20140401,20140501,30));
+        for (CompanyDbType company : companies) {
+            listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), 20140401, 20140501, 30));
         }
     }
 
-    public void resetCompanyData(int companyId){
-        CompanyDbType company =  companyDao.find(companyId);
-        listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), 20140428,20140501,5));
+    public void resetCompanyData(int companyId) {
+        CompanyDbType company = companyDao.find(companyId);
+        listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), 20140428, 20140501, 5));
     }
 
     private CompanyData processPerCompanyResponses(int companyId, String companyName, int startDate, int endDate, int noOfDays) {
@@ -200,11 +202,11 @@ public class StatisticsService {
         return newMap;
     }
 
-    private Map<Integer, Integer> getMapOfAttributes(List<Integer> attributeIds) {
-        Map<Integer, Integer> outMap = new HashMap<Integer, Integer>(attributeIds.size());
+    private Map<Integer, Integer> getMapOfAttributes(List<Attribute> attributes) {
+        Map<Integer, Integer> outMap = new HashMap<Integer, Integer>(attributes.size());
         int i = 0;
-        for (int attributeId : attributeIds) {
-            outMap.put(attributeId, i);
+        for (Attribute attribute : attributes) {
+            outMap.put(attribute.getAttributeId(), i);
             i++;
         }
         return outMap;
@@ -234,7 +236,7 @@ public class StatisticsService {
             int dateIndex = graphData.mapOfDates.get(date);
 
             for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
-                if(graphData.mapOfAttributes.get(responseValue.getId().getAttributeId()) == null) continue;
+                if (graphData.mapOfAttributes.get(responseValue.getId().getAttributeId()) == null) continue;
 
                 int attributeIndex = graphData.mapOfAttributes.get(responseValue.getId().getAttributeId());
                 int attributeValueIndex = getAttributeValueIndex(graphData.graphLevelStatistics.getListConstraintLevelStatistics().get(constraintIndex).getAttributeLevelStatistics().get(attributeIndex).getListAttributeValue(), responseValue.getObtainedValue());

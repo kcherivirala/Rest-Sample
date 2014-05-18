@@ -1,4 +1,4 @@
-package com.fbr.services;
+package com.fbr.Utilities;
 
 /*
  *  ***********************************************************
@@ -8,10 +8,11 @@ package com.fbr.services;
 
 import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
-import com.fbr.Dao.Company.BranchDao;
 import com.fbr.Dao.Company.Entities.BranchDbType;
 import com.fbr.Dao.Company.Entities.CompanyDbType;
-import com.fbr.Dao.Graph.Entities.*;
+import com.fbr.Dao.Graph.Entities.GraphAttributesDbType;
+import com.fbr.Dao.Graph.Entities.GraphDbType;
+import com.fbr.Dao.Graph.Entities.GraphFiltersDbType;
 import com.fbr.Dao.Question.Entities.AnswerDbType;
 import com.fbr.Dao.Question.Entities.QuestionDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
@@ -82,33 +83,6 @@ public class Comparators {
                 return first.getId().getAttributeId() - second.getId().getAttributeId();
             }
             return first.getId().getGraphId().compareTo(second.getId().getGraphId());
-        }
-    };
-
-    public static Comparator<TrendDbType> COMPARE_TRENDS = new Comparator<TrendDbType>() {
-        @Override
-        public int compare(TrendDbType first, TrendDbType second) {
-            return first.getTrendId().compareTo(second.getTrendId());
-        }
-    };
-
-    public static Comparator<TrendAttributesDbType> COMPARE_TREND_ATTRIBUTES = new Comparator<TrendAttributesDbType>() {
-        @Override
-        public int compare(TrendAttributesDbType first, TrendAttributesDbType second) {
-            if (first.getId().getTrendId().equals(second.getId().getTrendId())) {
-                return first.getId().getAttributeId() - second.getId().getAttributeId();
-            }
-            return first.getId().getTrendId().compareTo(second.getId().getTrendId());
-        }
-    };
-
-    public static Comparator<TrendFiltersDbType> COMPARE_TREND_FILTERS = new Comparator<TrendFiltersDbType>() {
-        @Override
-        public int compare(TrendFiltersDbType first, TrendFiltersDbType second) {
-            if (first.getId().getTrendId().equals(second.getId().getTrendId())) {
-                return first.getId().getAttributeId() - second.getId().getAttributeId();
-            }
-            return first.getId().getTrendId().compareTo(second.getId().getTrendId());
         }
     };
 

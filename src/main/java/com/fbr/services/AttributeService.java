@@ -11,6 +11,7 @@ import com.fbr.Dao.Attribute.AttributeValuesDao;
 import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesPrimaryKey;
+import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
 import org.apache.log4j.Logger;
@@ -84,13 +85,13 @@ public class AttributeService {
         return attributeDao.getAttributesByCompany(companyId);
     }
 
-    public List<Attribute> getAttributes(List<Integer> listFiltersId, List<Attribute> listAttribute) {
-        Collections.sort(listFiltersId);
+    public List<Attribute> getAttributes(List<Attribute> listFiltersId, List<Attribute> listAttribute) {
+        Collections.sort(listFiltersId, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
         List<Attribute> out = new ArrayList<Attribute>(listFiltersId.size());
 
         int idIndex = 0, attrIndex = 0;
         while (idIndex < listFiltersId.size() && attrIndex < listAttribute.size()) {
-            int id = listFiltersId.get(idIndex);
+            int id = listFiltersId.get(idIndex).getAttributeId();
             Attribute attribute = listAttribute.get(attrIndex);
 
             if (id == attribute.getAttributeId()) {
@@ -204,7 +205,7 @@ public class AttributeService {
         return out;
     }
 
-    private static class Conversions {
+    public static class Conversions {
         public static Attribute getAttribute(AttributeDbType attributeDbEntry) {
             Attribute attribute = new Attribute();
             attribute.setAttributeId(attributeDbEntry.getAttributeId());

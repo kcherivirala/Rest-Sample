@@ -22,12 +22,12 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
     }
 
     public List<CustomerResponseAndValues> getResponses(int companyId) {
-        try{
-        Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.responseId = b.id.responseId");
-        q.setParameter(1, companyId);
-        List<Object[]> listObject = q.getResultList();
-        return processObjectList(listObject);
-        }catch (Exception e){
+        try {
+            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.responseId = b.id.responseId");
+            q.setParameter(1, companyId);
+            List<Object[]> listObject = q.getResultList();
+            return processObjectList(listObject);
+        } catch (Exception e) {
             return null;
         }
     }

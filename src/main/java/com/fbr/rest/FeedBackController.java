@@ -1,10 +1,8 @@
 package com.fbr.rest;
 
 import com.fbr.domain.Attribute.Attribute;
-import com.fbr.domain.Company.Branch;
 import com.fbr.domain.Company.Company;
 import com.fbr.domain.Graph.Graph;
-import com.fbr.domain.Graph.Trend;
 import com.fbr.domain.Question.Question;
 import com.fbr.domain.Response.ResponseList;
 import com.fbr.services.*;
@@ -203,7 +201,7 @@ public class FeedBackController {
 
     @RequestMapping(value = {"/companies"}, method = {RequestMethod.POST})
     public ModelAndView addCompany(@RequestBody Company company,
-                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
+                                   HttpServletResponse httpResponse_p, WebRequest request_p) {
         Company returnVal;
         try {
             returnVal = companyService.addCompanyAndBranches(company);
@@ -218,7 +216,7 @@ public class FeedBackController {
 
     @RequestMapping(value = {"/company/{companyId}"}, method = {RequestMethod.PUT})
     public ModelAndView updateCompany(@PathVariable("companyId") int companyId, @RequestBody Company company,
-                                   HttpServletResponse httpResponse_p, WebRequest request_p) {
+                                      HttpServletResponse httpResponse_p, WebRequest request_p) {
         Company returnVal;
         try {
             returnVal = companyService.updateCompanyAndBranches(companyId, company);
@@ -315,76 +313,9 @@ public class FeedBackController {
         }
     }
 
-
-    @RequestMapping(value = {"/company/{companyId}/trends"}, method = {RequestMethod.POST})
-    public ModelAndView addTrend(@PathVariable("companyId") int companyId, @RequestBody Trend trend,
-                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Trend returnVal;
-        try {
-            returnVal = graphService.addTrend(companyId, trend);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
-        httpResponse_p.setStatus(HttpStatus.CREATED.value());
-        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/trend/" + returnVal.getTrendId());
-        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
-    }
-
-    @RequestMapping(value = {"/trend/{trendId}"}, method = {RequestMethod.PUT})
-    public ModelAndView updateTrend(@PathVariable("trendId") String trendId, @RequestBody Trend trend,
-                                    HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Trend returnVal;
-        try {
-            returnVal = graphService.updateTrend(trendId, trend);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
-
-        httpResponse_p.setStatus(HttpStatus.CREATED.value());
-        httpResponse_p.setHeader("Location", request_p.getContextPath() + "/trend/" + trendId);
-        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
-    }
-
-    @RequestMapping(value = {"/trend/{trendId}"}, method = {RequestMethod.DELETE})
-    public ModelAndView deleteTrend(@PathVariable("trendId") String trendId,
-                                    HttpServletResponse httpResponse_p) {
-        try {
-            graphService.deleteTrend(trendId);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
-        httpResponse_p.setStatus(HttpStatus.OK.value());
-        return new ModelAndView(jsonView_i, DATA_FIELD, null);
-    }
-
-    @RequestMapping(value = {"/company/{companyId}/trends"}, method = {RequestMethod.GET})
-    public ModelAndView getTrends(@PathVariable("companyId") int companyId) {
-        try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getTrends(companyId));
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
-    }
-
-    @RequestMapping(value = {"/trend/{trendId}"}, method = {RequestMethod.GET})
-    public ModelAndView getTrend(@PathVariable("trendId") String trendId) {
-        try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getTrend(trendId));
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
-    }
-
-
-
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
     public ModelAndView refreshCompanyData(@PathVariable("companyId") int companyId,
-                                    HttpServletResponse httpResponse_p, WebRequest request_p) {
+                                           HttpServletResponse httpResponse_p, WebRequest request_p) {
         try {
             statisticsService.resetCompanyData(companyId);
         } catch (Exception e) {

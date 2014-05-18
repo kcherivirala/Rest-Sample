@@ -12,6 +12,7 @@ import com.fbr.Dao.Question.Entities.AnswerPrimaryKey;
 import com.fbr.Dao.Question.Entities.QuestionDbType;
 import com.fbr.Dao.Question.Entities.QuestionPrimaryKey;
 import com.fbr.Dao.Question.QuestionDao;
+import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Question.Answer;
 import com.fbr.domain.Question.Question;
 import org.apache.log4j.Logger;
@@ -202,7 +203,7 @@ public class QuestionService {
         answerDao.add(answerDbEntry);
     }
 
-    private static class Conversions {
+    public static class Conversions {
         public static AnswerDbType getAnswerDbEntry(int companyId, int questionId, Answer answer) {
             AnswerDbType answerDbEntry = new AnswerDbType();
             AnswerPrimaryKey aKey = new AnswerPrimaryKey();

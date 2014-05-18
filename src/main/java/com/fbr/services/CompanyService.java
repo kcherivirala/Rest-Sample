@@ -11,6 +11,7 @@ import com.fbr.Dao.Company.CompanyDao;
 import com.fbr.Dao.Company.Entities.BranchDbType;
 import com.fbr.Dao.Company.Entities.BranchPrimaryKey;
 import com.fbr.Dao.Company.Entities.CompanyDbType;
+import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Company.Branch;
 import com.fbr.domain.Company.Company;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class CompanyService {
     private BranchDao branchDao;
 
     @Transactional
-    public Company addCompanyAndBranches(Company company){
+    public Company addCompanyAndBranches(Company company) {
         int id = companyDao.getMaxCompanyIdValue() + 1;
         companyDao.add(Conversions.getCompanyDbEntry(id, company));
         company.setId(id);
@@ -39,11 +40,11 @@ public class CompanyService {
     }
 
     @Transactional
-    public Company updateCompanyAndBranches(int companyId, Company company){
+    public Company updateCompanyAndBranches(int companyId, Company company) {
         CompanyDbType companyDbType = companyDao.find(companyId);
         List<BranchDbType> listBranchDb = branchDao.getBranchesByCompany(companyId);
 
-        updateCompanyDbEntry(companyDbType, company) ;
+        updateCompanyDbEntry(companyDbType, company);
         updateBranchDbEntries(companyId, listBranchDb, company.getBranches());
 
         return company;
@@ -92,21 +93,21 @@ public class CompanyService {
         return out;
     }
 
-    private void updateCompanyDbEntry(CompanyDbType companyDbEntry, Company company){
+    private void updateCompanyDbEntry(CompanyDbType companyDbEntry, Company company) {
         boolean updated = false;
-        if(!company.getInfo().equals(companyDbEntry.getInfo())){
+        if (!company.getInfo().equals(companyDbEntry.getInfo())) {
             companyDbEntry.setInfo(company.getInfo());
             updated = true;
         }
-        if(!company.getName().equals(companyDbEntry.getName())){
+        if (!company.getName().equals(companyDbEntry.getName())) {
             companyDbEntry.setName(company.getName());
             updated = true;
         }
-        if(updated)
+        if (updated)
             companyDao.update(companyDbEntry);
     }
 
-    private void updateBranchDbEntries(int companyId, List<BranchDbType> listBranchDb, List<Branch> inputBranches){
+    private void updateBranchDbEntries(int companyId, List<BranchDbType> listBranchDb, List<Branch> inputBranches) {
         Collections.sort(listBranchDb, Comparators.COMPARE_DB_BRANCHES);
         Collections.sort(inputBranches, Comparators.COMPARE_BRANCHES);
 
@@ -138,14 +139,14 @@ public class CompanyService {
 
     }
 
-    private void updateBranchDbEntry(BranchDbType branchDbEntry, Branch inputBranch){
-        if(!branchDbEntry.getInfo().equals(inputBranch.getInfo())){
+    private void updateBranchDbEntry(BranchDbType branchDbEntry, Branch inputBranch) {
+        if (!branchDbEntry.getInfo().equals(inputBranch.getInfo())) {
             branchDbEntry.setInfo(inputBranch.getInfo());
             branchDao.update(branchDbEntry);
         }
     }
 
-    private void deleteBranchDbEntry(BranchDbType branchDbType){
+    private void deleteBranchDbEntry(BranchDbType branchDbType) {
         branchDao.delete(branchDbType);
     }
 
@@ -165,7 +166,7 @@ public class CompanyService {
         branchDao.add(Conversions.getBranchDbEntry(companyId, id, branch));
     }
 
-    private static class Conversions {
+    public static class Conversions {
         public static CompanyDbType getCompanyDbEntry(int companyId, Company company) {
             CompanyDbType companyDbEntry = new CompanyDbType();
             companyDbEntry.setCompanyId(companyId);

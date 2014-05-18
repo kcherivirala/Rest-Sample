@@ -20,6 +20,16 @@ public class GraphDbType implements ProjectEntity<String> {
     int companyId;
     @Column(name = "name", nullable = false)
     String name;
+    @Column(name = "type", nullable = false)
+    String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getGraphId() {
         return graphId;
