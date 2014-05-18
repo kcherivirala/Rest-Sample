@@ -85,7 +85,7 @@ public class GraphService {
 
         List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphIds);
         List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphIds);
-        List<AttributeDbType> attributeDbEntries = attributeService.getDbAttributesByCompany(companyId);
+        List<Attribute> attributeDbEntries = attributeService.getAttributesByCompany(companyId);
 
         return matchGraphsAndAttributes(graphs, graphAttributes, graphFilters, attributeDbEntries);
     }
@@ -97,9 +97,9 @@ public class GraphService {
 
         List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphId);
         List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphId);
-        List<AttributeDbType> attributeDbEntries = attributeService.getDbAttributesByCompany(graphDbEntry.getCompanyId());
+        List<Attribute> attributes = attributeService.getAttributesByCompany(graphDbEntry.getCompanyId());
 
-        return matchGraphsAndAttributes(list, graphAttributes, graphFilters, attributeDbEntries).get(0);
+        return matchGraphsAndAttributes(list, graphAttributes, graphFilters, attributes).get(0);
     }
 
     private void updateGraphAttributes(String graphId, List<Attribute> attributeList) {
@@ -182,13 +182,12 @@ public class GraphService {
     }
 
     private List<Graph> matchGraphsAndAttributes(List<GraphDbType> graphs, List<GraphAttributesDbType> graphAttributes,
-                                                 List<GraphFiltersDbType> graphFilters, List<AttributeDbType> attributeDbEntries) {
+                                                 List<GraphFiltersDbType> graphFilters, List<Attribute> attributes) {
         List<Graph> out = new ArrayList<Graph>(graphs.size());
 
         Collections.sort(graphs, Comparators.COMPARE_GRAPHS);
         Collections.sort(graphAttributes, Comparators.COMPARE_GRAPH_ATTRIBUTES);
         Collections.sort(graphFilters, Comparators.COMPARE_GRAPH_FILTERS);
-        Collections.sort(attributeDbEntries, Comparators.COMPARE_ATTRIBUTES);
 
         int gIndex = 0, aIndex = 0, fIndex = 0;
         while (gIndex < graphs.size()) {
@@ -201,24 +200,13 @@ public class GraphService {
             graph.setAttributeList(attributeList);
             graph.setFilterList(filterList);
 
-            /*
-            while (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId())) {
-                attributeList.add(graphAttributes.get(aIndex).getId().getAttributeId());
-                aIndex++;
-            }
-
-            while (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId())) {
-                filterList.add(graphFilters.get(fIndex).getId().getAttributeId());
-                fIndex++;
-            }
-            */
-            while (dbIndex < attributeDbEntries.size()) {
-                AttributeDbType attributeDbEntry = attributeDbEntries.get(dbIndex);
-                if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) && graphAttributes.get(aIndex).getId().getAttributeId() == attributeDbEntry.getAttributeId()) {
-                    attributeList.add(AttributeService.Conversions.getAttribute(attributeDbEntry));
+            while (dbIndex < attributes.size()) {
+                Attribute attribute = attributes.get(dbIndex);
+                if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) && graphAttributes.get(aIndex).getId().getAttributeId() == attribute.getAttributeId()) {
+                    attributeList.add(attribute);
                     aIndex++;
-                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) && graphFilters.get(fIndex).getId().getAttributeId() == attributeDbEntry.getAttributeId()) {
-                    filterList.add(AttributeService.Conversions.getAttribute(attributeDbEntry));
+                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) && graphFilters.get(fIndex).getId().getAttributeId() == attribute.getAttributeId()) {
+                    filterList.add(attribute);
                     fIndex++;
                 }
                 dbIndex++;
