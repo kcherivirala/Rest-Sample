@@ -65,21 +65,21 @@ public class StatisticsService {
         CompanyData data = processPerCompanyResponses(company.getCompanyId(), company.getName(), date, month);
 
         int index = -1;
-        for(int i =0;i<listCompanyData.size();i++){
-            if(listCompanyData.get(i).companyId == companyId){
+        for (int i = 0; i < listCompanyData.size(); i++) {
+            if (listCompanyData.get(i).companyId == companyId) {
                 index = i;
                 break;
             }
         }
-        if(index==-1){
+        if (index == -1) {
             listCompanyData.add(data);
-        } else{
+        } else {
             listCompanyData.remove(index);
             listCompanyData.add(data);
         }
     }
 
-    public void addNewData(){
+    public void addNewData() {
         List<CompanyDbType> companies = companyDao.findAll();
 
         for (CompanyDbType company : companies) {
@@ -87,18 +87,18 @@ public class StatisticsService {
         }
     }
 
-    private void addNewData(CompanyDbType company){
+    private void addNewData(CompanyDbType company) {
         int index = -1;
-        for(int i =0;i<listCompanyData.size();i++){
-            if(listCompanyData.get(i).companyId == company.getCompanyId()){
+        for (int i = 0; i < listCompanyData.size(); i++) {
+            if (listCompanyData.get(i).companyId == company.getCompanyId()) {
                 index = i;
                 break;
             }
         }
 
-        if(index == -1){
+        if (index == -1) {
             resetCompanyData(company.getCompanyId());
-        } else{
+        } else {
             CompanyData companyData = listCompanyData.get(index);
             Date currTimeStamp = companyData.lastUpdatedTimeStamp;
             List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(company.getCompanyId(), currTimeStamp);
@@ -109,7 +109,7 @@ public class StatisticsService {
         }
     }
 
-    private void addResponsesToCompanyData(CompanyData companyData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse){
+    private void addResponsesToCompanyData(CompanyData companyData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
 
     }
 
@@ -123,32 +123,32 @@ public class StatisticsService {
 
         List<GraphData> listGraphData = new ArrayList<GraphData>(listGraph.size());
         for (Graph graph : listGraph) {
-                List<Attribute> filterAttributes = attributeService.getAttributes(graph.getFilterList(), listAttribute);
-                List<Attribute> weightedAttributes = attributeService.getAttributes(graph.getAttributeList(), listAttribute);
-                int constraints = numberOfConstraints(filterAttributes);
+            List<Attribute> filterAttributes = attributeService.getAttributes(graph.getFilterList(), listAttribute);
+            List<Attribute> weightedAttributes = attributeService.getAttributes(graph.getAttributeList(), listAttribute);
+            int constraints = numberOfConstraints(filterAttributes);
 
-                List<ConstraintLevelStatistics> listConstraintLevelStatistics = new ArrayList<ConstraintLevelStatistics>(constraints * branches.size());
-                populateConstraintLevels(listConstraintLevelStatistics, filterAttributes, branches);    //start with index of -1
-                initialiseConstraintLevelStatistics(listConstraintLevelStatistics, weightedAttributes, currentDate, graph.getType());
-
-
-                GraphLevelStatistics graphLevelStatistics = new GraphLevelStatistics();
-                graphLevelStatistics.setGraphId(graph.getGraphId());
-                graphLevelStatistics.setListConstraintLevelStatistics(listConstraintLevelStatistics);
-
-                GraphData graphData = new GraphData();
-                graphData.graphId = graph.getGraphId();
-                graphData.type = graph.getType();
-                graphData.graphLevelStatistics = graphLevelStatistics;
-                graphData.mapOFConstraints = getMapOfConstraints(listConstraintLevelStatistics);
-                graphData.mapOfAttributes = getMapOfAttributes(graph.getAttributeList());
-                graphData.mapOfDates = getMapOfDates(currentDate);
-                graphData.mapOfMonths = getMapOfMonths(currentMonth);
+            List<ConstraintLevelStatistics> listConstraintLevelStatistics = new ArrayList<ConstraintLevelStatistics>(constraints * branches.size());
+            populateConstraintLevels(listConstraintLevelStatistics, filterAttributes, branches);    //start with index of -1
+            initialiseConstraintLevelStatistics(listConstraintLevelStatistics, weightedAttributes, currentDate, graph.getType());
 
 
-                populateStatistics(graphData, filterAttributes, listResponse, graph.getType());
+            GraphLevelStatistics graphLevelStatistics = new GraphLevelStatistics();
+            graphLevelStatistics.setGraphId(graph.getGraphId());
+            graphLevelStatistics.setListConstraintLevelStatistics(listConstraintLevelStatistics);
 
-                listGraphData.add(graphData);
+            GraphData graphData = new GraphData();
+            graphData.graphId = graph.getGraphId();
+            graphData.type = graph.getType();
+            graphData.graphLevelStatistics = graphLevelStatistics;
+            graphData.mapOFConstraints = getMapOfConstraints(listConstraintLevelStatistics);
+            graphData.mapOfAttributes = getMapOfAttributes(graph.getAttributeList());
+            graphData.mapOfDates = getMapOfDates(currentDate);
+            graphData.mapOfMonths = getMapOfMonths(currentMonth);
+
+
+            populateStatistics(graphData, filterAttributes, listResponse, graph.getType());
+
+            listGraphData.add(graphData);
         }
 
         CompanyData companyData = new CompanyData();
@@ -225,7 +225,7 @@ public class StatisticsService {
             attributeLevelStatistics.setName(attribute.getAttributeString());
             attributeLevelStatistics.setListAttributeValue(attribute.getAttributeValues());
 
-            if(graphType.equals("filter")){
+            if (graphType.equals("filter")) {
                 List<DailyAttributeStatisticValues> listDailyAttributeStatisticValues = new ArrayList<DailyAttributeStatisticValues>(31);
                 attributeLevelStatistics.setListDailyAttributeStatisticValues(listDailyAttributeStatisticValues);
                 initialiseDailyValues(listDailyAttributeStatisticValues, currentDate, attribute.getAttributeValues().size());
@@ -265,10 +265,10 @@ public class StatisticsService {
         }
     }
 
-    private void initialiseMonthlyValues(List<MonthlyAttributeLevelStatisticValues> listMonthlyAttributeLevelStatisticValues, int currentMonth, int noOfValues){
+    private void initialiseMonthlyValues(List<MonthlyAttributeLevelStatisticValues> listMonthlyAttributeLevelStatisticValues, int currentMonth, int noOfValues) {
         int month = FeedbackUtilities.addToMonth(currentMonth, -DATA_MONTH_COUNT);
 
-        while(month <= currentMonth){
+        while (month <= currentMonth) {
             MonthlyAttributeLevelStatisticValues monthlyAttributeLevelStatisticValues = new MonthlyAttributeLevelStatisticValues();
             monthlyAttributeLevelStatisticValues.setMonth(month);
             List<Integer> listCountPPL = new ArrayList<Integer>(noOfValues);
@@ -324,11 +324,11 @@ public class StatisticsService {
         return outMap;
     }
 
-    private Map<Integer, Integer> getMapOfMonths(int currentMonth){
+    private Map<Integer, Integer> getMapOfMonths(int currentMonth) {
         Map<Integer, Integer> outMap = new HashMap<Integer, Integer>();
         int i = 0;
         int month = FeedbackUtilities.addToMonth(currentMonth, -DATA_MONTH_COUNT);
-        while(month<= currentMonth){
+        while (month <= currentMonth) {
             outMap.put(month, i);
             month = FeedbackUtilities.nextMonth(month);
             i++;
@@ -336,12 +336,12 @@ public class StatisticsService {
         return outMap;
     }
 
-    private Date getLastDate(List<CustomerResponseDao.CustomerResponseAndValues> listResponse){
-        if (listResponse.size()==0) return null;
+    private Date getLastDate(List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+        if (listResponse.size() == 0) return null;
 
         Date last = listResponse.get(0).getResponse().getTimestamp();
-        for(CustomerResponseDao.CustomerResponseAndValues response: listResponse){
-            if(last.after(response.getResponse().getTimestamp()))
+        for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
+            if (last.after(response.getResponse().getTimestamp()))
                 last = response.getResponse().getTimestamp();
         }
         return last;
@@ -390,7 +390,7 @@ public class StatisticsService {
         Map<String, Integer> mapFilter = new HashMap<String, Integer>();
         mapFilter.put("branch", response.getResponse().getBranchId());
 
-        for(Attribute attribute: filterAttributes){
+        for (Attribute attribute : filterAttributes) {
             mapFilter.put(attribute.getAttributeString(), -1);
         }
 

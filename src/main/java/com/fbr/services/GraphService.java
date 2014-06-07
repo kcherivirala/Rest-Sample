@@ -6,7 +6,6 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Graph.Entities.*;
 import com.fbr.Dao.Graph.GraphAttributesDao;
 import com.fbr.Dao.Graph.GraphFiltersDao;

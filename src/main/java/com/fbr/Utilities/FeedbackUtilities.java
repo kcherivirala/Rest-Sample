@@ -59,10 +59,10 @@ public class FeedbackUtilities {
         return addToDate(date, 1);
     }
 
-    public static int addToDate(int date, int number){
-        int day = date %100;
-        int month = (date/100)%100;
-        int year = date/10000;
+    public static int addToDate(int date, int number) {
+        int day = date % 100;
+        int month = (date / 100) % 100;
+        int year = date / 10000;
 
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DATE, day);
@@ -73,9 +73,9 @@ public class FeedbackUtilities {
         return dateFromCal(cal);
     }
 
-    public static int addToMonth(int month, int number){
-        int monthVal = month %100;
-        int year = month /100;
+    public static int addToMonth(int month, int number) {
+        int monthVal = month % 100;
+        int year = month / 100;
 
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, monthVal);
@@ -86,11 +86,11 @@ public class FeedbackUtilities {
         return cal.get(Calendar.YEAR) * 100 + cal.get(Calendar.MONTH);
     }
 
-    public static int nextMonth(int month){
+    public static int nextMonth(int month) {
         return addToMonth(month, 1);
     }
 
-    public static int monthFromDate(int date){
+    public static int monthFromDate(int date) {
         return date % 10000;
     }
 }
