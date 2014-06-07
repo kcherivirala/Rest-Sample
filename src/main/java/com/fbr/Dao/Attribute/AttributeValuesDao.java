@@ -35,7 +35,7 @@ public class AttributeValuesDao extends ProjectDaoImpl<AttributeValuesDbType, At
 
     @Transactional
     public void deleteAttributeValues(int attributeId) {
-        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.attributId = ?1");
+        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.attributeId = ?1");
         q.setParameter(1, attributeId);
         q.executeUpdate();
     }

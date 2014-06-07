@@ -225,7 +225,7 @@ public class StatisticsService {
             attributeLevelStatistics.setName(attribute.getAttributeString());
             attributeLevelStatistics.setListAttributeValue(attribute.getAttributeValues());
 
-            if (graphType.equals("filter")) {
+            if (graphType.equals("trend")) {
                 List<DailyAttributeStatisticValues> listDailyAttributeStatisticValues = new ArrayList<DailyAttributeStatisticValues>(31);
                 attributeLevelStatistics.setListDailyAttributeStatisticValues(listDailyAttributeStatisticValues);
                 initialiseDailyValues(listDailyAttributeStatisticValues, currentDate, attribute.getAttributeValues().size());
@@ -350,6 +350,15 @@ public class StatisticsService {
     private void populateStatistics(GraphData graphData,
                                     List<Attribute> filterAttributes,
                                     List<CustomerResponseDao.CustomerResponseAndValues> listResponse, String graphType) {
+        if (graphType.equals("trend"))
+            populateFilterGraphStatistics(graphData, filterAttributes, listResponse);
+        else if (graphType.equals("normal"))
+            populateNormalGraphStatistics(graphData, filterAttributes, listResponse);
+    }
+
+    private void populateFilterGraphStatistics(GraphData graphData,
+                                               List<Attribute> filterAttributes,
+                                               List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
             Map<String, Integer> mapFilter = getMapConstraintsFromResponse(filterAttributes, response);
             int constraintIndex = graphData.mapOFConstraints.get(mapFilter);
@@ -373,6 +382,12 @@ public class StatisticsService {
                 countPPL_Monthly.set(attributeValueIndex, countPPL_Monthly.get(attributeValueIndex) + 1);
             }
         }
+    }
+
+    private void populateNormalGraphStatistics(GraphData graphData,
+                                               List<Attribute> filterAttributes,
+                                               List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+
     }
 
     private int getAttributeValueIndex(List<AttributeValue> attributeValueList, int value) {

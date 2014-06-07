@@ -78,11 +78,11 @@ public class QuestionService {
         return matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
     }
 
-    public List<Question> getQuestionAndAnswers(int companyId, int questionId) {
+    public Question getQuestionAndAnswers(int companyId, int questionId) {
         List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId, questionId);
         List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
 
-        return matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
+        return matchQuestionAndAnswers(questionDbEntries, answerDbEntries).get(0);
     }
 
     private void updateAnswers(int companyId, int questionId, List<AnswerDbType> answerDbEntries, List<Answer> inputAnswers) {

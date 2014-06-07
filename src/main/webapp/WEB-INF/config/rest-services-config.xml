@@ -36,7 +36,7 @@
          Configures view for returning JSON to the client
     -->
     <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
-        <property name="contentType" value="text/plain"/>
+        <property name="contentType" value="application/javascript"/>
     </bean>
 
     <!--
@@ -76,6 +76,8 @@
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
+
+    <bean class="com.fbr.rest.filter.JsonpCallbackFilter" id="jsonpCallbackFilter"/>
 
 
 </beans>
