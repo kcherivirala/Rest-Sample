@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Repository("customerResponseDao")
@@ -25,6 +26,18 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
         try {
             Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.responseId = b.id.responseId");
             q.setParameter(1, companyId);
+            List<Object[]> listObject = q.getResultList();
+            return processObjectList(listObject);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<CustomerResponseAndValues> getResponses(int companyId, Date timeStamp) {
+        try {
+            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.timeStamp > ?2  a.responseId = b.id.responseId");
+            q.setParameter(1, companyId);
+            q.setParameter(2, timeStamp);
             List<Object[]> listObject = q.getResultList();
             return processObjectList(listObject);
         } catch (Exception e) {

@@ -62,10 +62,15 @@ public class AttributeService {
     }
 
     public List<Attribute> getAttributeAndValues() {
+        try{
         List<AttributeDbType> attributeDbEntries = attributeDao.findAll();
         List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.findAll();
 
         return matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
+        }catch (Exception e){
+            System.out.println();
+            return null;
+        }
     }
 
     public Attribute getAttributeAndValues(int attrId) {
