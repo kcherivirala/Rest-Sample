@@ -130,6 +130,7 @@ public class FeedBackController {
 
 
     @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/responses"}, method = {RequestMethod.POST})
+    @ResponseBody
     public Response addResponses(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId,
                                  @RequestBody ResponseList responseList, HttpServletResponse httpResponse_p, WebRequest request_p) {
         responseService.processResponse(companyId, branchId, responseList.getResponses());
@@ -138,139 +139,84 @@ public class FeedBackController {
     }
 
     @RequestMapping(value = {"/companies"}, method = {RequestMethod.POST})
-    public ModelAndView addCompany(@RequestBody Company company,
+    @ResponseBody
+    public Company addCompany(@RequestBody Company company,
                                    HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Company returnVal;
-        try {
-            returnVal = companyService.addCompanyAndBranches(company);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
+        Company returnVal = companyService.addCompanyAndBranches(company);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/company/" + returnVal.getId());
-        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+        return returnVal;
     }
 
     @RequestMapping(value = {"/company/{companyId}"}, method = {RequestMethod.PUT})
-    public ModelAndView updateCompany(@PathVariable("companyId") int companyId, @RequestBody Company company,
+    @ResponseBody
+    public Company updateCompany(@PathVariable("companyId") int companyId, @RequestBody Company company,
                                       HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Company returnVal;
-        try {
-            returnVal = companyService.updateCompanyAndBranches(companyId, company);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
+        Company returnVal = companyService.updateCompanyAndBranches(companyId, company);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/company/" + returnVal.getId());
-        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+        return returnVal;
     }
 
     @RequestMapping(value = {"/companies"}, method = {RequestMethod.GET})
-    public ModelAndView getCompanies() {
-        try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, companyService.getCompanies());
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
+    @ResponseBody
+    public List<Company> getCompanies() {
+        return companyService.getCompanies();
     }
 
     @RequestMapping(value = {"/company/{companyId}"}, method = {RequestMethod.GET})
-    public ModelAndView getCompany(@PathVariable("companyId") int companyId) {
-        try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, companyService.getCompany(companyId));
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
+    @ResponseBody
+    public Company getCompany(@PathVariable("companyId") int companyId) {
+        return companyService.getCompany(companyId);
     }
 
     @RequestMapping(value = {"/company/{companyId}/graphs"}, method = {RequestMethod.POST})
-    public ModelAndView addGraph(@PathVariable("companyId") int companyId, @RequestBody Graph graph,
+    @ResponseBody
+    public Graph addGraph(@PathVariable("companyId") int companyId, @RequestBody Graph graph,
                                  HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Graph returnVal;
-        try {
-            returnVal = graphService.addGraph(companyId, graph);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
+        Graph returnVal = graphService.addGraph(companyId, graph);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/graph/" + returnVal.getGraphId());
-        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+        return returnVal;
     }
 
     @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.PUT})
-    public ModelAndView updateGraph(@PathVariable("graphId") String graphId, @RequestBody Graph graph,
+    @ResponseBody
+    public Graph updateGraph(@PathVariable("graphId") String graphId, @RequestBody Graph graph,
                                     HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Graph returnVal;
-        try {
-            returnVal = graphService.updateGraph(graphId, graph);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
-
+        Graph returnVal = graphService.updateGraph(graphId, graph);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/graph/" + graphId);
-        return new ModelAndView(jsonView_i, DATA_FIELD, returnVal);
+        return returnVal;
     }
 
     @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.DELETE})
-    public ModelAndView deleteGraph(@PathVariable("graphId") String graphId,
+    @ResponseBody
+    public Graph deleteGraph(@PathVariable("graphId") String graphId,
                                     HttpServletResponse httpResponse_p) {
-        try {
-            graphService.deleteGraph(graphId);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
+        graphService.deleteGraph(graphId);
         httpResponse_p.setStatus(HttpStatus.OK.value());
-        return new ModelAndView(jsonView_i, DATA_FIELD, null);
+        return null;
     }
 
     @RequestMapping(value = {"/company/{companyId}/graphs"}, method = {RequestMethod.GET})
-    public
     @ResponseBody
-    List<Graph> getGraphs(@PathVariable("companyId") int companyId) {
-        try {
-            return graphService.getGraphs(companyId);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            //return createErrorResponse(String.format(sMessage, e.toString()));
-            return null;
-        }
+    public List<Graph> getGraphs(@PathVariable("companyId") int companyId) {
+        return graphService.getGraphs(companyId);
     }
 
     @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.GET})
-    public ModelAndView getGraph(@PathVariable("graphId") String graphId) {
-        try {
-            return new ModelAndView(jsonView_i, DATA_FIELD, graphService.getGraph(graphId));
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
+    @ResponseBody
+    public Graph getGraph(@PathVariable("graphId") String graphId) {
+            return graphService.getGraph(graphId);
     }
 
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
-    public ModelAndView refreshCompanyData(@PathVariable("companyId") int companyId,
+    @ResponseBody
+    public Response refreshCompanyData(@PathVariable("companyId") int companyId,
                                            HttpServletResponse httpResponse_p, WebRequest request_p) {
-        try {
-            statisticsService.resetCompanyData(companyId);
-        } catch (Exception e) {
-            String sMessage = "Error creating new fund. [%1$s]";
-            return createErrorResponse(String.format(sMessage, e.toString()));
-        }
-
+        statisticsService.resetCompanyData(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
-        //httpResponse_p.setHeader("Location", request_p.getContextPath() + "/trend/" + trendId);
-        return new ModelAndView(jsonView_i, DATA_FIELD, null);
-    }
-
-
-    private ModelAndView createErrorResponse(String sMessage) {
-        return new ModelAndView(jsonView_i, ERROR_FIELD, sMessage);
+        return null;
     }
 }
