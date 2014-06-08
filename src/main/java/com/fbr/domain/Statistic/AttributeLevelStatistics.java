@@ -23,7 +23,7 @@ public class AttributeLevelStatistics {
     //for graphs of type 'normal'
     List<Integer> listCountPPl_7Days;
     List<Integer> listCountPPl_30Days;
-    List<Integer> getListCountPPl_365Days;
+    List<Integer> ListCountPPl_365Days;
 
     public List<Integer> getListCountPPl_7Days() {
         return listCountPPl_7Days;
@@ -41,12 +41,12 @@ public class AttributeLevelStatistics {
         this.listCountPPl_30Days = listCountPPl_30Days;
     }
 
-    public List<Integer> getGetListCountPPl_365Days() {
-        return getListCountPPl_365Days;
+    public List<Integer> getListCountPPl_365Days() {
+        return ListCountPPl_365Days;
     }
 
-    public void setGetListCountPPl_365Days(List<Integer> getListCountPPl_365Days) {
-        this.getListCountPPl_365Days = getListCountPPl_365Days;
+    public void setListCountPPl_365Days(List<Integer> listCountPPl_365Days) {
+        ListCountPPl_365Days = listCountPPl_365Days;
     }
 
     public List<MonthlyAttributeLevelStatisticValues> getListMonthlyAttributeLevelStatisticValues() {

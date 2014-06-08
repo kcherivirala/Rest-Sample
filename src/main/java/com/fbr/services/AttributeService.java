@@ -112,6 +112,27 @@ public class AttributeService {
         return out;
     }
 
+    public int getAttributeValueIndex(Attribute attribute, AttributeValue attributeValue) {
+        int index = -1;
+        int i = 0;
+        for (AttributeValue attrValue : attribute.getAttributeValues()) {
+            if (attrValue.getValue() == attributeValue.getValue())
+                index = i;
+            i++;
+        }
+        return index;
+    }
+
+    public int getAttributeValueIndex(Attribute attribute, int attributeValue) {
+        int i = 0;
+        for (AttributeValue attrValue : attribute.getAttributeValues()) {
+            if (attrValue.getValue() == attributeValue)
+                return i;
+            i++;
+        }
+        return -1;
+    }
+
     /*          Private functions           */
 
     private void updateAttributeDbEntry(AttributeDbType attributeDbEntry, Attribute attribute) {

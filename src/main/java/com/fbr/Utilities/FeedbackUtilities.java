@@ -25,56 +25,27 @@ public class FeedbackUtilities {
     }
 
     public static int nextDate(int date) {
-        /*
-        boolean flag = false;
-        int day = date % 100;
-        date = date / 100;
-        int month = date % 100;
-        date = date / 100;
-        int year = date;
-
-        day++;
-        if (day == 30 && month == 2 && year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
-            //leap year
-            flag = true;
-        } else if (day == 29 && month == 2 && year % 4 != 0) {
-            //not a leap year
-            flag = true;
-        } else if (day == 31 && (month == 4 || month == 6 || month == 9 || month == 11)) {
-            flag = true;
-        } else if (day == 32) {
-            flag = true;
-        }
-
-        if (flag == true) {
-            day = 1;
-            month++;
-            if (month == 13) {
-                month = 1;
-                year++;
-            }
-        }
-        return year * 10000 + month * 100 + day;
-        */
         return addToDate(date, 1);
     }
 
     public static int addToDate(int date, int number) {
         int day = date % 100;
-        int month = (date / 100) % 100;
+        int month = (date / 100) % 100 - 1;
         int year = date / 10000;
 
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DATE, day);
+        cal.set(Calendar.DAY_OF_MONTH, day);
         cal.set(Calendar.MONTH, month);
         cal.set(Calendar.YEAR, year);
 
-        cal.add(Calendar.DATE, number);
-        return dateFromCal(cal);
+        cal.add(Calendar.DAY_OF_MONTH, number);
+        int x = dateFromCal(cal);
+
+        return x;
     }
 
     public static int addToMonth(int month, int number) {
-        int monthVal = month % 100;
+        int monthVal = month % 100 - 1;
         int year = month / 100;
 
         Calendar cal = Calendar.getInstance();
@@ -83,7 +54,7 @@ public class FeedbackUtilities {
 
         cal.add(Calendar.MONTH, number);
 
-        return cal.get(Calendar.YEAR) * 100 + cal.get(Calendar.MONTH);
+        return cal.get(Calendar.YEAR) * 100 + cal.get(Calendar.MONTH) + 1;
     }
 
     public static int nextMonth(int month) {
@@ -91,6 +62,39 @@ public class FeedbackUtilities {
     }
 
     public static int monthFromDate(int date) {
-        return date % 10000;
+        return date / 100;
+    }
+
+    public static long differenceInDates(int date1, int date2) {
+        int day = date1 % 100;
+        int month = (date1 / 100) % 100 - 1;
+        int year = date1 / 10000;
+
+        Calendar cal1 = Calendar.getInstance();
+        cal1.set(Calendar.DAY_OF_MONTH, day);
+        cal1.set(Calendar.MONTH, month);
+        cal1.set(Calendar.YEAR, year);
+
+        cal1.set(Calendar.HOUR, 0);
+        cal1.set(Calendar.MINUTE, 0);
+        cal1.set(Calendar.SECOND, 0);
+        cal1.set(Calendar.MILLISECOND, 0);
+
+        day = date2 % 100;
+        month = (date2 / 100) % 100 - 1;
+        year = date2 / 10000;
+
+        Calendar cal2 = Calendar.getInstance();
+        cal2.set(Calendar.DAY_OF_MONTH, day);
+        cal2.set(Calendar.MONTH, month);
+        cal2.set(Calendar.YEAR, year);
+
+        cal2.set(Calendar.HOUR, 0);
+        cal2.set(Calendar.MINUTE, 0);
+        cal2.set(Calendar.SECOND, 0);
+        cal2.set(Calendar.MILLISECOND, 0);
+
+        return (cal1.getTimeInMillis() - cal2.getTimeInMillis()) / (24 * 60 * 60 * 1000);
+
     }
 }

@@ -6,6 +6,7 @@ import com.fbr.domain.Graph.Graph;
 import com.fbr.domain.Question.Question;
 import com.fbr.domain.Response.Response;
 import com.fbr.domain.Response.ResponseList;
+import com.fbr.domain.Statistic.AttributeLevelStatistics;
 import com.fbr.services.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletResponse;
@@ -141,7 +141,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/companies"}, method = {RequestMethod.POST})
     @ResponseBody
     public Company addCompany(@RequestBody Company company,
-                                   HttpServletResponse httpResponse_p, WebRequest request_p) {
+                              HttpServletResponse httpResponse_p, WebRequest request_p) {
         Company returnVal = companyService.addCompanyAndBranches(company);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/company/" + returnVal.getId());
@@ -151,7 +151,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/company/{companyId}"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Company updateCompany(@PathVariable("companyId") int companyId, @RequestBody Company company,
-                                      HttpServletResponse httpResponse_p, WebRequest request_p) {
+                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
         Company returnVal = companyService.updateCompanyAndBranches(companyId, company);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/company/" + returnVal.getId());
@@ -173,7 +173,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/company/{companyId}/graphs"}, method = {RequestMethod.POST})
     @ResponseBody
     public Graph addGraph(@PathVariable("companyId") int companyId, @RequestBody Graph graph,
-                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
+                          HttpServletResponse httpResponse_p, WebRequest request_p) {
         Graph returnVal = graphService.addGraph(companyId, graph);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/graph/" + returnVal.getGraphId());
@@ -183,7 +183,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Graph updateGraph(@PathVariable("graphId") String graphId, @RequestBody Graph graph,
-                                    HttpServletResponse httpResponse_p, WebRequest request_p) {
+                             HttpServletResponse httpResponse_p, WebRequest request_p) {
         Graph returnVal = graphService.updateGraph(graphId, graph);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/graph/" + graphId);
@@ -193,7 +193,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.DELETE})
     @ResponseBody
     public Graph deleteGraph(@PathVariable("graphId") String graphId,
-                                    HttpServletResponse httpResponse_p) {
+                             HttpServletResponse httpResponse_p) {
         graphService.deleteGraph(graphId);
         httpResponse_p.setStatus(HttpStatus.OK.value());
         return null;
@@ -208,15 +208,21 @@ public class FeedBackController {
     @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.GET})
     @ResponseBody
     public Graph getGraph(@PathVariable("graphId") String graphId) {
-            return graphService.getGraph(graphId);
+        return graphService.getGraph(graphId);
     }
 
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Response refreshCompanyData(@PathVariable("companyId") int companyId,
-                                           HttpServletResponse httpResponse_p, WebRequest request_p) {
+                                       HttpServletResponse httpResponse_p, WebRequest request_p) {
         statisticsService.resetCompanyData(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/graph/{graphId}/statistics"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public List<AttributeLevelStatistics> getStatistics(@PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId) {
+        return statisticsService.getGraphData(companyId, graphId);
     }
 }
