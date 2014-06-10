@@ -136,6 +136,9 @@ public class AttributeService {
             return null;
 
         Map<String, Integer> outMap = new HashMap<String, Integer>();
+        if (map.containsKey("branch")) {
+            outMap.put("branch", Integer.parseInt(map.get("branch")));
+        }
         List<Attribute> listAttribute = getAttributesByCompany(companyId);
 
         for (Attribute attribute : listAttribute) {
