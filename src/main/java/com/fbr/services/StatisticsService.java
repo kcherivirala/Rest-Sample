@@ -77,7 +77,7 @@ public class StatisticsService {
         }
     }
 
-    public List<AttributeLevelStatistics> getGraphData(int companyId, String graphId) {
+    public List<AttributeLevelStatistics> getGraphData(int companyId, String graphId, Map<String, Integer> mapOfFilters) {
         int index = getIndex(listCompanyData, companyId);
         CompanyData companyData = listCompanyData.get(index);
 
@@ -88,16 +88,30 @@ public class StatisticsService {
 
         List<AttributeLevelStatistics> listAttributeStatistics = new ArrayList<AttributeLevelStatistics>(graphData.mapOfAttributes.size());
         initialiseAttributeLevelStatistics(listAttributeStatistics, graph.getAttributeList(), FeedbackUtilities.dateFromCal(Calendar.getInstance()), graph.getType());
-        populateFromGraphData(listAttributeStatistics, graphData, graph);
+        populateFromGraphData(listAttributeStatistics, mapOfFilters, graphData);
 
         return listAttributeStatistics;
     }
 
-    private void populateFromGraphData(List<AttributeLevelStatistics> listAttributeStatistics, GraphData graphData, Graph graph) {
-        boolean first = true;
+    private void populateFromGraphData(List<AttributeLevelStatistics> listAttributeStatistics, Map<String, Integer> mapOfFilters, GraphData graphData) {
         for (ConstraintLevelStatistics constraintLevelStatistics : graphData.graphLevelStatistics.getListConstraintLevelStatistics()) {
-            populateFromAttributeStatistics(listAttributeStatistics, constraintLevelStatistics.getAttributeLevelStatistics());
+            if (checkInclude(constraintLevelStatistics.getConstraints(), mapOfFilters)) {
+                populateFromAttributeStatistics(listAttributeStatistics, constraintLevelStatistics.getAttributeLevelStatistics());
+            }
         }
+    }
+
+    private boolean checkInclude(Map<String, Integer> map, Map<String, Integer> inputMap) {
+        if (inputMap == null || inputMap.size() == 0) return true;
+
+
+        for(String key: inputMap.keySet()){
+            if(!map.containsKey(key))
+                return false;
+            if(map.get(key) != inputMap.get(key))
+                return false;
+        }
+        return true;
     }
 
     private void populateFromAttributeStatistics(List<AttributeLevelStatistics> out, List<AttributeLevelStatistics> in) {

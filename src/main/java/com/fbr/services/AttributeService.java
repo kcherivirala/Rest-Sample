@@ -19,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class AttributeService {
@@ -133,6 +131,23 @@ public class AttributeService {
         return -1;
     }
 
+    public Map<String, Integer> getMapOfFilters(int companyId, Map<String, String> map) {
+        if (map == null || map.size() == 0)
+            return null;
+
+        Map<String, Integer> outMap = new HashMap<String, Integer>();
+        List<Attribute> listAttribute = getAttributesByCompany(companyId);
+
+        for (Attribute attribute : listAttribute) {
+            String attrValString = map.get(attribute.getAttributeString());
+            if (attrValString != null) {
+                int attrValue = getAttributeValue(attribute.getAttributeValues(), attrValString);
+                outMap.put(attribute.getAttributeString(), attrValue);
+            }
+        }
+        return outMap;
+    }
+
     /*          Private functions           */
 
     private void updateAttributeDbEntry(AttributeDbType attributeDbEntry, Attribute attribute) {
@@ -229,6 +244,15 @@ public class AttributeService {
         }
 
         return out;
+    }
+
+    private int getAttributeValue(List<AttributeValue> attributeValueList, String attrValueString) {
+        for (AttributeValue attributeValue : attributeValueList) {
+            if (attrValueString.equals(attributeValue.getName())) {
+                return attributeValue.getValue();
+            }
+        }
+        return -1;
     }
 
     public static class Conversions {

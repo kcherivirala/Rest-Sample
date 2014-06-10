@@ -18,6 +18,7 @@ import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -222,7 +223,9 @@ public class FeedBackController {
 
     @RequestMapping(value = {"/company/{companyId}/graph/{graphId}/statistics"}, method = {RequestMethod.GET})
     @ResponseBody
-    public List<AttributeLevelStatistics> getStatistics(@PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId) {
-        return statisticsService.getGraphData(companyId, graphId);
+    public List<AttributeLevelStatistics> getStatistics(@RequestParam(required = false) Map<String, String> reqParams,
+                                                        @PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId) {
+        Map<String, Integer> mapOfFilters = attributeService.getMapOfFilters(companyId, reqParams);
+        return statisticsService.getGraphData(companyId, graphId, mapOfFilters);
     }
 }
