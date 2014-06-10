@@ -105,10 +105,10 @@ public class StatisticsService {
         if (inputMap == null || inputMap.size() == 0) return true;
 
 
-        for(String key: inputMap.keySet()){
-            if(!map.containsKey(key))
+        for (String key : inputMap.keySet()) {
+            if (!map.containsKey(key))
                 return false;
-            if(map.get(key) != inputMap.get(key))
+            if (map.get(key) != inputMap.get(key))
                 return false;
         }
         return true;
