@@ -11,14 +11,19 @@ import com.fbr.Dao.Attribute.AttributeValuesDao;
 import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesPrimaryKey;
+import com.fbr.Dao.Company.CompanyDao;
+import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
+import com.fbr.domain.Response.AttributeTuple;
+import com.fbr.domain.Response.Response;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Service
@@ -28,6 +33,20 @@ public class AttributeService {
     private AttributeDao attributeDao;
     @Autowired
     private AttributeValuesDao attributeValuesDao;
+    @Autowired
+    private CompanyDao companyDao;
+
+    private Map<Integer, CompanyAttributeData> mapCompanyAttributes;
+
+    @PostConstruct
+    public void init() {
+        List<CompanyDbType> companies = companyDao.findAll();
+        mapCompanyAttributes = new HashMap<Integer, CompanyAttributeData>(companies.size());
+
+        for (CompanyDbType company : companies) {
+            mapCompanyAttributes.put(company.getCompanyId(), getCompanyAttributeData(company.getCompanyId()));
+        }
+    }
 
     @Transactional
     public Attribute addAttributeAndValues(Attribute attribute) {
@@ -78,14 +97,8 @@ public class AttributeService {
     }
 
     public List<Attribute> getAttributesByCompany(int companyId) {
-        List<AttributeDbType> attributeList = attributeDao.getAttributesByCompany(companyId);
-        List<AttributeValuesDbType> attributeValuesList = attributeValuesDao.getAttributeValuesByCompany(companyId);
-
-        return matchAttributesAndValues(attributeList, attributeValuesList);
-    }
-
-    public List<AttributeDbType> getDbAttributesByCompany(int companyId) {
-        return attributeDao.getAttributesByCompany(companyId);
+        if (mapCompanyAttributes.get(companyId) == null) resetCompanyAttributes(companyId);
+        return mapCompanyAttributes.get(companyId).attributeList;
     }
 
     public List<Attribute> getAttributes(List<Attribute> listFiltersId, List<Attribute> listAttribute) {
@@ -108,17 +121,6 @@ public class AttributeService {
             }
         }
         return out;
-    }
-
-    public int getAttributeValueIndex(Attribute attribute, AttributeValue attributeValue) {
-        int index = -1;
-        int i = 0;
-        for (AttributeValue attrValue : attribute.getAttributeValues()) {
-            if (attrValue.getValue() == attributeValue.getValue())
-                index = i;
-            i++;
-        }
-        return index;
     }
 
     public int getAttributeValueIndex(Attribute attribute, int attributeValue) {
@@ -149,6 +151,32 @@ public class AttributeService {
             }
         }
         return outMap;
+    }
+
+    public void resetCompanyAttributes(int companyId) {
+        mapCompanyAttributes.put(companyId, getCompanyAttributeData(companyId));
+    }
+
+    public boolean check(int companyId, Response response) {
+        List<Attribute> attributeList = getAttributesByCompany(companyId);
+        for (AttributeTuple attributeTuple : response.getAttributeTuples()) {
+            int attributeId = attributeTuple.getAttributeId();
+            int obtainedVal = attributeTuple.getObtainedValue();
+
+            boolean flag = false;
+            for (Attribute attribute : attributeList) {
+                if (attribute.getAttributeId() == attributeId) {
+                    for (AttributeValue attributeValue : attribute.getAttributeValues()) {
+                        if (obtainedVal == attributeValue.getValue()) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (flag == false) return false;
+        }
+        return true;
     }
 
     /*          Private functions           */
@@ -258,6 +286,21 @@ public class AttributeService {
         return -1;
     }
 
+    private List<Attribute> calculateAttributesByCompany(int companyId) {
+        List<AttributeDbType> attributeList = attributeDao.getAttributesByCompany(companyId);
+        List<AttributeValuesDbType> attributeValuesList = attributeValuesDao.getAttributeValuesByCompany(companyId);
+
+        return matchAttributesAndValues(attributeList, attributeValuesList);
+    }
+
+    private CompanyAttributeData getCompanyAttributeData(int companyId) {
+        CompanyAttributeData companyAttributeData = new CompanyAttributeData();
+        companyAttributeData.companyId = companyId;
+        companyAttributeData.attributeList = calculateAttributesByCompany(companyId);
+
+        return companyAttributeData;
+    }
+
     public static class Conversions {
         public static Attribute getAttribute(AttributeDbType attributeDbEntry) {
             Attribute attribute = new Attribute();
@@ -302,5 +345,10 @@ public class AttributeService {
 
             return attributeValuesDbEntry;
         }
+    }
+
+    class CompanyAttributeData {
+        int companyId;
+        List<Attribute> attributeList;
     }
 }

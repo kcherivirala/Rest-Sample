@@ -6,15 +6,17 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.Attribute.Entities.AttributeDbType;
-import com.fbr.Dao.*;
+import com.fbr.Dao.CustomerDao;
+import com.fbr.Dao.CustomerDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.Dao.Response.CustomerResponseValuesDao;
 import com.fbr.Dao.Response.Entities.CustomerResponseDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesPrimaryKey;
-import com.fbr.Utilities.Comparators;
+import com.fbr.Dao.ResponseAggregateDbType;
+import com.fbr.Dao.ResponseAggregatePrimaryKey;
 import com.fbr.Utilities.FeedbackUtilities;
+import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.AttributeAggregateInfo;
 import com.fbr.domain.BranchAggregateInfo;
 import com.fbr.domain.Response.AttributeTuple;
@@ -40,8 +42,6 @@ public class ResponseService {
     private AlertService alertService;
     @Autowired
     private AttributeService attributeService;
-    @Autowired
-    private ResponseAggregateDao responseAggregateDao;
 
     private Timer timer;
     long AGGREGATE_TIME_INTERVAL = 24 * 3600 * 1000; // 24 hours
@@ -66,7 +66,7 @@ public class ResponseService {
     @Transactional
     public void processResponse(int companyId, int branchId, List<Response> responseList) {
         //processes teh list of responses from various customer for the given company and branch.
-        List<AttributeDbType> attributeDbEntries = attributeService.getDbAttributesByCompany(companyId);
+        List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
         for (Response response : responseList) {
             CustomerDbType customerDbEntry = addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
 
@@ -74,12 +74,12 @@ public class ResponseService {
             if (customerDbEntry != null) customerId = customerDbEntry.getCustomerId();
             else customerId = UUID.randomUUID().toString();
 
-            addToResponseDb(companyId, branchId, customerId, response.getAttributeTuples());
+            if (attributeService.check(companyId, response)) {
+                addToResponseDb(companyId, branchId, customerId, response.getAttributeTuples());
 
-            if (customerDbEntry != null)
-                alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeDbEntries);
-
-            addToAggregateDb(companyId, branchId, response.getAttributeTuples());
+                if (customerDbEntry != null)
+                    alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);
+            }
         }
     }
 
@@ -138,20 +138,6 @@ public class ResponseService {
         return dbEntry;
     }
 
-    private void addToAggregateDb(int companyId, int branchId, List<AttributeTuple> attributeResponseTuples) {
-        for (AttributeTuple attributeTuple : attributeResponseTuples) {
-            ResponseAggregatePrimaryKey key = getResponseAggregatePrKey(companyId, branchId, attributeTuple);
-            ResponseAggregateDbType responseAggregateDbEntry = responseAggregateDao.find(key);
-
-            if (responseAggregateDbEntry == null) {
-                responseAggregateDao.add(getResponseAggreagteDbEntry(companyId, branchId, attributeTuple));
-            } else {
-                updateResponseAggreagteDbEntry(responseAggregateDbEntry, attributeTuple);
-                responseAggregateDao.update(responseAggregateDbEntry);
-            }
-        }
-    }
-
     private ResponseAggregateDbType getResponseAggreagteDbEntry(int companyId, int branchId, AttributeTuple attributeTuple) {
         ResponseAggregatePrimaryKey key = getResponseAggregatePrKey(companyId, branchId, attributeTuple);
         ResponseAggregateDbType dbentry = new ResponseAggregateDbType();
@@ -175,23 +161,6 @@ public class ResponseService {
         key.setCompanyId(companyId);
         key.setDate(FeedbackUtilities.dateFromCal(Calendar.getInstance()));
         return key;
-    }
-
-    public List<BranchAggregateInfo> getAggregateInfo(int companyId) {
-        List<ResponseAggregateDbType> responseAggregateDbTypeList = responseAggregateDao.getAggregateInfo(companyId);
-        Collections.sort(responseAggregateDbTypeList, Comparators.aggregateComparator);
-
-        List<BranchAggregateInfo> listBranchAggregateInfo = new ArrayList<BranchAggregateInfo>();
-        int branchId = -1, i = 0;
-
-        while (i < responseAggregateDbTypeList.size()) {
-            ResponseAggregateDbType dbentry = responseAggregateDbTypeList.get(i);
-            //create a new branch aggregate info
-            branchId = dbentry.getId().getBranchId();
-            int index = addBranchInfo(branchId, responseAggregateDbTypeList, i, listBranchAggregateInfo);
-            i = index;
-        }
-        return listBranchAggregateInfo;
     }
 
     private int addBranchInfo(int branchId, List<ResponseAggregateDbType> responseAggregateDbTypeList, int index, List<BranchAggregateInfo> listBranchAggregateInfo) {
