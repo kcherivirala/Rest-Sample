@@ -204,13 +204,22 @@ public class GraphService {
                 if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) && graphAttributes.get(aIndex).getId().getAttributeId() == attribute.getAttributeId()) {
                     attributeList.add(attribute);
                     aIndex++;
+                } else if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) && graphAttributes.get(aIndex).getId().getAttributeId() < attribute.getAttributeId()) {
+                    aIndex++;
                 } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) && graphFilters.get(fIndex).getId().getAttributeId() == attribute.getAttributeId()) {
                     filterList.add(attribute);
+                    fIndex++;
+                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) && graphFilters.get(fIndex).getId().getAttributeId() < attribute.getAttributeId()) {
                     fIndex++;
                 }
                 dbIndex++;
             }
-
+            while (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId())) {
+                aIndex++;
+            }
+            while (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId())) {
+                fIndex++;
+            }
             gIndex++;
             out.add(graph);
         }
