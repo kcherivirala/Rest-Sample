@@ -31,6 +31,8 @@ public class QuestionService {
     private AnswerDao answerDao;
     @Autowired
     private QuestionDao questionDao;
+    @Autowired
+    private AttributeService attributeService;
 
     @Transactional
     public Question addQuestionAndAnswers(int companyId, Question question) {
@@ -40,6 +42,7 @@ public class QuestionService {
             addAnswer(companyId, questionId, answer);
         }
 
+        attributeService.resetCompanyAttributes(companyId);
         question.setQuestionId(questionId);
         return question;
     }
@@ -56,6 +59,7 @@ public class QuestionService {
         updateQuestion(questionDbEntry, question);
         updateAnswers(companyId, questionId, answerDbEntries, question.getAnswers());
 
+        attributeService.resetCompanyAttributes(companyId);
         return question;
     }
 

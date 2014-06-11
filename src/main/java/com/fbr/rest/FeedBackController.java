@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -36,11 +35,7 @@ public class FeedBackController {
     private StatisticsService statisticsService;
     @Autowired
     private CompanyService companyService;
-    @Autowired
-    private View jsonView_i;
 
-    private static final String DATA_FIELD = "data";
-    private static final String ERROR_FIELD = "error";
 
     @RequestMapping(value = {"/attributes"}, method = {RequestMethod.POST})
     @ResponseBody
