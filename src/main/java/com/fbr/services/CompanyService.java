@@ -76,6 +76,14 @@ public class CompanyService {
         return out;
     }
 
+    public List<CompanyDbType> getCompanyDbEntries() {
+        return companyDao.findAll();
+    }
+
+    public CompanyDbType getCompanyDbEntry(int companyId) {
+        return companyDao.find(companyId);
+    }
+
     /* private functions */
 
     private Company matchCompanyAndBranches(CompanyDbType companyDbType, List<BranchDbType> listDbBranches) {

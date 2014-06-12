@@ -34,13 +34,13 @@ public class AttributeService {
     @Autowired
     private AttributeValuesDao attributeValuesDao;
     @Autowired
-    private CompanyDao companyDao;
+    private CompanyService companyService;
 
     private Map<Integer, CompanyAttributeData> mapCompanyAttributes;
 
     @PostConstruct
     public void init() {
-        List<CompanyDbType> companies = companyDao.findAll();
+        List<CompanyDbType> companies = companyService.getCompanyDbEntries();
         mapCompanyAttributes = new HashMap<Integer, CompanyAttributeData>(companies.size());
 
         for (CompanyDbType company : companies) {

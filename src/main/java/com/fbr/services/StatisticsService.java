@@ -33,8 +33,6 @@ public class StatisticsService {
     private GraphService graphService;
     @Autowired
     private CompanyService companyService;
-    @Autowired
-    private CompanyDao companyDao;
 
     private List<CompanyData> listCompanyData;
 
@@ -47,7 +45,7 @@ public class StatisticsService {
         int date = FeedbackUtilities.dateFromCal(Calendar.getInstance());
         int month = FeedbackUtilities.monthFromDate(date);
 
-        List<CompanyDbType> companies = companyDao.findAll();
+        List<CompanyDbType> companies = companyService.getCompanyDbEntries();
         listCompanyData = new ArrayList<CompanyData>(companies.size());
 
         for (CompanyDbType company : companies) {
@@ -59,7 +57,7 @@ public class StatisticsService {
         int date = FeedbackUtilities.dateFromCal(Calendar.getInstance());
         int month = FeedbackUtilities.monthFromDate(date);
 
-        CompanyDbType company = companyDao.find(companyId);
+        CompanyDbType company = companyService.getCompanyDbEntry(companyId);
         CompanyData data = processPerCompanyResponses(company.getCompanyId(), company.getName(), date, month);
 
         int index = -1;
@@ -166,7 +164,7 @@ public class StatisticsService {
     }
 
     public void addNewData() {
-        List<CompanyDbType> companies = companyDao.findAll();
+        List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
             addNewData(company);
