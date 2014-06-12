@@ -89,8 +89,9 @@ public class QuestionService {
         List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId);
         List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
 
+        List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
         logger.info("done getting questions for company : " + companyId);
-        return matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
+        return out;
     }
 
     public Question getQuestionAndAnswers(int companyId, int questionId) {
@@ -98,8 +99,9 @@ public class QuestionService {
         List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId, questionId);
         List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
 
+        Question out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries).get(0);
         logger.info("done getting question for company : " + companyId + " and questionId : " + questionId);
-        return matchQuestionAndAnswers(questionDbEntries, answerDbEntries).get(0);
+        return out;
     }
 
     /*   private functions */

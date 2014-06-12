@@ -66,6 +66,7 @@ public class ResponseService {
     @Transactional
     public void processResponse(int companyId, int branchId, List<Response> responseList) {
         //processes teh list of responses from various customer for the given company and branch.
+        logger.info("adding customer responses for : (" + companyId + "," + branchId + ")");
         List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
         for (Response response : responseList) {
             CustomerDbType customerDbEntry = addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
@@ -81,6 +82,7 @@ public class ResponseService {
                     alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);
             }
         }
+        logger.info("done adding customer responses for : (" + companyId + "," + branchId + ")");
     }
 
     private CustomerDbType addCustomerInfo(String mail, String phone, String name) {
@@ -136,79 +138,5 @@ public class ResponseService {
         dbEntry.setResponse(attributeTuple.getResponseString());
 
         return dbEntry;
-    }
-
-    private ResponseAggregateDbType getResponseAggreagteDbEntry(int companyId, int branchId, AttributeTuple attributeTuple) {
-        ResponseAggregatePrimaryKey key = getResponseAggregatePrKey(companyId, branchId, attributeTuple);
-        ResponseAggregateDbType dbentry = new ResponseAggregateDbType();
-        dbentry.setId(key);
-
-        dbentry.setObtainedValue(attributeTuple.getObtainedValue());
-        dbentry.setTotalValue(attributeTuple.getMaxValue());
-
-        return dbentry;
-    }
-
-    private void updateResponseAggreagteDbEntry(ResponseAggregateDbType responseAggregateDbEntry, AttributeTuple attributeTuple) {
-        responseAggregateDbEntry.setObtainedValue(responseAggregateDbEntry.getObtainedValue() + attributeTuple.getObtainedValue());
-        responseAggregateDbEntry.setTotalValue(responseAggregateDbEntry.getTotalValue() + attributeTuple.getMaxValue());
-    }
-
-    private ResponseAggregatePrimaryKey getResponseAggregatePrKey(int companyId, int branchId, AttributeTuple attributeTuple) {
-        ResponseAggregatePrimaryKey key = new ResponseAggregatePrimaryKey();
-        key.setAttributeId(attributeTuple.getAttributeId());
-        key.setBranchId(branchId);
-        key.setCompanyId(companyId);
-        key.setDate(FeedbackUtilities.dateFromCal(Calendar.getInstance()));
-        return key;
-    }
-
-    private int addBranchInfo(int branchId, List<ResponseAggregateDbType> responseAggregateDbTypeList, int index, List<BranchAggregateInfo> listBranchAggregateInfo) {
-        BranchAggregateInfo branchInfo = new BranchAggregateInfo();
-        List<AttributeAggregateInfo> listAttributeAggregateInfo = new ArrayList<AttributeAggregateInfo>();
-        branchInfo.setListAttributeAggregateInfo(listAttributeAggregateInfo);
-        branchInfo.setBranchId(branchId);
-        listBranchAggregateInfo.add(branchInfo);
-
-
-        int i = index;
-        while (i < responseAggregateDbTypeList.size()) {
-            ResponseAggregateDbType aggregateDbEntry = responseAggregateDbTypeList.get(i);
-            if (aggregateDbEntry.getId().getBranchId() != branchId) {
-                return i;
-            }
-            int index2 = addAttributeInfo(branchId, aggregateDbEntry.getId().getAttributeId(), responseAggregateDbTypeList, i, branchInfo);
-            i = index2;
-        }
-        return i;
-    }
-
-    private int addAttributeInfo(int branchId, int attributeId,
-                                 List<ResponseAggregateDbType> responseAggregateDbTypeList, int index, BranchAggregateInfo branchAggregateInfo) {
-        AttributeAggregateInfo attributeInfo = new AttributeAggregateInfo();
-        branchAggregateInfo.getListAttributeAggregateInfo().add(attributeInfo);
-        attributeInfo.setAttributeId(attributeId);
-
-        List<Integer> dates = new ArrayList<Integer>();
-        List<Integer> obtainedValues = new ArrayList<Integer>();
-        List<Integer> totalValues = new ArrayList<Integer>();
-
-        attributeInfo.setDates(dates);
-        attributeInfo.setObtainedValues(obtainedValues);
-        attributeInfo.setTotalValues(totalValues);
-
-        int i = index;
-        while (i < responseAggregateDbTypeList.size()) {
-            ResponseAggregateDbType aggregateDbEntry = responseAggregateDbTypeList.get(i);
-            if (attributeId != (aggregateDbEntry.getId().getAttributeId()) || branchId != aggregateDbEntry.getId().getBranchId()) {
-                return i;
-            }
-
-            dates.add(aggregateDbEntry.getId().getDate());
-            obtainedValues.add(aggregateDbEntry.getObtainedValue());
-            totalValues.add(aggregateDbEntry.getTotalValue());
-            i++;
-        }
-        return i;
     }
 }

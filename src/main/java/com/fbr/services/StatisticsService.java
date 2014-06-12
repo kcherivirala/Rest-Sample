@@ -84,7 +84,7 @@ public class StatisticsService {
         index = getIndex(companyData.listGraphData, graphId);
         GraphData graphData = companyData.listGraphData.get(index);
 
-        Graph graph = graphService.getGraph(graphId);
+        Graph graph = graphService.getGraph(companyId, graphId);
 
         List<AttributeLevelStatistics> listAttributeStatistics = new ArrayList<AttributeLevelStatistics>(graphData.mapOfAttributes.size());
         initialiseAttributeLevelStatistics(listAttributeStatistics, graph.getAttributeList(), FeedbackUtilities.dateFromCal(Calendar.getInstance()), graph.getType());

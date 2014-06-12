@@ -88,8 +88,9 @@ public class AttributeService {
         List<AttributeDbType> attributeDbEntries = attributeDao.findAll();
         List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.findAll();
 
+        List<Attribute> out = matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
         logger.info("done getting all attributes and values");
-        return matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
+        return out;
     }
 
     public Attribute getAttributeAndValues(int attrId) {
@@ -97,8 +98,9 @@ public class AttributeService {
         AttributeDbType attributeDbEntry = attributeDao.find(attrId);
         List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attrId);
 
+        Attribute out = matchAttributeAndValues(attributeDbEntry, attributeValuesDbEntries);
         logger.info("done getting all attributes and values for : " + attrId);
-        return matchAttributeAndValues(attributeDbEntry, attributeValuesDbEntries);
+        return out;
     }
 
 

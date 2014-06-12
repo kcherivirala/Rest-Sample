@@ -14,6 +14,7 @@ import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Company.Branch;
 import com.fbr.domain.Company.Company;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @Service
 public class CompanyService {
+    private static final Logger logger = Logger.getLogger(CompanyService.class);
     @Autowired
     private CompanyDao companyDao;
     @Autowired
@@ -31,38 +33,50 @@ public class CompanyService {
 
     @Transactional
     public Company addCompanyAndBranches(Company company) {
+        logger.info("adding a company : " + company.getName() + " and branches : " + company.getBranches().size());
         int id = companyDao.getMaxCompanyIdValue() + 1;
         companyDao.add(Conversions.getCompanyDbEntry(id, company));
         company.setId(id);
 
         addBranches(id, company.getBranches());
+        logger.info("done adding a company : " + company.getName() + " and branches : " + company.getBranches().size());
         return company;
     }
 
     @Transactional
     public Company updateCompanyAndBranches(int companyId, Company company) {
+        logger.info("updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
         CompanyDbType companyDbType = companyDao.find(companyId);
         List<BranchDbType> listBranchDb = branchDao.getBranchesByCompany(companyId);
 
         updateCompanyDbEntry(companyDbType, company);
         updateBranchDbEntries(companyId, listBranchDb, company.getBranches());
 
+        logger.info("done updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
         return company;
     }
 
     public List<Company> getCompanies() {
+        logger.info("getting all the companies");
         List<CompanyDbType> listDbCompanies = companyDao.findAll();
         List<BranchDbType> listDbBranches = branchDao.findAll();
 
-        return matchCompanyAndBranches(listDbCompanies, listDbBranches);
+        List<Company> out = matchCompanyAndBranches(listDbCompanies, listDbBranches);
+        logger.info("done getting all the companies");
+        return out;
     }
 
     public Company getCompany(int companyId) {
+        logger.info("getting the company : " + companyId);
         CompanyDbType companyDbType = companyDao.find(companyId);
         List<BranchDbType> listDbBranches = branchDao.getBranchesByCompany(companyId);
 
-        return matchCompanyAndBranches(companyDbType, listDbBranches);
+        Company out = matchCompanyAndBranches(companyDbType, listDbBranches);
+        logger.info("done getting the company : " + companyId);
+        return out;
     }
+
+    /* private functions */
 
     private Company matchCompanyAndBranches(CompanyDbType companyDbType, List<BranchDbType> listDbBranches) {
         List<CompanyDbType> list = new ArrayList<CompanyDbType>(1);
@@ -94,6 +108,7 @@ public class CompanyService {
     }
 
     private void updateCompanyDbEntry(CompanyDbType companyDbEntry, Company company) {
+        logger.debug("modifying Company : " + companyDbEntry.getCompanyId());
         boolean updated = false;
         if (!company.getInfo().equals(companyDbEntry.getInfo())) {
             companyDbEntry.setInfo(company.getInfo());
@@ -117,22 +132,27 @@ public class CompanyService {
             Branch inputBranch = inputBranches.get(inputIndex);
 
             if (inputBranch.getId() == branchDbEntry.getId().getBranchId()) {
+                logger.debug("modifying the branch : (" + companyId + "," + inputBranch.getId() + ")");
                 updateBranchDbEntry(branchDbEntry, inputBranch);
                 dbIndex++;
                 inputIndex++;
             } else if (inputBranches.get(inputIndex).getId() < branchDbEntry.getId().getBranchId()) {
+                logger.debug("adding the branch : (" + companyId + "," + inputBranch.getId() + ")");
                 addBranch(companyId, inputBranch);
                 inputIndex++;
             } else {
+                logger.debug("deleting the branch : (" + companyId + "," + branchDbEntry.getId().getBranchId() + ")");
                 deleteBranchDbEntry(branchDbEntry);
                 dbIndex++;
             }
         }
         while (dbIndex < listBranchDb.size()) {
+            logger.debug("deleting the branch : (" + companyId + "," + listBranchDb.get(dbIndex).getId().getBranchId() + ")");
             deleteBranchDbEntry(listBranchDb.get(dbIndex));
             dbIndex++;
         }
         while (inputIndex < inputBranches.size()) {
+            logger.debug("adding the branch : (" + companyId + "," + inputBranches.get(inputIndex).getId() + ")");
             addBranch(companyId, inputBranches.get(inputIndex));
             inputIndex++;
         }

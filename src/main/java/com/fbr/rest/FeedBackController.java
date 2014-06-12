@@ -176,21 +176,21 @@ public class FeedBackController {
         return returnVal;
     }
 
-    @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.PUT})
+    @RequestMapping(value = {"/company/{companyId}/graph/{graphId}"}, method = {RequestMethod.PUT})
     @ResponseBody
-    public Graph updateGraph(@PathVariable("graphId") String graphId, @RequestBody Graph graph,
+    public Graph updateGraph(@PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId, @RequestBody Graph graph,
                              HttpServletResponse httpResponse_p, WebRequest request_p) {
-        Graph returnVal = graphService.updateGraph(graphId, graph);
+        Graph returnVal = graphService.updateGraph(companyId, graphId, graph);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/graph/" + graphId);
         return returnVal;
     }
 
-    @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.DELETE})
+    @RequestMapping(value = {"/company/{companyId}/graph/{graphId}"}, method = {RequestMethod.DELETE})
     @ResponseBody
-    public Graph deleteGraph(@PathVariable("graphId") String graphId,
+    public Graph deleteGraph(@PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId,
                              HttpServletResponse httpResponse_p) {
-        graphService.deleteGraph(graphId);
+        graphService.deleteGraph(companyId, graphId);
         httpResponse_p.setStatus(HttpStatus.OK.value());
         return null;
     }
@@ -201,10 +201,10 @@ public class FeedBackController {
         return graphService.getGraphs(companyId);
     }
 
-    @RequestMapping(value = {"/graph/{graphId}"}, method = {RequestMethod.GET})
+    @RequestMapping(value = {"/company/{companyId}/graph/{graphId}"}, method = {RequestMethod.GET})
     @ResponseBody
-    public Graph getGraph(@PathVariable("graphId") String graphId) {
-        return graphService.getGraph(graphId);
+    public Graph getGraph(@PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId) {
+        return graphService.getGraph(companyId, graphId);
     }
 
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
