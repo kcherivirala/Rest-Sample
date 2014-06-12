@@ -10,7 +10,6 @@ import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesPrimaryKey;
 import com.fbr.Dao.ProjectDaoImpl;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import java.util.List;

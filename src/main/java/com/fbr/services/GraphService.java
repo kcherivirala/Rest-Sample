@@ -36,33 +36,42 @@ public class GraphService {
     private AttributeService attributeService;
 
     @Transactional
-    public Graph addGraph(int companyId, Graph graph) {
+    public Graph addGraph(int companyId, Graph graph) throws Exception {
         logger.info("adding graph for company : " + companyId + " and graph : " + graph.getName());
         String id = UUID.randomUUID().toString();
 
         graphsDao.add(Conversions.getGraphDbEntry(id, companyId, graph));
 
-        addGraphAttributes(id, graph.getAttributeList());
-        addGraphFilters(id, graph.getFilterList());
+        if (check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
+            addGraphAttributes(id, graph.getAttributeList());
+            addGraphFilters(id, graph.getFilterList());
 
-        graph.setGraphId(id);
-        logger.info("done adding graph for company : " + companyId + " and graph : " + graph.getName());
-        return graph;
+            graph.setGraphId(id);
+            logger.info("done adding graph for company : " + companyId + " and graph : " + graph.getName());
+            return graph;
+        } else {
+            throw new Exception("graph contains attributes not part of the company");
+        }
     }
 
     @Transactional
-    public Graph updateGraph(int companyId, String graphId, Graph graph) {
+    public Graph updateGraph(int companyId, String graphId, Graph graph) throws Exception {
         logger.info("updating graph for company : " + companyId + " and graph : " + graph.getName());
         GraphDbType graphDbEntry = graphsDao.find(graphId);
         if (!graph.getName().equals(graphDbEntry.getName())) {
             graphDbEntry.setName(graph.getName());
             graphsDao.update(graphDbEntry);
         }
-        updateGraphAttributes(graphId, graph.getAttributeList());
-        updateGraphFilters(graphId, graph.getFilterList());
 
-        logger.info("done updating graph for company : " + companyId + " and graph : " + graph.getName());
-        return graph;
+        if (check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
+            updateGraphAttributes(graphId, graph.getAttributeList());
+            updateGraphFilters(graphId, graph.getFilterList());
+
+            logger.info("done updating graph for company : " + companyId + " and graph : " + graph.getName());
+            return graph;
+        } else {
+            throw new Exception("graph contains attributes not part of the company");
+        }
     }
 
     @Transactional
@@ -246,6 +255,24 @@ public class GraphService {
             out.add(graph);
         }
         return out;
+    }
+
+    private boolean check(List<Attribute> attributeList, List<Attribute> filterList, List<Attribute> attributesOfCompany) {
+        Collections.sort(attributeList, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
+        Collections.sort(filterList, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
+        Collections.sort(attributesOfCompany, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
+
+        int i = 0, j = 0;
+        for (Attribute attribute : attributesOfCompany) {
+            if (attribute.getAttributeId() == attributeList.get(i).getAttributeId()) {
+                i++;
+            } else if (attribute.getAttributeId() == filterList.get(j).getAttributeId()) {
+                j++;
+            } else if (attribute.getAttributeId() > attributeList.get(i).getAttributeId() || attribute.getAttributeId() > filterList.get(j).getAttributeId()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

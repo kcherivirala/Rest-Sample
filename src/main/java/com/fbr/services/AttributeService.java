@@ -15,8 +15,6 @@ import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
-import com.fbr.domain.Response.AttributeTuple;
-import com.fbr.domain.Response.Response;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
