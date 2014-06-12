@@ -36,6 +36,7 @@ public class QuestionService {
 
     @Transactional
     public Question addQuestionAndAnswers(int companyId, Question question) {
+        logger.info("adding question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
         int questionId = questionDao.getMaxQuestionIdValue(companyId) + 1;
         addQuestion(companyId, questionId, question);
         for (Answer answer : question.getAnswers()) {
@@ -44,11 +45,13 @@ public class QuestionService {
 
         attributeService.resetCompanyAttributes(companyId);
         question.setQuestionId(questionId);
+        logger.info("done adding question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
         return question;
     }
 
     @Transactional
     public Question updateQuestionAndAnswers(int companyId, int questionId, Question question) {
+        logger.info("updating question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
         QuestionPrimaryKey key = new QuestionPrimaryKey();
         key.setCompanyId(companyId);
         key.setQuestionId(questionId);
@@ -60,11 +63,15 @@ public class QuestionService {
         updateAnswers(companyId, questionId, answerDbEntries, question.getAnswers());
 
         attributeService.resetCompanyAttributes(companyId);
+
+        attributeService.resetCompanyAttributes(companyId);
+        logger.info("done updating question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
         return question;
     }
 
     @Transactional
     public void deleteQuestionAndAnswers(int companyId, int questionId) {
+        logger.info("deleting question for company : " + companyId + " and questionId : " + questionId);
         QuestionPrimaryKey key = new QuestionPrimaryKey();
         key.setCompanyId(companyId);
         key.setQuestionId(questionId);
@@ -73,21 +80,29 @@ public class QuestionService {
         questionDao.delete(questionDbEntry);
 
         answerDao.deleteAnswersOfQuestion(companyId, questionId);
+
+        logger.info("done deleting question for company : " + companyId + " and questionId : " + questionId);
     }
 
     public List<Question> getQuestionAndAnswers(int companyId) {
+        logger.info("getting questions for company : " + companyId);
         List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId);
         List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
 
+        logger.info("done getting questions for company : " + companyId);
         return matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
     }
 
     public Question getQuestionAndAnswers(int companyId, int questionId) {
+        logger.info("getting question for company : " + companyId + " and questionId : " + questionId);
         List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId, questionId);
         List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
 
+        logger.info("done getting question for company : " + companyId + " and questionId : " + questionId);
         return matchQuestionAndAnswers(questionDbEntries, answerDbEntries).get(0);
     }
+
+    /*   private functions */
 
     private void updateAnswers(int companyId, int questionId, List<AnswerDbType> answerDbEntries, List<Answer> inputAnswers) {
         Collections.sort(answerDbEntries, Comparators.COMPARE_DB_ANSWERS);
@@ -99,22 +114,27 @@ public class QuestionService {
             Answer inputAnswer = inputAnswers.get(inputIndex);
 
             if (inputAnswer.getAnswerId() == answerDbEntry.getId().getAnswerId()) {
+                logger.debug("modifying : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
                 updateAnswer(answerDbEntry, inputAnswer);
                 dbIndex++;
                 inputIndex++;
             } else if (inputAnswers.get(inputIndex).getAnswerId() < answerDbEntries.get(dbIndex).getId().getAnswerId()) {
+                logger.debug("adding : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
                 addAnswer(companyId, questionId, inputAnswer);
                 inputIndex++;
             } else {
+                logger.debug("deleting : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
                 deleteAnswer(answerDbEntry);
                 dbIndex++;
             }
         }
         while (dbIndex < answerDbEntries.size()) {
+            logger.debug("deleting : (" + companyId + "," + questionId + "," + answerDbEntries.get(dbIndex).getAttainableValue() + ")");
             deleteAnswer(answerDbEntries.get(dbIndex));
             dbIndex++;
         }
         while (inputIndex < inputAnswers.size()) {
+            logger.debug("adding : (" + companyId + "," + questionId + "," + inputAnswers.get(inputIndex).getAnswerId() + ")");
             addAnswer(companyId, questionId, inputAnswers.get(inputIndex));
             inputIndex++;
         }
@@ -156,6 +176,7 @@ public class QuestionService {
     }
 
     private void updateQuestion(QuestionDbType questionDbEntry, Question question) {
+        logger.debug("modifying question for company : " + questionDbEntry.getId().getCompanyId() + " and questionID : " + questionDbEntry.getId().getQuestionId());
         boolean updated = false;
         if (!questionDbEntry.getQuestionString().equals(question.getQuestion())) {
             questionDbEntry.setQuestionString(question.getQuestion());

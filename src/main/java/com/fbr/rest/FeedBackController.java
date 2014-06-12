@@ -220,7 +220,7 @@ public class FeedBackController {
     @ResponseBody
     public List<AttributeLevelStatistics> getStatistics(@RequestParam(required = false) Map<String, String> reqParams,
                                                         @PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId) {
-        Map<String, Integer> mapOfFilters = attributeService.getMapOfFilters(companyId, reqParams);
+        Map<String, Integer> mapOfFilters = attributeService.getMapOfInputArgumentFilters(companyId, reqParams);
         return statisticsService.getGraphData(companyId, graphId, mapOfFilters);
     }
 }

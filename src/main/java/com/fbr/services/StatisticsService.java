@@ -209,8 +209,8 @@ public class StatisticsService {
 
         List<GraphData> listGraphData = new ArrayList<GraphData>(listGraph.size());
         for (Graph graph : listGraph) {
-            List<Attribute> filterAttributes = attributeService.getAttributes(graph.getFilterList(), listAttribute);
-            List<Attribute> weightedAttributes = attributeService.getAttributes(graph.getAttributeList(), listAttribute);
+            List<Attribute> filterAttributes = attributeService.getAttributesForIds(graph.getFilterList(), listAttribute);
+            List<Attribute> weightedAttributes = attributeService.getAttributesForIds(graph.getAttributeList(), listAttribute);
             int constraints = numberOfConstraints(filterAttributes);
 
             List<ConstraintLevelStatistics> listConstraintLevelStatistics = new ArrayList<ConstraintLevelStatistics>(constraints * branches.size());

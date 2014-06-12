@@ -50,6 +50,7 @@ public class AttributeService {
 
     @Transactional
     public Attribute addAttributeAndValues(Attribute attribute) {
+        logger.info("adding new attribute : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
         int id = attributeDao.getMaxAttributeIdValue() + 1;
         AttributeDbType attributeDbEntry = Conversions.getAttributeDbEntry(id, attribute);
         attributeDao.add(attributeDbEntry);
@@ -58,50 +59,58 @@ public class AttributeService {
             addAttributeValueDbEntry(attributeDbEntry.getAttributeId(), attributeValue);
         }
         attribute.setAttributeId(attributeDbEntry.getAttributeId());
+        logger.info("done adding : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
         return attribute;
     }
 
     @Transactional
     public Attribute updateAttributeAndValues(int attributeId, Attribute attribute) {
+        logger.info("updating new attribute : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
         AttributeDbType dbEntry = attributeDao.find(attributeId);
         List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attributeId);
 
         updateAttributeDbEntry(dbEntry, attribute);
         updateAttributeValues(dbEntry.getAttributeId(), attributeValuesDbEntries, attribute.getAttributeValues());
+        logger.info("done updating : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
         return attribute;
     }
 
     @Transactional
     public void deleteAttributeAndValues(int attrId) {
+        logger.info("deleting attribute : " + attrId);
         attributeDao.delete(attrId);
         attributeValuesDao.deleteAttributeValues(attrId);
-
+        logger.info("done deleting attribute : " + attrId);
     }
 
     public List<Attribute> getAttributeAndValues() {
-        try {
-            List<AttributeDbType> attributeDbEntries = attributeDao.findAll();
-            List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.findAll();
+        logger.info("getting all attributes and values");
+        List<AttributeDbType> attributeDbEntries = attributeDao.findAll();
+        List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.findAll();
 
-            return matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
-        } catch (Exception e) {
-            System.out.println();
-            return null;
-        }
+        logger.info("done getting all attributes and values");
+        return matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
     }
 
     public Attribute getAttributeAndValues(int attrId) {
+        logger.info("getting all attributes and values for : " + attrId);
         AttributeDbType attributeDbEntry = attributeDao.find(attrId);
         List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attrId);
+
+        logger.info("done getting all attributes and values for : " + attrId);
         return matchAttributeAndValues(attributeDbEntry, attributeValuesDbEntries);
     }
+
+
+    /*      Internal functions    */
+
 
     public List<Attribute> getAttributesByCompany(int companyId) {
         if (mapCompanyAttributes.get(companyId) == null) resetCompanyAttributes(companyId);
         return mapCompanyAttributes.get(companyId).attributeList;
     }
 
-    public List<Attribute> getAttributes(List<Attribute> listFiltersId, List<Attribute> listAttribute) {
+    public List<Attribute> getAttributesForIds(List<Attribute> listFiltersId, List<Attribute> listAttribute) {
         Collections.sort(listFiltersId, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
         List<Attribute> out = new ArrayList<Attribute>(listFiltersId.size());
 
@@ -133,12 +142,13 @@ public class AttributeService {
         return -1;
     }
 
-    public Map<String, Integer> getMapOfFilters(int companyId, Map<String, String> map) {
+    public Map<String, Integer> getMapOfInputArgumentFilters(int companyId, Map<String, String> map) {
         if (map == null || map.size() == 0)
             return null;
 
         Map<String, Integer> outMap = new HashMap<String, Integer>();
         if (map.containsKey("branch")) {
+            logger.debug("adding branch in the argument filter");
             outMap.put("branch", Integer.parseInt(map.get("branch")));
         }
         List<Attribute> listAttribute = getAttributesByCompany(companyId);
@@ -146,6 +156,7 @@ public class AttributeService {
         for (Attribute attribute : listAttribute) {
             String attrValString = map.get(attribute.getAttributeString());
             if (attrValString != null) {
+                logger.debug("adding attribute : " + attribute.getAttributeId() + " to the argument filters");
                 int attrValue = getAttributeValue(attribute.getAttributeValues(), attrValString);
                 outMap.put(attribute.getAttributeString(), attrValue);
             }
@@ -158,8 +169,10 @@ public class AttributeService {
     }
 
     public boolean check(int companyId, Response response) {
+        logger.info("check response for company" + companyId + " responses : " + response.getAttributeTuples().size());
         List<Attribute> attributeList = getAttributesByCompany(companyId);
         for (AttributeTuple attributeTuple : response.getAttributeTuples()) {
+            logger.debug("checking for company " + companyId + " attribute : " + attributeTuple.getAttributeId() + " and value : " + attributeTuple.getObtainedValue());
             int attributeId = attributeTuple.getAttributeId();
             int obtainedVal = attributeTuple.getObtainedValue();
 
@@ -182,6 +195,7 @@ public class AttributeService {
     /*          Private functions           */
 
     private void updateAttributeDbEntry(AttributeDbType attributeDbEntry, Attribute attribute) {
+        logger.debug("modifying attribute : " + attributeDbEntry.getAttributeId());
         attributeDbEntry.setAttributeString(attribute.getAttributeString());
         attributeDbEntry.setParentId(attribute.getParentId());
         attributeDbEntry.setType(attribute.getType());
@@ -223,22 +237,27 @@ public class AttributeService {
             AttributeValue inputValue = inputValues.get(inputIndex);
 
             if (inputValue.getValue() == attributeValueDbEntry.getId().getValue()) {
+                logger.debug("modifying : (" + attributeId + "," + inputValue.getValue() + ")");
                 updateAttributeValueDbEntry(attributeValueDbEntry, inputValue);
                 dbIndex++;
                 inputIndex++;
             } else if (inputValue.getValue() < attributeValueDbEntry.getId().getValue()) {
+                logger.debug("adding : (" + attributeId + "," + inputValue.getValue() + ")");
                 addAttributeValueDbEntry(attributeId, inputValue);
                 inputIndex++;
             } else {
+                logger.debug("deleting : (" + attributeId + "," + inputValue.getValue() + ")");
                 deleteAttributeValueDbEntry(attributeValueDbEntry);
                 dbIndex++;
             }
         }
         while (dbIndex < attributeValuesDbEntries.size()) {
+            logger.debug("deleting : (" + attributeId + "," + attributeValuesDbEntries.get(dbIndex).getId().getValue() + ")");
             deleteAttributeValueDbEntry(attributeValuesDbEntries.get(dbIndex));
             dbIndex++;
         }
         while (inputIndex < inputValues.size()) {
+            logger.debug("adding : (" + attributeId + "," + inputValues.get(inputIndex).getValue() + ")");
             addAttributeValueDbEntry(attributeId, inputValues.get(inputIndex));
             inputIndex++;
         }
@@ -294,6 +313,7 @@ public class AttributeService {
     }
 
     private CompanyAttributeData getCompanyAttributeData(int companyId) {
+        logger.info("getting attribute data for company : " + companyId);
         CompanyAttributeData companyAttributeData = new CompanyAttributeData();
         companyAttributeData.companyId = companyId;
         companyAttributeData.attributeList = calculateAttributesByCompany(companyId);
