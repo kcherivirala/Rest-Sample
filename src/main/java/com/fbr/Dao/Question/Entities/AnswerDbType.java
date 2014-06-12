@@ -26,8 +26,8 @@ public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKe
     int attributeId;
     @Column(name = "max_value", nullable = false)
     int maxValue;
-    @Column(name = "attainable_value", nullable = false)
-    int attainableValue;
+    @Column(name = "value", nullable = false)
+    int value;
 
 
     public String getAnswerString() {
@@ -54,12 +54,12 @@ public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKe
         this.maxValue = maxValue;
     }
 
-    public int getAttainableValue() {
-        return attainableValue;
+    public int getValue() {
+        return value;
     }
 
-    public void setAttainableValue(int attainableValue) {
-        this.attainableValue = attainableValue;
+    public void setValue(int value) {
+        this.value = value;
     }
 
     @Override

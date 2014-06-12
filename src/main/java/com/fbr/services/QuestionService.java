@@ -131,7 +131,7 @@ public class QuestionService {
             }
         }
         while (dbIndex < answerDbEntries.size()) {
-            logger.debug("deleting : (" + companyId + "," + questionId + "," + answerDbEntries.get(dbIndex).getAttainableValue() + ")");
+            logger.debug("deleting : (" + companyId + "," + questionId + "," + answerDbEntries.get(dbIndex).getValue() + ")");
             deleteAnswer(answerDbEntries.get(dbIndex));
             dbIndex++;
         }
@@ -207,8 +207,8 @@ public class QuestionService {
             answerDbEntry.setAttributeId(inputAnswer.getAttributeId());
             updated = true;
         }
-        if (answerDbEntry.getAttainableValue() != inputAnswer.getAttainedValue()) {
-            answerDbEntry.setAttainableValue(inputAnswer.getAttainedValue());
+        if (answerDbEntry.getValue() != inputAnswer.getAttainedValue()) {
+            answerDbEntry.setValue(inputAnswer.getAttainedValue());
             updated = true;
         }
         if (answerDbEntry.getMaxValue() != inputAnswer.getMaxValue()) {
@@ -242,7 +242,7 @@ public class QuestionService {
 
             answerDbEntry.setAnswerString(answer.getAnswer());
             answerDbEntry.setAttributeId(answer.getAttributeId());
-            answerDbEntry.setAttainableValue(answer.getAttainedValue());
+            answerDbEntry.setValue(answer.getAttainedValue());
             answerDbEntry.setMaxValue(answer.getMaxValue());
 
             return answerDbEntry;
@@ -279,7 +279,7 @@ public class QuestionService {
 
             answer.setAnswer(answerDbEntry.getAnswerString());
             answer.setAnswerId(answerDbEntry.getId().getAnswerId());
-            answer.setAttainedValue(answerDbEntry.getAttainableValue());
+            answer.setAttainedValue(answerDbEntry.getValue());
             answer.setMaxValue(answerDbEntry.getMaxValue());
             answer.setAttributeId(answerDbEntry.getAttributeId());
 

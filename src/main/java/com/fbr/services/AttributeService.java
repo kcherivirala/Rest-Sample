@@ -11,7 +11,6 @@ import com.fbr.Dao.Attribute.AttributeValuesDao;
 import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesPrimaryKey;
-import com.fbr.Dao.Company.CompanyDao;
 import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Attribute.Attribute;

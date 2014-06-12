@@ -13,12 +13,7 @@ import com.fbr.Dao.Response.CustomerResponseValuesDao;
 import com.fbr.Dao.Response.Entities.CustomerResponseDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesPrimaryKey;
-import com.fbr.Dao.ResponseAggregateDbType;
-import com.fbr.Dao.ResponseAggregatePrimaryKey;
-import com.fbr.Utilities.FeedbackUtilities;
 import com.fbr.domain.Attribute.Attribute;
-import com.fbr.domain.AttributeAggregateInfo;
-import com.fbr.domain.BranchAggregateInfo;
 import com.fbr.domain.Response.AttributeTuple;
 import com.fbr.domain.Response.Response;
 import org.apache.log4j.Logger;
@@ -27,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.UUID;
 
 @Service
 public class ResponseService {

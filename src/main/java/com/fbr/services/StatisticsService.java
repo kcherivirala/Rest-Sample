@@ -6,7 +6,6 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.Company.CompanyDao;
 import com.fbr.Dao.Company.Entities.BranchDbType;
 import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
@@ -17,6 +16,7 @@ import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
 import com.fbr.domain.Graph.Graph;
 import com.fbr.domain.Statistic.*;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +25,7 @@ import java.util.*;
 
 @Service("statisticsService")
 public class StatisticsService {
+    private static final Logger logger = Logger.getLogger(StatisticsService.class);
     @Autowired
     private CustomerResponseDao customerResponseDao;
     @Autowired
@@ -54,6 +55,7 @@ public class StatisticsService {
     }
 
     public void resetCompanyData(int companyId) {
+        logger.info("caching the statistics for company : " + companyId);
         int date = FeedbackUtilities.dateFromCal(Calendar.getInstance());
         int month = FeedbackUtilities.monthFromDate(date);
 
@@ -73,9 +75,11 @@ public class StatisticsService {
             listCompanyData.remove(index);
             listCompanyData.add(data);
         }
+        logger.info("done caching the statistics for company : " + companyId);
     }
 
     public List<AttributeLevelStatistics> getGraphData(int companyId, String graphId, Map<String, Integer> mapOfFilters) {
+        logger.info("getting the statistics for companyId : " + companyId + " and graph : " + graphId);
         int index = getIndex(listCompanyData, companyId);
         CompanyData companyData = listCompanyData.get(index);
 
@@ -88,8 +92,11 @@ public class StatisticsService {
         initialiseAttributeLevelStatistics(listAttributeStatistics, graph.getAttributeList(), FeedbackUtilities.dateFromCal(Calendar.getInstance()), graph.getType());
         populateFromGraphData(listAttributeStatistics, mapOfFilters, graphData);
 
+        logger.info("done getting the statistics for companyId : " + companyId + " and graph : " + graphId);
         return listAttributeStatistics;
     }
+
+    /* private functions */
 
     private void populateFromGraphData(List<AttributeLevelStatistics> listAttributeStatistics, Map<String, Integer> mapOfFilters, GraphData graphData) {
         for (ConstraintLevelStatistics constraintLevelStatistics : graphData.graphLevelStatistics.getListConstraintLevelStatistics()) {
