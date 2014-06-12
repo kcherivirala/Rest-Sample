@@ -76,6 +76,14 @@ public class CompanyService {
         return out;
     }
 
+    @Transactional
+    public void deleteCompanyAndBranches(int companyId) {
+        logger.info("deleting the company : " + companyId);
+        branchDao.deleteBranches(companyId);
+        companyDao.delete(companyDao.find(companyId));
+        logger.info("done deleting the company : " + companyId);
+    }
+
     public List<CompanyDbType> getCompanyDbEntries() {
         return companyDao.findAll();
     }

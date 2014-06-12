@@ -14,6 +14,7 @@ import com.fbr.Dao.Response.Entities.CustomerResponseDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesPrimaryKey;
 import com.fbr.domain.Attribute.Attribute;
+import com.fbr.domain.Attribute.AttributeValue;
 import com.fbr.domain.Response.AttributeTuple;
 import com.fbr.domain.Response.Response;
 import org.apache.log4j.Logger;
@@ -73,7 +74,7 @@ public class ResponseService {
             if (customerDbEntry != null) customerId = customerDbEntry.getCustomerId();
             else customerId = UUID.randomUUID().toString();
 
-            if (attributeService.check(companyId, response)) {
+            if (check(companyId, response)) {
                 addToResponseDb(companyId, branchId, customerId, response.getAttributeTuples());
 
                 if (customerDbEntry != null)
@@ -136,5 +137,29 @@ public class ResponseService {
         dbEntry.setResponse(attributeTuple.getResponseString());
 
         return dbEntry;
+    }
+
+    private boolean check(int companyId, Response response) {
+        logger.info("check response for company" + companyId + " responses : " + response.getAttributeTuples().size());
+        List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
+        for (AttributeTuple attributeTuple : response.getAttributeTuples()) {
+            logger.debug("checking for company " + companyId + " attribute : " + attributeTuple.getAttributeId() + " and value : " + attributeTuple.getObtainedValue());
+            int attributeId = attributeTuple.getAttributeId();
+            int obtainedVal = attributeTuple.getObtainedValue();
+
+            boolean flag = false;
+            for (Attribute attribute : attributeList) {
+                if (attribute.getAttributeId() == attributeId) {
+                    for (AttributeValue attributeValue : attribute.getAttributeValues()) {
+                        if (obtainedVal == attributeValue.getValue()) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (flag == false) return false;
+        }
+        return true;
     }
 }

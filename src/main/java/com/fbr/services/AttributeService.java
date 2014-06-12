@@ -77,8 +77,8 @@ public class AttributeService {
     @Transactional
     public void deleteAttributeAndValues(int attrId) {
         logger.info("deleting attribute : " + attrId);
-        attributeDao.delete(attrId);
         attributeValuesDao.deleteAttributeValues(attrId);
+        attributeDao.delete(attrId);
         logger.info("done deleting attribute : " + attrId);
     }
 
@@ -167,30 +167,6 @@ public class AttributeService {
 
     public void resetCompanyAttributes(int companyId) {
         mapCompanyAttributes.put(companyId, getCompanyAttributeData(companyId));
-    }
-
-    public boolean check(int companyId, Response response) {
-        logger.info("check response for company" + companyId + " responses : " + response.getAttributeTuples().size());
-        List<Attribute> attributeList = getAttributesByCompany(companyId);
-        for (AttributeTuple attributeTuple : response.getAttributeTuples()) {
-            logger.debug("checking for company " + companyId + " attribute : " + attributeTuple.getAttributeId() + " and value : " + attributeTuple.getObtainedValue());
-            int attributeId = attributeTuple.getAttributeId();
-            int obtainedVal = attributeTuple.getObtainedValue();
-
-            boolean flag = false;
-            for (Attribute attribute : attributeList) {
-                if (attribute.getAttributeId() == attributeId) {
-                    for (AttributeValue attributeValue : attribute.getAttributeValues()) {
-                        if (obtainedVal == attributeValue.getValue()) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (flag == false) return false;
-        }
-        return true;
     }
 
     /*          Private functions           */

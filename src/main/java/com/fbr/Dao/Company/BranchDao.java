@@ -35,4 +35,10 @@ public class BranchDao extends ProjectDaoImpl<BranchDbType, BranchPrimaryKey> {
         q.setParameter(1, companyId);
         return q.getResultList();
     }
+
+    public void deleteBranches(int companyId) {
+        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1");
+        q.setParameter(1, companyId);
+        q.executeUpdate();
+    }
 }

@@ -37,6 +37,8 @@ public class FeedBackController {
     private CompanyService companyService;
 
 
+    /* Attribute API */
+
     @RequestMapping(value = {"/attributes"}, method = {RequestMethod.POST})
     @ResponseBody
     public Attribute addAttribute(@RequestBody Attribute attribute,
@@ -47,7 +49,6 @@ public class FeedBackController {
         httpResponse_p.setHeader("Location", request_p.getContextPath() + "/attribute/" + returnVal.getAttributeId());
         return returnVal;
     }
-
 
     @RequestMapping(value = {"/attribute/{attrId}"}, method = {RequestMethod.PUT})
     @ResponseBody
@@ -81,6 +82,14 @@ public class FeedBackController {
         return attributeService.getAttributeAndValues();
     }
 
+    @RequestMapping(value = {"/company/{companyId}/attributes"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public List<Attribute> getAttributesAndValuesForCompany(@PathVariable("attrId") int companyId) {
+        return attributeService.getAttributesByCompany(companyId);
+    }
+
+
+    /* Questions API */
 
     @RequestMapping(value = {"/company/{companyId}/questions"}, method = {RequestMethod.POST})
     @ResponseBody
@@ -125,14 +134,7 @@ public class FeedBackController {
     }
 
 
-    @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/responses"}, method = {RequestMethod.POST})
-    @ResponseBody
-    public Response addResponses(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId,
-                                 @RequestBody ResponseList responseList, HttpServletResponse httpResponse_p, WebRequest request_p) {
-        responseService.processResponse(companyId, branchId, responseList.getResponses());
-        httpResponse_p.setStatus(HttpStatus.CREATED.value());
-        return null;
-    }
+    /* Company API */
 
     @RequestMapping(value = {"/companies"}, method = {RequestMethod.POST})
     @ResponseBody
@@ -154,6 +156,15 @@ public class FeedBackController {
         return returnVal;
     }
 
+    @RequestMapping(value = {"/company/{companyId}"}, method = {RequestMethod.DELETE})
+    @ResponseBody
+    public Company deleteCompany(@PathVariable("companyId") int companyId,
+                                 HttpServletResponse httpResponse_p, WebRequest request_p) {
+        companyService.deleteCompanyAndBranches(companyId);
+        httpResponse_p.setStatus(HttpStatus.OK.value());
+        return null;
+    }
+
     @RequestMapping(value = {"/companies"}, method = {RequestMethod.GET})
     @ResponseBody
     public List<Company> getCompanies() {
@@ -165,6 +176,9 @@ public class FeedBackController {
     public Company getCompany(@PathVariable("companyId") int companyId) {
         return companyService.getCompany(companyId);
     }
+
+
+    /* Graph API */
 
     @RequestMapping(value = {"/company/{companyId}/graphs"}, method = {RequestMethod.POST})
     @ResponseBody
@@ -206,6 +220,21 @@ public class FeedBackController {
     public Graph getGraph(@PathVariable("companyId") int companyId, @PathVariable("graphId") String graphId) {
         return graphService.getGraph(companyId, graphId);
     }
+
+
+    /*  Responses API  */
+
+    @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/responses"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Response addResponses(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId,
+                                 @RequestBody ResponseList responseList, HttpServletResponse httpResponse_p, WebRequest request_p) {
+        responseService.processResponse(companyId, branchId, responseList.getResponses());
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        return null;
+    }
+
+
+    /*  Statistics API */
 
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
     @ResponseBody
