@@ -1,0 +1,43 @@
+package com.fbr.services;
+
+/*
+ *  ***********************************************************
+ *   Copyright (c) 2013 VMware, Inc.  All rights reserved.
+ *  ***********************************************************
+ */
+
+import com.fbr.Dao.CustomerDao;
+import com.fbr.Dao.CustomerDbType;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+@Service
+public class CustomerService {
+    private static final Logger logger = Logger.getLogger(ResponseService.class);
+    @Autowired
+    private CustomerDao customerDao;
+
+    public CustomerDbType addCustomerInfo(String mail, String phone, String name) {
+        logger.info("adding customer info for : " + mail + " phone : " + phone + " name : " + name);
+        if (mail == null) return null;
+
+        CustomerDbType customerDbEntry = customerDao.getCustomerWithMail(mail);
+        if (customerDbEntry != null) {
+            logger.debug("already existing customer info : " + customerDbEntry.getCustomerId());
+            return customerDbEntry;
+        } else {
+            customerDbEntry = new CustomerDbType();
+            customerDbEntry.setMail(mail);
+            customerDbEntry.setCustomerId(UUID.randomUUID().toString());
+            customerDbEntry.setPhone(phone);
+            customerDbEntry.setName(name);
+
+            logger.debug("creating new customer : " + customerDbEntry.getCustomerId());
+            customerDao.add(customerDbEntry);
+            return customerDbEntry;
+        }
+    }
+}

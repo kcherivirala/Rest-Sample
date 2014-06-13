@@ -6,7 +6,6 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.CustomerDao;
 import com.fbr.Dao.CustomerDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.Dao.Response.CustomerResponseValuesDao;
@@ -36,9 +35,9 @@ public class ResponseService {
     @Autowired
     private CustomerResponseValuesDao customerResponseValuesDao;
     @Autowired
-    private CustomerDao customerDao;
-    @Autowired
     private AlertService alertService;
+    @Autowired
+    private CustomerService customerService;
     @Autowired
     private AttributeService attributeService;
 
@@ -68,7 +67,7 @@ public class ResponseService {
         logger.info("adding customer responses for : (" + companyId + "," + branchId + ")");
         List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
         for (Response response : responseList) {
-            CustomerDbType customerDbEntry = addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
+            CustomerDbType customerDbEntry = customerService.addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
 
             String customerId;
             if (customerDbEntry != null) customerId = customerDbEntry.getCustomerId();
@@ -82,25 +81,6 @@ public class ResponseService {
             }
         }
         logger.info("done adding customer responses for : (" + companyId + "," + branchId + ")");
-    }
-
-    private CustomerDbType addCustomerInfo(String mail, String phone, String name) {
-        //creates a new customer entry; if already exists it returns the old one.
-        if (mail == null) return null;
-
-        CustomerDbType customerDbEntry = customerDao.getCustomerWithMail(mail);
-        if (customerDbEntry != null) {
-            return customerDbEntry;
-        } else {
-            customerDbEntry = new CustomerDbType();
-            customerDbEntry.setMail(mail);
-            customerDbEntry.setCustomerId(UUID.randomUUID().toString());
-            customerDbEntry.setPhone(phone);
-            customerDbEntry.setName(name);
-
-            customerDao.add(customerDbEntry);
-            return customerDbEntry;
-        }
     }
 
     private void addToResponseDb(int companyId, int branchId, String customerId, List<AttributeTuple> attributeResponseTuples) {
