@@ -36,7 +36,8 @@ public class CompanyService {
         logger.info("adding a company : " + company.getName() + " and branches : " + company.getBranches().size());
 
         if (company.getBranches() == null || company.getBranches().size() == 0) {
-            throw new Exception("company has to have at least 1 branch");
+            logger.error("company has to have at least 1 branch : " + company.getName());
+            throw new Exception("company has to have at least 1 branch : " + company.getName());
         }
 
         try {
@@ -48,6 +49,7 @@ public class CompanyService {
             logger.info("done adding a company : " + company.getName() + " and branches : " + company.getBranches().size());
             return company;
         } catch (Exception e) {
+            logger.error("error creating company : " + company.getName() + " : " + e.getMessage());
             throw new Exception("error creating company : " + company.getName() + " : " + e.getMessage());
         }
     }
@@ -57,7 +59,8 @@ public class CompanyService {
         logger.info("updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
 
         if (company.getBranches() == null || company.getBranches().size() == 0) {
-            throw new Exception("company has to have at least 1 branch");
+            logger.error("company has to have at least 1 branch : " + company.getName());
+            throw new Exception("company has to have at least 1 branch : " + company.getName());
         }
 
         try {
@@ -70,6 +73,7 @@ public class CompanyService {
             logger.info("done updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
             return company;
         } catch (Exception e) {
+            logger.error("error updating company : " + company.getName() + " : " + e.getMessage());
             throw new Exception("error updating company : " + company.getName() + " : " + e.getMessage());
         }
     }
@@ -84,6 +88,7 @@ public class CompanyService {
             logger.info("done getting all the companies");
             return out;
         } catch (Exception e) {
+            logger.error("error getting the list of companies");
             throw new Exception("error getting the list of companies");
         }
     }
@@ -98,6 +103,7 @@ public class CompanyService {
             logger.info("done getting the company : " + companyId);
             return out;
         } catch (Exception e) {
+            logger.error("error getting company : " + companyId + " : " + e.getMessage());
             throw new Exception("error getting company : " + companyId + " : " + e.getMessage());
         }
     }
@@ -110,6 +116,7 @@ public class CompanyService {
             companyDao.delete(companyDao.find(companyId));
             logger.info("done deleting the company : " + companyId);
         } catch (Exception e) {
+            logger.error("error deleting company : " + companyId + " : " + e.getMessage());
             throw new Exception("error deleting company : " + companyId + " : " + e.getMessage());
         }
     }

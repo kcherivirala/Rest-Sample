@@ -49,6 +49,7 @@ public class QuestionService {
             logger.info("done adding question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
             return question;
         } catch (Exception e) {
+            logger.error("error adding question : " + question.getQuestion() + " company : " + companyId + " : " + e.getMessage());
             throw new Exception("error adding question : " + question.getQuestion() + " company : " + companyId + " : " + e.getMessage());
         }
     }
@@ -73,6 +74,7 @@ public class QuestionService {
             logger.info("done updating question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
             return question;
         } catch (Exception e) {
+            logger.error("error adding question : " + question.getQuestion() + " company : " + companyId + " : " + e.getMessage());
             throw new Exception("error adding question : " + question.getQuestion() + " company : " + companyId + " : " + e.getMessage());
         }
     }
@@ -92,6 +94,7 @@ public class QuestionService {
 
             logger.info("done deleting question for company : " + companyId + " and questionId : " + questionId);
         } catch (Exception e) {
+            logger.error("error deleting question : " + questionId + " company : " + companyId + " : " + e.getMessage());
             throw new Exception("error deleting question : " + questionId + " company : " + companyId + " : " + e.getMessage());
         }
     }
@@ -106,6 +109,7 @@ public class QuestionService {
             logger.info("done getting questions for company : " + companyId);
             return out;
         } catch (Exception e) {
+            logger.error("error getting question for company : " + companyId + " : " + e.getMessage());
             throw new Exception("error getting question for company : " + companyId + " : " + e.getMessage());
         }
     }
@@ -120,6 +124,7 @@ public class QuestionService {
             logger.info("done getting question for company : " + companyId + " and questionId : " + questionId);
             return out;
         } catch (Exception e) {
+            logger.error("error getting question for company : " + companyId + " and question : " + questionId + " : " + e.getMessage());
             throw new Exception("error getting question for company : " + companyId + " and question : " + questionId + " : " + e.getMessage());
         }
     }

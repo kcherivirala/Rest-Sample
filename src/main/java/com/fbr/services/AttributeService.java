@@ -60,6 +60,7 @@ public class AttributeService {
             logger.info("done adding : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
             return attribute;
         } catch (Exception e) {
+            logger.error("error adding attribute and values : " + attribute.getAttributeString() + " : " + e.getMessage());
             throw new Exception("error adding attribute and values : " + attribute.getAttributeString() + " : " + e.getMessage());
         }
     }
@@ -76,6 +77,7 @@ public class AttributeService {
             logger.info("done updating : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
             return attribute;
         } catch (Exception e) {
+            logger.error("error updating attribute : " + attribute.getAttributeId() + " : " + e.getMessage());
             throw new Exception("error updating attribute : " + attribute.getAttributeId() + " : " + e.getMessage());
         }
     }
@@ -88,6 +90,7 @@ public class AttributeService {
             attributeDao.delete(attrId);
             logger.info("done deleting attribute : " + attrId);
         } catch (Exception e) {
+            logger.error("error deleting attribute : " + attrId + " : " + e.getMessage());
             throw new Exception("error deleting attribute : " + attrId + " : " + e.getMessage());
         }
     }
@@ -102,6 +105,7 @@ public class AttributeService {
             logger.info("done getting all attributes and values");
             return out;
         } catch (Exception e) {
+            logger.error("error getting attributes : " + e.getMessage());
             throw new Exception("error getting attributes : " + e.getMessage());
         }
     }
@@ -116,6 +120,7 @@ public class AttributeService {
             logger.info("done getting all attributes and values for : " + attrId);
             return out;
         } catch (Exception e) {
+            logger.error("error getting : " + attrId + " : " + e.getMessage());
             throw new Exception("error getting : " + attrId + " : " + e.getMessage());
         }
     }

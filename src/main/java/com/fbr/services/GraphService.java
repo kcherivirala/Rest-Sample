@@ -41,6 +41,7 @@ public class GraphService {
         String id = UUID.randomUUID().toString();
 
         if (!check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
+            logger.error("graph contains attributes not part of the company : " + graph.getName());
             throw new Exception("graph contains attributes not part of the company : " + graph.getName());
         }
         try {
@@ -53,6 +54,7 @@ public class GraphService {
             logger.info("done adding graph for company : " + companyId + " and graph : " + graph.getName());
             return graph;
         } catch (Exception e) {
+            logger.error("error creating graph : " + graph.getName() + " : " + e.getMessage());
             throw new Exception("error creating graph : " + graph.getName() + " : " + e.getMessage());
         }
     }
@@ -62,6 +64,7 @@ public class GraphService {
         logger.info("updating graph for company : " + companyId + " and graph : " + graph.getName());
 
         if (!check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
+            logger.error("graph contains attributes not part of the company : " + graph.getName());
             throw new Exception("graph contains attributes not part of the company : " + graph.getName());
         }
 
@@ -78,6 +81,7 @@ public class GraphService {
             logger.info("done updating graph for company : " + companyId + " and graph : " + graph.getName());
             return graph;
         } catch (Exception e) {
+            logger.error("error updating graph : " + graph.getName() + " : " + e.getMessage());
             throw new Exception("error updating graph : " + graph.getName() + " : " + e.getMessage());
         }
     }
@@ -93,6 +97,7 @@ public class GraphService {
             graphFiltersDao.deleteGraphFilters(graphId);
             logger.info("done deleting graph for company : " + companyId + " and graph : " + graphId);
         } catch (Exception e) {
+            logger.error("error deleting graph : " + graphId + " : " + e.getMessage());
             throw new Exception("error deleting graph : " + graphId + " : " + e.getMessage());
         }
     }
@@ -119,6 +124,7 @@ public class GraphService {
             logger.info("done getting graphs for company : " + companyId);
             return out;
         } catch (Exception e) {
+            logger.error("error getting graphs : " + e.getMessage());
             throw new Exception("error getting graphs : " + e.getMessage());
         }
     }
@@ -138,6 +144,7 @@ public class GraphService {
             logger.info("done getting graph for company : " + companyId + " and graph : " + graphId);
             return out;
         } catch (Exception e) {
+            logger.error("error getting graph : " + graphId + " : " + e.getMessage());
             throw new Exception("error getting graph : " + graphId + " : " + e.getMessage());
         }
     }

@@ -36,6 +36,7 @@ public class CustomerService {
                 return customerDbEntry;
             }
         } catch (Exception e) {
+            logger.error("error creating customer : " + mail + " : " + e.getMessage());
             throw new Exception("error creating customer : " + mail + " : " + e.getMessage());
         }
     }
