@@ -32,56 +32,86 @@ public class CompanyService {
     private BranchDao branchDao;
 
     @Transactional
-    public Company addCompanyAndBranches(Company company) {
+    public Company addCompanyAndBranches(Company company) throws Exception {
         logger.info("adding a company : " + company.getName() + " and branches : " + company.getBranches().size());
-        int id = companyDao.getMaxCompanyIdValue() + 1;
-        companyDao.add(Conversions.getCompanyDbEntry(id, company));
-        company.setId(id);
 
-        addBranches(id, company.getBranches());
-        logger.info("done adding a company : " + company.getName() + " and branches : " + company.getBranches().size());
-        return company;
+        if (company.getBranches() == null || company.getBranches().size() == 0) {
+            throw new Exception("company has to have at least 1 branch");
+        }
+
+        try {
+            int id = companyDao.getMaxCompanyIdValue() + 1;
+            companyDao.add(Conversions.getCompanyDbEntry(id, company));
+            company.setId(id);
+
+            addBranches(id, company.getBranches());
+            logger.info("done adding a company : " + company.getName() + " and branches : " + company.getBranches().size());
+            return company;
+        } catch (Exception e) {
+            throw new Exception("error creating company : " + company.getName() + " : " + e.getMessage());
+        }
     }
 
     @Transactional
-    public Company updateCompanyAndBranches(int companyId, Company company) {
+    public Company updateCompanyAndBranches(int companyId, Company company) throws Exception {
         logger.info("updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
-        CompanyDbType companyDbType = companyDao.find(companyId);
-        List<BranchDbType> listBranchDb = branchDao.getBranchesByCompany(companyId);
 
-        updateCompanyDbEntry(companyDbType, company);
-        updateBranchDbEntries(companyId, listBranchDb, company.getBranches());
+        if (company.getBranches() == null || company.getBranches().size() == 0) {
+            throw new Exception("company has to have at least 1 branch");
+        }
 
-        logger.info("done updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
-        return company;
+        try {
+            CompanyDbType companyDbType = companyDao.find(companyId);
+            List<BranchDbType> listBranchDb = branchDao.getBranchesByCompany(companyId);
+
+            updateCompanyDbEntry(companyDbType, company);
+            updateBranchDbEntries(companyId, listBranchDb, company.getBranches());
+
+            logger.info("done updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
+            return company;
+        } catch (Exception e) {
+            throw new Exception("error updating company : " + company.getName() + " : " + e.getMessage());
+        }
     }
 
-    public List<Company> getCompanies() {
-        logger.info("getting all the companies");
-        List<CompanyDbType> listDbCompanies = companyDao.findAll();
-        List<BranchDbType> listDbBranches = branchDao.findAll();
+    public List<Company> getCompanies() throws Exception {
+        try {
+            logger.info("getting all the companies");
+            List<CompanyDbType> listDbCompanies = companyDao.findAll();
+            List<BranchDbType> listDbBranches = branchDao.findAll();
 
-        List<Company> out = matchCompanyAndBranches(listDbCompanies, listDbBranches);
-        logger.info("done getting all the companies");
-        return out;
+            List<Company> out = matchCompanyAndBranches(listDbCompanies, listDbBranches);
+            logger.info("done getting all the companies");
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting the list of companies");
+        }
     }
 
-    public Company getCompany(int companyId) {
-        logger.info("getting the company : " + companyId);
-        CompanyDbType companyDbType = companyDao.find(companyId);
-        List<BranchDbType> listDbBranches = branchDao.getBranchesByCompany(companyId);
+    public Company getCompany(int companyId) throws Exception {
+        try {
+            logger.info("getting the company : " + companyId);
+            CompanyDbType companyDbType = companyDao.find(companyId);
+            List<BranchDbType> listDbBranches = branchDao.getBranchesByCompany(companyId);
 
-        Company out = matchCompanyAndBranches(companyDbType, listDbBranches);
-        logger.info("done getting the company : " + companyId);
-        return out;
+            Company out = matchCompanyAndBranches(companyDbType, listDbBranches);
+            logger.info("done getting the company : " + companyId);
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting company : " + companyId + " : " + e.getMessage());
+        }
     }
 
     @Transactional
-    public void deleteCompanyAndBranches(int companyId) {
-        logger.info("deleting the company : " + companyId);
-        branchDao.deleteBranches(companyId);
-        companyDao.delete(companyDao.find(companyId));
-        logger.info("done deleting the company : " + companyId);
+    public void deleteCompanyAndBranches(int companyId) throws Exception {
+        try {
+            logger.info("deleting the company : " + companyId);
+            branchDao.deleteBranches(companyId);
+            companyDao.delete(companyDao.find(companyId));
+            logger.info("done deleting the company : " + companyId);
+        } catch (Exception e) {
+            throw new Exception("error deleting company : " + companyId + " : " + e.getMessage());
+        }
     }
 
     public List<CompanyDbType> getCompanyDbEntries() {

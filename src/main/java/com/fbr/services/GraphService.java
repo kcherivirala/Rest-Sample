@@ -40,86 +40,106 @@ public class GraphService {
         logger.info("adding graph for company : " + companyId + " and graph : " + graph.getName());
         String id = UUID.randomUUID().toString();
 
-        graphsDao.add(Conversions.getGraphDbEntry(id, companyId, graph));
+        if (!check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
+            throw new Exception("graph contains attributes not part of the company : " + graph.getName());
+        }
+        try {
+            graphsDao.add(Conversions.getGraphDbEntry(id, companyId, graph));
 
-        if (check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
             addGraphAttributes(id, graph.getAttributeList());
             addGraphFilters(id, graph.getFilterList());
 
             graph.setGraphId(id);
             logger.info("done adding graph for company : " + companyId + " and graph : " + graph.getName());
             return graph;
-        } else {
-            throw new Exception("graph contains attributes not part of the company");
+        } catch (Exception e) {
+            throw new Exception("error creating graph : " + graph.getName() + " : " + e.getMessage());
         }
     }
 
     @Transactional
     public Graph updateGraph(int companyId, String graphId, Graph graph) throws Exception {
         logger.info("updating graph for company : " + companyId + " and graph : " + graph.getName());
-        GraphDbType graphDbEntry = graphsDao.find(graphId);
-        if (!graph.getName().equals(graphDbEntry.getName())) {
-            graphDbEntry.setName(graph.getName());
-            graphsDao.update(graphDbEntry);
+
+        if (!check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
+            throw new Exception("graph contains attributes not part of the company : " + graph.getName());
         }
 
-        if (check(graph.getAttributeList(), graph.getFilterList(), attributeService.getAttributesByCompany(companyId))) {
+        try {
+            GraphDbType graphDbEntry = graphsDao.find(graphId);
+            if (!graph.getName().equals(graphDbEntry.getName())) {
+                graphDbEntry.setName(graph.getName());
+                graphsDao.update(graphDbEntry);
+            }
+
             updateGraphAttributes(graphId, graph.getAttributeList());
             updateGraphFilters(graphId, graph.getFilterList());
 
             logger.info("done updating graph for company : " + companyId + " and graph : " + graph.getName());
             return graph;
-        } else {
-            throw new Exception("graph contains attributes not part of the company");
+        } catch (Exception e) {
+            throw new Exception("error updating graph : " + graph.getName() + " : " + e.getMessage());
         }
     }
 
     @Transactional
-    public void deleteGraph(int companyId, String graphId) {
-        logger.info("deleting graph for company : " + companyId + " and graph : " + graphId);
-        GraphDbType graphDbEntry = graphsDao.find(graphId);
+    public void deleteGraph(int companyId, String graphId) throws Exception {
+        try {
+            logger.info("deleting graph for company : " + companyId + " and graph : " + graphId);
+            GraphDbType graphDbEntry = graphsDao.find(graphId);
 
-        graphsDao.delete(graphDbEntry);
-        graphAttributesDao.deleteGraphAttributes(graphId);
-        graphFiltersDao.deleteGraphFilters(graphId);
-        logger.info("done deleting graph for company : " + companyId + " and graph : " + graphId);
+            graphsDao.delete(graphDbEntry);
+            graphAttributesDao.deleteGraphAttributes(graphId);
+            graphFiltersDao.deleteGraphFilters(graphId);
+            logger.info("done deleting graph for company : " + companyId + " and graph : " + graphId);
+        } catch (Exception e) {
+            throw new Exception("error deleting graph : " + graphId + " : " + e.getMessage());
+        }
     }
 
-    public List<Graph> getGraphs(int companyId) {
-        logger.info("getting graphs for company : " + companyId);
-        List<GraphDbType> graphs = graphsDao.getGraphs(companyId);
+    public List<Graph> getGraphs(int companyId) throws Exception {
+        try {
+            logger.info("getting graphs for company : " + companyId);
+            List<GraphDbType> graphs = graphsDao.getGraphs(companyId);
 
-        if (graphs.size() == 0) {
-            return null;
+            if (graphs.size() == 0) {
+                return null;
+            }
+
+            List<String> graphIds = new ArrayList<String>(graphs.size());
+            for (GraphDbType graph : graphs) {
+                graphIds.add(graph.getGraphId());
+            }
+
+            List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphIds);
+            List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphIds);
+            List<Attribute> attributeDbEntries = attributeService.getAttributesByCompany(companyId);
+
+            List<Graph> out = matchGraphsAndAttributes(graphs, graphAttributes, graphFilters, attributeDbEntries);
+            logger.info("done getting graphs for company : " + companyId);
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting graphs : " + e.getMessage());
         }
-
-        List<String> graphIds = new ArrayList<String>(graphs.size());
-        for (GraphDbType graph : graphs) {
-            graphIds.add(graph.getGraphId());
-        }
-
-        List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphIds);
-        List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphIds);
-        List<Attribute> attributeDbEntries = attributeService.getAttributesByCompany(companyId);
-
-        List<Graph> out = matchGraphsAndAttributes(graphs, graphAttributes, graphFilters, attributeDbEntries);
-        logger.info("done getting graphs for company : " + companyId);
-        return out;
     }
 
-    public Graph getGraph(int companyId, String graphId) {
-        logger.info("getting graph for company : " + companyId + " and graph : " + graphId);
-        GraphDbType graphDbEntry = graphsDao.find(graphId);
-        List<GraphDbType> list = new ArrayList<GraphDbType>(1);
-        list.add(graphDbEntry);
+    public Graph getGraph(int companyId, String graphId) throws Exception {
+        try {
+            logger.info("getting graph for company : " + companyId + " and graph : " + graphId);
+            GraphDbType graphDbEntry = graphsDao.find(graphId);
+            List<GraphDbType> list = new ArrayList<GraphDbType>(1);
+            list.add(graphDbEntry);
 
-        List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphId);
-        List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphId);
-        List<Attribute> attributes = attributeService.getAttributesByCompany(graphDbEntry.getCompanyId());
+            List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphId);
+            List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphId);
+            List<Attribute> attributes = attributeService.getAttributesByCompany(graphDbEntry.getCompanyId());
 
-        Graph out = matchGraphsAndAttributes(list, graphAttributes, graphFilters, attributes).get(0);
-        logger.info("done getting graph for company : " + companyId + " and graph : " + graphId);
-        return out;
+            Graph out = matchGraphsAndAttributes(list, graphAttributes, graphFilters, attributes).get(0);
+            logger.info("done getting graph for company : " + companyId + " and graph : " + graphId);
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting graph : " + graphId + " : " + e.getMessage());
+        }
     }
 
     /* private functions */

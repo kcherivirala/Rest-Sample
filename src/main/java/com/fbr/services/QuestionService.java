@@ -35,73 +35,93 @@ public class QuestionService {
     private AttributeService attributeService;
 
     @Transactional
-    public Question addQuestionAndAnswers(int companyId, Question question) {
-        logger.info("adding question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
-        int questionId = questionDao.getMaxQuestionIdValue(companyId) + 1;
-        addQuestion(companyId, questionId, question);
-        for (Answer answer : question.getAnswers()) {
-            addAnswer(companyId, questionId, answer);
+    public Question addQuestionAndAnswers(int companyId, Question question) throws Exception {
+        try {
+            logger.info("adding question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
+            int questionId = questionDao.getMaxQuestionIdValue(companyId) + 1;
+            addQuestion(companyId, questionId, question);
+            for (Answer answer : question.getAnswers()) {
+                addAnswer(companyId, questionId, answer);
+            }
+
+            attributeService.resetCompanyAttributes(companyId);
+            question.setQuestionId(questionId);
+            logger.info("done adding question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
+            return question;
+        } catch (Exception e) {
+            throw new Exception("error adding question : " + question.getQuestion() + " company : " + companyId + " : " + e.getMessage());
         }
-
-        attributeService.resetCompanyAttributes(companyId);
-        question.setQuestionId(questionId);
-        logger.info("done adding question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
-        return question;
     }
 
     @Transactional
-    public Question updateQuestionAndAnswers(int companyId, int questionId, Question question) {
-        logger.info("updating question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
-        QuestionPrimaryKey key = new QuestionPrimaryKey();
-        key.setCompanyId(companyId);
-        key.setQuestionId(questionId);
+    public Question updateQuestionAndAnswers(int companyId, int questionId, Question question) throws Exception {
+        try {
+            logger.info("updating question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
+            QuestionPrimaryKey key = new QuestionPrimaryKey();
+            key.setCompanyId(companyId);
+            key.setQuestionId(questionId);
 
-        QuestionDbType questionDbEntry = questionDao.find(key);
-        List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
+            QuestionDbType questionDbEntry = questionDao.find(key);
+            List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
 
-        updateQuestion(questionDbEntry, question);
-        updateAnswers(companyId, questionId, answerDbEntries, question.getAnswers());
+            updateQuestion(questionDbEntry, question);
+            updateAnswers(companyId, questionId, answerDbEntries, question.getAnswers());
 
-        attributeService.resetCompanyAttributes(companyId);
+            attributeService.resetCompanyAttributes(companyId);
 
-        attributeService.resetCompanyAttributes(companyId);
-        logger.info("done updating question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
-        return question;
+            attributeService.resetCompanyAttributes(companyId);
+            logger.info("done updating question for company: " + companyId + " and question " + question.getQuestion() + " and list of answers : " + question.getAnswers().size());
+            return question;
+        } catch (Exception e) {
+            throw new Exception("error adding question : " + question.getQuestion() + " company : " + companyId + " : " + e.getMessage());
+        }
     }
 
     @Transactional
-    public void deleteQuestionAndAnswers(int companyId, int questionId) {
-        logger.info("deleting question for company : " + companyId + " and questionId : " + questionId);
-        QuestionPrimaryKey key = new QuestionPrimaryKey();
-        key.setCompanyId(companyId);
-        key.setQuestionId(questionId);
+    public void deleteQuestionAndAnswers(int companyId, int questionId) throws Exception {
+        try {
+            logger.info("deleting question for company : " + companyId + " and questionId : " + questionId);
+            QuestionPrimaryKey key = new QuestionPrimaryKey();
+            key.setCompanyId(companyId);
+            key.setQuestionId(questionId);
 
-        QuestionDbType questionDbEntry = questionDao.find(key);
-        questionDao.delete(questionDbEntry);
+            QuestionDbType questionDbEntry = questionDao.find(key);
+            questionDao.delete(questionDbEntry);
 
-        answerDao.deleteAnswersOfQuestion(companyId, questionId);
+            answerDao.deleteAnswersOfQuestion(companyId, questionId);
 
-        logger.info("done deleting question for company : " + companyId + " and questionId : " + questionId);
+            logger.info("done deleting question for company : " + companyId + " and questionId : " + questionId);
+        } catch (Exception e) {
+            throw new Exception("error deleting question : " + questionId + " company : " + companyId + " : " + e.getMessage());
+        }
     }
 
-    public List<Question> getQuestionAndAnswers(int companyId) {
-        logger.info("getting questions for company : " + companyId);
-        List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId);
-        List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
+    public List<Question> getQuestionAndAnswers(int companyId) throws Exception {
+        try {
+            logger.info("getting questions for company : " + companyId);
+            List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId);
+            List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
 
-        List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
-        logger.info("done getting questions for company : " + companyId);
-        return out;
+            List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
+            logger.info("done getting questions for company : " + companyId);
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting question for company : " + companyId + " : " + e.getMessage());
+        }
     }
 
-    public Question getQuestionAndAnswers(int companyId, int questionId) {
-        logger.info("getting question for company : " + companyId + " and questionId : " + questionId);
-        List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId, questionId);
-        List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
+    public Question getQuestionAndAnswers(int companyId, int questionId) throws Exception {
+        try {
+            logger.info("getting question for company : " + companyId + " and questionId : " + questionId);
+            List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId, questionId);
+            List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
 
-        Question out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries).get(0);
-        logger.info("done getting question for company : " + companyId + " and questionId : " + questionId);
-        return out;
+            Question out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries).get(0);
+            logger.info("done getting question for company : " + companyId + " and questionId : " + questionId);
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting question for company : " + companyId + " and question : " + questionId + " : " + e.getMessage());
+        }
     }
 
     /*   private functions */

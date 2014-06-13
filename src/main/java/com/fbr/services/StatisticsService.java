@@ -50,50 +50,62 @@ public class StatisticsService {
         listCompanyData = new ArrayList<CompanyData>(companies.size());
 
         for (CompanyDbType company : companies) {
-            listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), date, month));
-        }
-    }
-
-    public void resetCompanyData(int companyId) {
-        logger.info("caching the statistics for company : " + companyId);
-        int date = FeedbackUtilities.dateFromCal(Calendar.getInstance());
-        int month = FeedbackUtilities.monthFromDate(date);
-
-        CompanyDbType company = companyService.getCompanyDbEntry(companyId);
-        CompanyData data = processPerCompanyResponses(company.getCompanyId(), company.getName(), date, month);
-
-        int index = -1;
-        for (int i = 0; i < listCompanyData.size(); i++) {
-            if (listCompanyData.get(i).companyId == companyId) {
-                index = i;
-                break;
+            try {
+                listCompanyData.add(processPerCompanyResponses(company.getCompanyId(), company.getName(), date, month));
+            } catch (Exception e) {
+                logger.error("error initialising info for : " + company.getCompanyId());
             }
         }
-        if (index == -1) {
-            listCompanyData.add(data);
-        } else {
-            listCompanyData.remove(index);
-            listCompanyData.add(data);
-        }
-        logger.info("done caching the statistics for company : " + companyId);
     }
 
-    public List<AttributeLevelStatistics> getGraphData(int companyId, String graphId, Map<String, Integer> mapOfFilters) {
-        logger.info("getting the statistics for companyId : " + companyId + " and graph : " + graphId);
-        int index = getIndex(listCompanyData, companyId);
-        CompanyData companyData = listCompanyData.get(index);
+    public void resetCompanyData(int companyId) throws Exception {
+        try {
+            logger.info("caching the statistics for company : " + companyId);
+            int date = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+            int month = FeedbackUtilities.monthFromDate(date);
 
-        index = getIndex(companyData.listGraphData, graphId);
-        GraphData graphData = companyData.listGraphData.get(index);
+            CompanyDbType company = companyService.getCompanyDbEntry(companyId);
+            CompanyData data = processPerCompanyResponses(company.getCompanyId(), company.getName(), date, month);
 
-        Graph graph = graphService.getGraph(companyId, graphId);
+            int index = -1;
+            for (int i = 0; i < listCompanyData.size(); i++) {
+                if (listCompanyData.get(i).companyId == companyId) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                listCompanyData.add(data);
+            } else {
+                listCompanyData.remove(index);
+                listCompanyData.add(data);
+            }
+            logger.info("done caching the statistics for company : " + companyId);
+        } catch (Exception e) {
+            throw new Exception("error resetting company Data : " + companyId + " : " + e.getMessage());
+        }
+    }
 
-        List<AttributeLevelStatistics> listAttributeStatistics = new ArrayList<AttributeLevelStatistics>(graphData.mapOfAttributes.size());
-        initialiseAttributeLevelStatistics(listAttributeStatistics, graph.getAttributeList(), FeedbackUtilities.dateFromCal(Calendar.getInstance()), graph.getType());
-        populateFromGraphData(listAttributeStatistics, mapOfFilters, graphData);
+    public List<AttributeLevelStatistics> getGraphData(int companyId, String graphId, Map<String, Integer> mapOfFilters) throws Exception {
+        try {
+            logger.info("getting the statistics for companyId : " + companyId + " and graph : " + graphId);
+            int index = getIndex(listCompanyData, companyId);
+            CompanyData companyData = listCompanyData.get(index);
 
-        logger.info("done getting the statistics for companyId : " + companyId + " and graph : " + graphId);
-        return listAttributeStatistics;
+            index = getIndex(companyData.listGraphData, graphId);
+            GraphData graphData = companyData.listGraphData.get(index);
+
+            Graph graph = graphService.getGraph(companyId, graphId);
+
+            List<AttributeLevelStatistics> listAttributeStatistics = new ArrayList<AttributeLevelStatistics>(graphData.mapOfAttributes.size());
+            initialiseAttributeLevelStatistics(listAttributeStatistics, graph.getAttributeList(), FeedbackUtilities.dateFromCal(Calendar.getInstance()), graph.getType());
+            populateFromGraphData(listAttributeStatistics, mapOfFilters, graphData);
+
+            logger.info("done getting the statistics for companyId : " + companyId + " and graph : " + graphId);
+            return listAttributeStatistics;
+        } catch (Exception e) {
+            throw new Exception("error getting graph data fro company : " + companyId + " and graphId : " + graphId + " : " + e.getMessage());
+        }
     }
 
     /* private functions */
@@ -170,87 +182,103 @@ public class StatisticsService {
         }
     }
 
-    public void addNewData() {
+    public void addNewDataToTrendGraphs() {
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
-            addNewData(company);
+            addNewDataToTrendGraphs(company);
         }
     }
 
-    private void addNewData(CompanyDbType company) {
-        int index = -1;
-        for (int i = 0; i < listCompanyData.size(); i++) {
-            if (listCompanyData.get(i).companyId == company.getCompanyId()) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index == -1) {
-            resetCompanyData(company.getCompanyId());
-        } else {
-            CompanyData companyData = listCompanyData.get(index);
-            Date currTimeStamp = companyData.lastUpdatedTimeStamp;
-            List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(company.getCompanyId(), currTimeStamp);
-            Date lastTime = getLastDate(listResponse);
-            addResponsesToCompanyData(companyData, listResponse);
-
-            companyData.lastUpdatedTimeStamp = lastTime;
-        }
-    }
-
-    private void addResponsesToCompanyData(CompanyData companyData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
-
-    }
-
-    private CompanyData processPerCompanyResponses(int companyId, String companyName, int currentDate, int currentMonth) {
-        List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId);
-        Collections.sort(listResponse, Comparators.COMPARE_RESPONSES);
-
-        List<Attribute> listAttribute = attributeService.getAttributesByCompany(companyId);    //already sorted list
-        List<BranchDbType> branches = companyService.getDbBranches(companyId);
-        List<Graph> listGraph = graphService.getGraphs(companyId);
-
-        List<GraphData> listGraphData = new ArrayList<GraphData>(listGraph.size());
-        for (Graph graph : listGraph) {
-            List<Attribute> filterAttributes = attributeService.getAttributesForIds(graph.getFilterList(), listAttribute);
-            List<Attribute> weightedAttributes = attributeService.getAttributesForIds(graph.getAttributeList(), listAttribute);
-            int constraints = numberOfConstraints(filterAttributes);
-
-            List<ConstraintLevelStatistics> listConstraintLevelStatistics = new ArrayList<ConstraintLevelStatistics>(constraints * branches.size());
-            populateConstraintLevels(listConstraintLevelStatistics, filterAttributes, branches);    //start with index of -1
-            initialiseConstraintLevelStatistics(listConstraintLevelStatistics, weightedAttributes, currentDate, graph.getType());
-
-
-            GraphLevelStatistics graphLevelStatistics = new GraphLevelStatistics();
-            graphLevelStatistics.setGraphId(graph.getGraphId());
-            graphLevelStatistics.setListConstraintLevelStatistics(listConstraintLevelStatistics);
-
-            GraphData graphData = new GraphData();
-            graphData.graphId = graph.getGraphId();
-            graphData.type = graph.getType();
-            graphData.graphLevelStatistics = graphLevelStatistics;
-            graphData.mapOFConstraints = getMapOfConstraints(listConstraintLevelStatistics);
-            graphData.mapOfAttributes = getMapOfAttributes(graph.getAttributeList());
-
-            if (graph.getType().equals("trend")) {
-                graphData.mapOfDates = getMapOfDates(currentDate);
-                graphData.mapOfMonths = getMapOfMonths(currentMonth);
+    private void addNewDataToTrendGraphs(CompanyDbType company) {
+        try {
+            int index = -1;
+            for (int i = 0; i < listCompanyData.size(); i++) {
+                if (listCompanyData.get(i).companyId == company.getCompanyId()) {
+                    index = i;
+                    break;
+                }
             }
 
+            if (index == -1) {
+                resetCompanyData(company.getCompanyId());
+            } else {
+                CompanyData companyData = listCompanyData.get(index);
+                Date currTimeStamp = companyData.lastUpdatedTimeStamp;
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(company.getCompanyId(), currTimeStamp);
+                Date lastTime = getLastDate(listResponse);
+                addResponsesToTrendGraphs(companyData, listResponse);
 
-            populateStatistics(graphData, filterAttributes, listResponse, graph.getType());
-
-            listGraphData.add(graphData);
+                companyData.lastUpdatedTimeStamp = lastTime;
+            }
+        } catch (Exception e) {
+            logger.error("error adding new data to trends for company: " + company.getCompanyId());
         }
+    }
 
-        CompanyData companyData = new CompanyData();
-        companyData.companyId = companyId;
-        companyData.companyName = companyName;
-        companyData.listGraphData = listGraphData;
-        companyData.lastUpdatedTimeStamp = new Date();
-        return companyData;
+    private void addResponsesToTrendGraphs(CompanyData companyData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+        for (GraphData graphData : companyData.listGraphData) {
+            if (graphData.type.equals("trend"))
+                addNewDataToTrendGraphsData(graphData, listResponse);
+        }
+    }
+
+    private void addNewDataToTrendGraphsData(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+
+    }
+
+    private CompanyData processPerCompanyResponses(int companyId, String companyName, int currentDate, int currentMonth) throws Exception {
+        try {
+            List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId);
+            Collections.sort(listResponse, Comparators.COMPARE_RESPONSES);
+
+            List<Attribute> listAttribute = attributeService.getAttributesByCompany(companyId);    //already sorted list
+            List<BranchDbType> branches = companyService.getDbBranches(companyId);
+            List<Graph> listGraph = graphService.getGraphs(companyId);
+
+            List<GraphData> listGraphData = new ArrayList<GraphData>(listGraph.size());
+            for (Graph graph : listGraph) {
+                List<Attribute> filterAttributes = attributeService.getAttributesForIds(graph.getFilterList(), listAttribute);
+                List<Attribute> weightedAttributes = attributeService.getAttributesForIds(graph.getAttributeList(), listAttribute);
+                int constraints = numberOfConstraints(filterAttributes);
+
+                List<ConstraintLevelStatistics> listConstraintLevelStatistics = new ArrayList<ConstraintLevelStatistics>(constraints * branches.size());
+                populateConstraintLevels(listConstraintLevelStatistics, filterAttributes, branches);    //start with index of -1
+                initialiseConstraintLevelStatistics(listConstraintLevelStatistics, weightedAttributes, currentDate, graph.getType());
+
+
+                GraphLevelStatistics graphLevelStatistics = new GraphLevelStatistics();
+                graphLevelStatistics.setGraphId(graph.getGraphId());
+                graphLevelStatistics.setListConstraintLevelStatistics(listConstraintLevelStatistics);
+
+                GraphData graphData = new GraphData();
+                graphData.graphId = graph.getGraphId();
+                graphData.type = graph.getType();
+                graphData.graphLevelStatistics = graphLevelStatistics;
+                graphData.mapOFConstraints = getMapOfConstraints(listConstraintLevelStatistics);
+                graphData.mapOfAttributes = getMapOfAttributes(graph.getAttributeList());
+
+                if (graph.getType().equals("trend")) {
+                    graphData.mapOfDates = getMapOfDates(currentDate);
+                    graphData.mapOfMonths = getMapOfMonths(currentMonth);
+                }
+
+
+                populateStatistics(graphData, filterAttributes, listResponse, graph.getType());
+
+                listGraphData.add(graphData);
+            }
+
+            CompanyData companyData = new CompanyData();
+            companyData.companyId = companyId;
+            companyData.companyName = companyName;
+            companyData.listGraphData = listGraphData;
+            companyData.lastUpdatedTimeStamp = new Date();
+            return companyData;
+        } catch (Exception e) {
+            logger.error("error processing per company responses : " + e.getMessage());
+            throw new Exception("error processing per company responses : " + e.getMessage());
+        }
     }
 
     private int numberOfConstraints(List<Attribute> filterAttributes) {
@@ -563,26 +591,6 @@ public class StatisticsService {
         return mapFilter;
     }
 
-    class GraphData {
-        String graphId;
-        String type;
-
-        Map<Map<String, Integer>, Integer> mapOFConstraints;
-        Map<Integer, Integer> mapOfDates;
-        Map<Integer, Integer> mapOfMonths;
-        Map<Integer, Integer> mapOfAttributes;
-
-        GraphLevelStatistics graphLevelStatistics;
-    }
-
-    class CompanyData {
-        int companyId;
-        String companyName;
-        Date lastUpdatedTimeStamp;
-
-        List<GraphData> listGraphData;
-    }
-
     private static int getIndex(List<CompanyData> listCompanyData, int companyId) {
         int i = 0;
         for (CompanyData companyData : listCompanyData) {
@@ -601,6 +609,26 @@ public class StatisticsService {
             i++;
         }
         return -1;
+    }
+
+    class GraphData {
+        String graphId;
+        String type;
+
+        Map<Map<String, Integer>, Integer> mapOFConstraints;
+        Map<Integer, Integer> mapOfDates;
+        Map<Integer, Integer> mapOfMonths;
+        Map<Integer, Integer> mapOfAttributes;
+
+        GraphLevelStatistics graphLevelStatistics;
+    }
+
+    class CompanyData {
+        int companyId;
+        String companyName;
+        Date lastUpdatedTimeStamp;
+
+        List<GraphData> listGraphData;
     }
 }
 

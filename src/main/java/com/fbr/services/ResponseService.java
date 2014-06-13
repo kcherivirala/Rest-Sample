@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -44,43 +43,30 @@ public class ResponseService {
     private Timer timer;
     long AGGREGATE_TIME_INTERVAL = 24 * 3600 * 1000; // 24 hours
 
-
-    @PostConstruct
-    public void init() {
-        /*
-        timer = new Timer();
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, 1);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-
-        UpdateAggregateTask task = new UpdateAggregateTask(responseAggregateDao);
-        timer.schedule(task, cal.getTime(), AGGREGATE_TIME_INTERVAL);
-        */
-    }
-
     @Transactional
     public void processResponse(int companyId, int branchId, List<Response> responseList) {
         //processes teh list of responses from various customer for the given company and branch.
-        logger.info("adding customer responses for : (" + companyId + "," + branchId + ")");
-        List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
-        for (Response response : responseList) {
-            CustomerDbType customerDbEntry = customerService.addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
+        try {
+            logger.info("adding customer responses for : (" + companyId + "," + branchId + ")");
+            List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
+            for (Response response : responseList) {
+                CustomerDbType customerDbEntry = customerService.addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
 
-            String customerId;
-            if (customerDbEntry != null) customerId = customerDbEntry.getCustomerId();
-            else customerId = UUID.randomUUID().toString();
+                String customerId;
+                if (customerDbEntry != null) customerId = customerDbEntry.getCustomerId();
+                else customerId = UUID.randomUUID().toString();
 
-            if (check(companyId, response)) {
-                addToResponseDb(companyId, branchId, customerId, response.getAttributeTuples());
+                if (check(companyId, response)) {
+                    addToResponseDb(companyId, branchId, customerId, response.getAttributeTuples());
 
-                if (customerDbEntry != null)
-                    alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);
+                    if (customerDbEntry != null)
+                        alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);
+                }
             }
+            logger.info("done adding customer responses for : (" + companyId + "," + branchId + ")");
+        } catch (Exception e) {
+            logger.error("error processing responses : " + companyId + "," + branchId);
         }
-        logger.info("done adding customer responses for : (" + companyId + "," + branchId + ")");
     }
 
     private void addToResponseDb(int companyId, int branchId, String customerId, List<AttributeTuple> attributeResponseTuples) {

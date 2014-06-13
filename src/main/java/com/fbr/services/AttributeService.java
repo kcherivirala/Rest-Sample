@@ -46,58 +46,78 @@ public class AttributeService {
     }
 
     @Transactional
-    public Attribute addAttributeAndValues(Attribute attribute) {
-        logger.info("adding new attribute : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
-        int id = attributeDao.getMaxAttributeIdValue() + 1;
-        AttributeDbType attributeDbEntry = Conversions.getAttributeDbEntry(id, attribute);
-        attributeDao.add(attributeDbEntry);
+    public Attribute addAttributeAndValues(Attribute attribute) throws Exception {
+        try {
+            logger.info("adding new attribute : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
+            int id = attributeDao.getMaxAttributeIdValue() + 1;
+            AttributeDbType attributeDbEntry = Conversions.getAttributeDbEntry(id, attribute);
+            attributeDao.add(attributeDbEntry);
 
-        for (AttributeValue attributeValue : attribute.getAttributeValues()) {
-            addAttributeValueDbEntry(attributeDbEntry.getAttributeId(), attributeValue);
+            for (AttributeValue attributeValue : attribute.getAttributeValues()) {
+                addAttributeValueDbEntry(attributeDbEntry.getAttributeId(), attributeValue);
+            }
+            attribute.setAttributeId(attributeDbEntry.getAttributeId());
+            logger.info("done adding : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
+            return attribute;
+        } catch (Exception e) {
+            throw new Exception("error adding attribute and values : " + attribute.getAttributeString() + " : " + e.getMessage());
         }
-        attribute.setAttributeId(attributeDbEntry.getAttributeId());
-        logger.info("done adding : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
-        return attribute;
     }
 
     @Transactional
-    public Attribute updateAttributeAndValues(int attributeId, Attribute attribute) {
-        logger.info("updating new attribute : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
-        AttributeDbType dbEntry = attributeDao.find(attributeId);
-        List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attributeId);
+    public Attribute updateAttributeAndValues(int attributeId, Attribute attribute) throws Exception {
+        try {
+            logger.info("updating new attribute : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
+            AttributeDbType dbEntry = attributeDao.find(attributeId);
+            List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attributeId);
 
-        updateAttributeDbEntry(dbEntry, attribute);
-        updateAttributeValues(dbEntry.getAttributeId(), attributeValuesDbEntries, attribute.getAttributeValues());
-        logger.info("done updating : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
-        return attribute;
+            updateAttributeDbEntry(dbEntry, attribute);
+            updateAttributeValues(dbEntry.getAttributeId(), attributeValuesDbEntries, attribute.getAttributeValues());
+            logger.info("done updating : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
+            return attribute;
+        } catch (Exception e) {
+            throw new Exception("error updating attribute : " + attribute.getAttributeId() + " : " + e.getMessage());
+        }
     }
 
     @Transactional
-    public void deleteAttributeAndValues(int attrId) {
-        logger.info("deleting attribute : " + attrId);
-        attributeValuesDao.deleteAttributeValues(attrId);
-        attributeDao.delete(attrId);
-        logger.info("done deleting attribute : " + attrId);
+    public void deleteAttributeAndValues(int attrId) throws Exception {
+        try {
+            logger.info("deleting attribute : " + attrId);
+            attributeValuesDao.deleteAttributeValues(attrId);
+            attributeDao.delete(attrId);
+            logger.info("done deleting attribute : " + attrId);
+        } catch (Exception e) {
+            throw new Exception("error deleting attribute : " + attrId + " : " + e.getMessage());
+        }
     }
 
-    public List<Attribute> getAttributeAndValues() {
-        logger.info("getting all attributes and values");
-        List<AttributeDbType> attributeDbEntries = attributeDao.findAll();
-        List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.findAll();
+    public List<Attribute> getAttributeAndValues() throws Exception {
+        try {
+            logger.info("getting all attributes and values");
+            List<AttributeDbType> attributeDbEntries = attributeDao.findAll();
+            List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.findAll();
 
-        List<Attribute> out = matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
-        logger.info("done getting all attributes and values");
-        return out;
+            List<Attribute> out = matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
+            logger.info("done getting all attributes and values");
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting attributes : " + e.getMessage());
+        }
     }
 
-    public Attribute getAttributeAndValues(int attrId) {
-        logger.info("getting all attributes and values for : " + attrId);
-        AttributeDbType attributeDbEntry = attributeDao.find(attrId);
-        List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attrId);
+    public Attribute getAttributeAndValues(int attrId) throws Exception {
+        try {
+            logger.info("getting all attributes and values for : " + attrId);
+            AttributeDbType attributeDbEntry = attributeDao.find(attrId);
+            List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attrId);
 
-        Attribute out = matchAttributeAndValues(attributeDbEntry, attributeValuesDbEntries);
-        logger.info("done getting all attributes and values for : " + attrId);
-        return out;
+            Attribute out = matchAttributeAndValues(attributeDbEntry, attributeValuesDbEntries);
+            logger.info("done getting all attributes and values for : " + attrId);
+            return out;
+        } catch (Exception e) {
+            throw new Exception("error getting : " + attrId + " : " + e.getMessage());
+        }
     }
 
 
