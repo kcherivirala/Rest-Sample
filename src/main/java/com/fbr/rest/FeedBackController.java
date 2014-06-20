@@ -267,8 +267,6 @@ public class FeedBackController {
     /* Exception Handler*/
     @ExceptionHandler(Exception.class)
     public ModelAndView handleAllException(Exception ex, final HttpServletRequest httpServletRequest) {
-
         return new ModelAndView(jsonView_i, ERROR_FIELD, ex.getMessage());
-
     }
 }

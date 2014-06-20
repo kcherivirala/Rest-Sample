@@ -9,7 +9,7 @@
         <class>com.fbr.Dao.Attribute.Entities.AttributeDbType</class>
         <class>com.fbr.Dao.Response.Entities.AlertDbType</class>
         <class>com.fbr.Dao.Response.Entities.CustomerResponseDbType</class>
-        <class>com.fbr.Dao.CustomerDbType</class>
+        <class>com.fbr.Dao.Customer.Entities.CustomerDbType</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <!-- <property name="hibernate.hbm2ddl.auto" value="validate" />  -->

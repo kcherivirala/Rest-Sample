@@ -163,14 +163,63 @@ public class CompanyService {
     private void updateCompanyDbEntry(CompanyDbType companyDbEntry, Company company) {
         logger.debug("modifying Company : " + companyDbEntry.getCompanyId());
         boolean updated = false;
-        if (!company.getInfo().equals(companyDbEntry.getInfo())) {
-            companyDbEntry.setInfo(company.getInfo());
-            updated = true;
-        }
         if (!company.getName().equals(companyDbEntry.getName())) {
             companyDbEntry.setName(company.getName());
             updated = true;
         }
+
+        if (!company.getMail().equals(companyDbEntry.getMail())) {
+            companyDbEntry.setMail(company.getMail());
+            updated = true;
+        }
+        if (!company.getContact().equals(companyDbEntry.getContact())) {
+            companyDbEntry.setContact(company.getContact());
+            updated = true;
+        }
+
+        if (!company.getOwnerName().equals(companyDbEntry.getOwnerName())) {
+            companyDbEntry.setOwnerName(company.getOwnerName());
+            updated = true;
+        }
+        if (company.getOwnerAge() != (companyDbEntry.getOwnerAge())) {
+            companyDbEntry.setOwnerAge(company.getOwnerAge());
+            updated = true;
+        }
+        if (company.isOwnerSex() != companyDbEntry.isOwnerSex()) {
+            companyDbEntry.setOwnerSex(company.isOwnerSex());
+            updated = true;
+        }
+
+        if (company.getCountry() != companyDbEntry.getCountry()) {
+            companyDbEntry.setCountry(company.getCountry());
+            updated = true;
+        }
+        if (company.getState() != companyDbEntry.getState()) {
+            companyDbEntry.setState(company.getState());
+            updated = true;
+        }
+        if (company.getCity() != companyDbEntry.getCity()) {
+            companyDbEntry.setCity(company.getCity());
+            updated = true;
+        }
+        if (company.getRegion() != companyDbEntry.getRegion()) {
+            companyDbEntry.setRegion(company.getRegion());
+            updated = true;
+        }
+
+        if (company.isCompetitiveAnalysisFlag() != companyDbEntry.isCompetitiveAnalysisFlag()) {
+            companyDbEntry.setCompetitiveAnalysisFlag(company.isCompetitiveAnalysisFlag());
+            updated = true;
+        }
+        if (!company.getIndustryType().equals(companyDbEntry.getIndustryType())) {
+            companyDbEntry.setIndustryType(company.getIndustryType());
+            updated = true;
+        }
+        if (!company.getSubIndustryType().equals(companyDbEntry.getSubIndustryType())) {
+            companyDbEntry.setSubIndustryType(company.getSubIndustryType());
+            updated = true;
+        }
+
         if (updated)
             companyDao.update(companyDbEntry);
     }
@@ -212,11 +261,79 @@ public class CompanyService {
 
     }
 
-    private void updateBranchDbEntry(BranchDbType branchDbEntry, Branch inputBranch) {
-        if (!branchDbEntry.getInfo().equals(inputBranch.getInfo())) {
-            branchDbEntry.setInfo(inputBranch.getInfo());
-            branchDao.update(branchDbEntry);
+    private void updateBranchDbEntry(BranchDbType branchDbEntry, Branch branch) {
+        logger.debug("modifying branch : " + branchDbEntry.getId().getBranchId());
+        boolean updated = false;
+
+        if (!branch.getName().equals(branchDbEntry.getName())) {
+            branchDbEntry.setName(branch.getName());
+            updated = true;
         }
+
+        if (!branch.getMail().equals(branchDbEntry.getMail())) {
+            branchDbEntry.setMail(branch.getMail());
+            updated = true;
+        }
+        if (!branch.getContact().equals(branchDbEntry.getContact())) {
+            branchDbEntry.setContact(branch.getContact());
+            updated = true;
+        }
+
+        if (!branch.getBranchManagerName().equals(branchDbEntry.getBranchManagerName())) {
+            branchDbEntry.setBranchManagerName(branch.getBranchManagerName());
+            updated = true;
+        }
+        if (branch.isBranchManagerSex() != branchDbEntry.isBranchManagerSex()) {
+            branchDbEntry.setBranchManagerSex(branch.isBranchManagerSex());
+            updated = true;
+        }
+
+        if (branch.getLatitude() != branchDbEntry.getLatitude()) {
+            branchDbEntry.setLatitude(branch.getLatitude());
+            updated = true;
+        }
+        if (branch.getLongitude() != branchDbEntry.getLongitude()) {
+            branchDbEntry.setLongitude(branch.getLongitude());
+            updated = true;
+        }
+
+        if (branch.getCountry() != branchDbEntry.getCountry()) {
+            branchDbEntry.setCountry(branch.getCountry());
+            updated = true;
+        }
+        if (branch.getState() != branchDbEntry.getState()) {
+            branchDbEntry.setState(branch.getState());
+            updated = true;
+        }
+        if (branch.getCity() != branchDbEntry.getCity()) {
+            branchDbEntry.setCity(branch.getCity());
+            updated = true;
+        }
+        if (branch.getRegion() != branchDbEntry.getRegion()) {
+            branchDbEntry.setRegion(branch.getRegion());
+            updated = true;
+        }
+
+        if (!branch.getIndustryType().equals(branchDbEntry.getIndustryType())) {
+            branchDbEntry.setIndustryType(branch.getIndustryType());
+            updated = true;
+        }
+        if (!branch.getSubIndustryType().equals(branchDbEntry.getSubIndustryType())) {
+            branchDbEntry.setSubIndustryType(branch.getSubIndustryType());
+            updated = true;
+        }
+
+        if (branch.getBudgetCategory() != branchDbEntry.getBudgetCategory()) {
+            branchDbEntry.setBudgetCategory(branch.getBudgetCategory());
+            updated = true;
+        }
+        if (!branch.getOperationalTime().equals(branchDbEntry.getOperationalTime())) {
+            branchDbEntry.setOperationalTime(branch.getOperationalTime());
+            updated = true;
+        }
+
+        if (updated)
+            branchDao.update(branchDbEntry);
     }
 
     private void deleteBranchDbEntry(BranchDbType branchDbType) {
@@ -242,10 +359,52 @@ public class CompanyService {
     public static class Conversions {
         public static CompanyDbType getCompanyDbEntry(int companyId, Company company) {
             CompanyDbType companyDbEntry = new CompanyDbType();
+
             companyDbEntry.setCompanyId(companyId);
-            companyDbEntry.setInfo(company.getInfo());
+            companyDbEntry.setName(company.getName());
+
+            companyDbEntry.setMail(company.getMail());
+            companyDbEntry.setContact(company.getContact());
+
+            companyDbEntry.setOwnerName(company.getOwnerName());
+            companyDbEntry.setOwnerAge(company.getOwnerAge());
+            companyDbEntry.setOwnerSex(company.isOwnerSex());
+
+            companyDbEntry.setCountry(company.getCountry());
+            companyDbEntry.setState(company.getState());
+            companyDbEntry.setCity(company.getCity());
+            companyDbEntry.setRegion(company.getRegion());
+
+            companyDbEntry.setCompetitiveAnalysisFlag(company.isCompetitiveAnalysisFlag());
+            companyDbEntry.setIndustryType(company.getIndustryType());
+            companyDbEntry.setSubIndustryType(company.getSubIndustryType());
 
             return companyDbEntry;
+        }
+
+        public static Company getCompany(CompanyDbType companyDbEntry) {
+            Company company = new Company();
+
+            company.setId(companyDbEntry.getId());
+            company.setName(companyDbEntry.getName());
+
+            company.setMail(companyDbEntry.getMail());
+            company.setContact(companyDbEntry.getContact());
+
+            company.setOwnerName(companyDbEntry.getOwnerName());
+            company.setOwnerAge(companyDbEntry.getOwnerAge());
+            company.setOwnerSex(companyDbEntry.isOwnerSex());
+
+            company.setCountry(companyDbEntry.getCountry());
+            company.setState(companyDbEntry.getState());
+            company.setCity(companyDbEntry.getCity());
+            company.setRegion(companyDbEntry.getRegion());
+
+            company.setCompetitiveAnalysisFlag(companyDbEntry.isCompetitiveAnalysisFlag());
+            company.setIndustryType(companyDbEntry.getIndustryType());
+            company.setSubIndustryType(companyDbEntry.getSubIndustryType());
+
+            return company;
         }
 
         public static BranchDbType getBranchDbEntry(int companyId, int branchId, Branch branch) {
@@ -255,25 +414,57 @@ public class CompanyService {
             key.setCompanyId(companyId);
             key.setBranchId(branchId);
             branchDbEntry.setId(key);
-            branchDbEntry.setInfo(branch.getInfo());
+            branchDbEntry.setName(branch.getName());
+
+            branchDbEntry.setBranchManagerName(branch.getBranchManagerName());
+            branchDbEntry.setBranchManagerSex(branch.isBranchManagerSex());
+
+            branchDbEntry.setMail(branch.getMail());
+            branchDbEntry.setContact(branch.getContact());
+
+            branchDbEntry.setLatitude(branch.getLatitude());
+            branchDbEntry.setLongitude(branch.getLongitude());
+
+            branchDbEntry.setCountry(branch.getCountry());
+            branchDbEntry.setState(branch.getState());
+            branchDbEntry.setCity(branch.getCity());
+            branchDbEntry.setRegion(branch.getRegion());
+
+            branchDbEntry.setIndustryType(branch.getIndustryType());
+            branchDbEntry.setSubIndustryType(branch.getSubIndustryType());
+
+            branchDbEntry.setBudgetCategory(branch.getBudgetCategory());
+            branchDbEntry.setOperationalTime(branch.getOperationalTime());
 
             return branchDbEntry;
-        }
-
-        public static Company getCompany(CompanyDbType companyDbEntry) {
-            Company company = new Company();
-            company.setId(companyDbEntry.getId());
-            company.setInfo(companyDbEntry.getInfo());
-            company.setName(companyDbEntry.getName());
-
-            return company;
         }
 
         public static Branch getBranch(BranchDbType branchDbEntry) {
             Branch branch = new Branch();
 
             branch.setId(branchDbEntry.getId().getBranchId());
-            branch.setInfo(branchDbEntry.getInfo());
+
+            branch.setName(branchDbEntry.getName());
+
+            branch.setBranchManagerName(branchDbEntry.getBranchManagerName());
+            branch.setBranchManagerSex(branchDbEntry.isBranchManagerSex());
+
+            branch.setMail(branchDbEntry.getMail());
+            branch.setContact(branchDbEntry.getContact());
+
+            branch.setLatitude(branchDbEntry.getLatitude());
+            branch.setLongitude(branchDbEntry.getLongitude());
+
+            branch.setCountry(branchDbEntry.getCountry());
+            branch.setState(branchDbEntry.getState());
+            branch.setCity(branchDbEntry.getCity());
+            branch.setRegion(branchDbEntry.getRegion());
+
+            branch.setIndustryType(branchDbEntry.getIndustryType());
+            branch.setSubIndustryType(branchDbEntry.getSubIndustryType());
+
+            branch.setBudgetCategory(branchDbEntry.getBudgetCategory());
+            branch.setOperationalTime(branchDbEntry.getOperationalTime());
 
             return branch;
         }

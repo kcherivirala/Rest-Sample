@@ -16,7 +16,6 @@ import com.fbr.Dao.Graph.Entities.GraphFiltersDbType;
 import com.fbr.Dao.Question.Entities.AnswerDbType;
 import com.fbr.Dao.Question.Entities.QuestionDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
-import com.fbr.Dao.ResponseAggregateDbType;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
 import com.fbr.domain.Company.Branch;
@@ -25,16 +24,6 @@ import com.fbr.domain.Question.Answer;
 import java.util.Comparator;
 
 public class Comparators {
-    public static Comparator<ResponseAggregateDbType> aggregateComparator = new Comparator<ResponseAggregateDbType>() {
-        @Override
-        public int compare(ResponseAggregateDbType first, ResponseAggregateDbType second) {
-            if (first.getId().getBranchId() < second.getId().getBranchId()) return -1;
-            else if (first.getId().getBranchId() > second.getId().getBranchId()) return 1;
-            else {
-                return first.getId().getAttributeId() - (second.getId().getAttributeId());
-            }
-        }
-    };
 
     public static Comparator<AnswerDbType> COMPARE_DB_ANSWERS = new Comparator<AnswerDbType>() {
         @Override

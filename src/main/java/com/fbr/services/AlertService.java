@@ -6,7 +6,7 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.CustomerDbType;
+import com.fbr.Dao.Customer.Entities.CustomerDbType;
 import com.fbr.Dao.Response.AlertDao;
 import com.fbr.Dao.Response.Entities.AlertDbType;
 import com.fbr.domain.Attribute.Attribute;

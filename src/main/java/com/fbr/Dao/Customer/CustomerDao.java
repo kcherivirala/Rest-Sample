@@ -1,4 +1,4 @@
-package com.fbr.Dao;
+package com.fbr.Dao.Customer;
 
 /*
  *  ***********************************************************
@@ -6,6 +6,8 @@ package com.fbr.Dao;
  *  ***********************************************************
  */
 
+import com.fbr.Dao.Customer.Entities.CustomerDbType;
+import com.fbr.Dao.ProjectDaoImpl;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;

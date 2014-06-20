@@ -6,7 +6,7 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.CustomerDbType;
+import com.fbr.Dao.Customer.Entities.CustomerDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.Dao.Response.CustomerResponseValuesDao;
 import com.fbr.Dao.Response.Entities.CustomerResponseDbType;

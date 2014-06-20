@@ -6,8 +6,8 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.CustomerDao;
-import com.fbr.Dao.CustomerDbType;
+import com.fbr.Dao.Customer.CustomerDao;
+import com.fbr.Dao.Customer.Entities.CustomerDbType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
