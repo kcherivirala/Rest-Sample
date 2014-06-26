@@ -248,22 +248,28 @@ public class FeedBackController {
 
     @RequestMapping(value = {"/company/{companyId}/offersAndInfo/{offerId}"}, method = {RequestMethod.PUT})
     @ResponseBody
-    public OffersInfo addOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("offerId") int offerId, @RequestBody OffersInfo offersInfo,
+    public OffersInfo updateOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("offerId") int offerId, @RequestBody OffersInfo offersInfo,
                                     HttpServletResponse httpResponse_p) throws Exception {
         offersService.updateOffersInfo(companyId, offerId, offersInfo);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return offersInfo;
     }
 
+    @RequestMapping(value = {"/offersAndInfo"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public List<OffersInfo> getOffersInfo() throws Exception {
+        return offersService.getOffersInfo();
+    }
+
     @RequestMapping(value = {"/company/{companyId}/offersAndInfo"}, method = {RequestMethod.GET})
     @ResponseBody
-    public List<OffersInfo> addOffersInfo(@PathVariable("companyId") int companyId) throws Exception {
+    public List<OffersInfo> getOffersInfo(@PathVariable("companyId") int companyId) throws Exception {
         return offersService.getOffersInfo(companyId);
     }
 
     @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/offersAndInfo"}, method = {RequestMethod.GET})
     @ResponseBody
-    public List<OffersInfo> addOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId) throws Exception {
+    public List<OffersInfo> getOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId) throws Exception {
         return offersService.getOffersInfo(companyId, branchId);
     }
 

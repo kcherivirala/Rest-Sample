@@ -55,6 +55,22 @@ public class OffersService {
 
     }
 
+
+    public List<OffersInfo> getOffersInfo() throws Exception {
+        try {
+            List<OfferInfoDbType> listDbEntries = offersInfoDao.findAll();
+            List<OffersInfo> out = new ArrayList<OffersInfo>(listDbEntries.size());
+
+            for (OfferInfoDbType dbEntry : listDbEntries) {
+                out.add(Conversions.getOffersInfo(dbEntry));
+            }
+            return out;
+        } catch (Exception e) {
+            logger.error("error getting all offers for : " + e.getMessage());
+            throw new Exception("error getting all offers for : " + e.getMessage());
+        }
+    }
+
     public List<OffersInfo> getOffersInfo(int companyId) throws Exception {
         try {
             List<OfferInfoDbType> listDbEntries = offersInfoDao.getOffersAndInfo(companyId);
@@ -84,6 +100,8 @@ public class OffersService {
             throw new Exception("error getting offers for : " + companyId + " and : " + " : " + e.getMessage());
         }
     }
+
+    /*    private functions    */
 
     private void updateOfferInfoDbEntry(OfferInfoDbType dbEntry, OffersInfo offersInfo) {
         boolean updated = false;
