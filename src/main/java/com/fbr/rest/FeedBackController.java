@@ -3,6 +3,7 @@ package com.fbr.rest;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Company.Company;
 import com.fbr.domain.Graph.Graph;
+import com.fbr.domain.Offers_Info.OffersInfo;
 import com.fbr.domain.Question.Question;
 import com.fbr.domain.Response.Response;
 import com.fbr.domain.Response.ResponseList;
@@ -38,6 +39,8 @@ public class FeedBackController {
     private StatisticsService statisticsService;
     @Autowired
     private CompanyService companyService;
+    @Autowired
+    private OffersService offersService;
     @Autowired
     private View jsonView_i;
 
@@ -232,6 +235,38 @@ public class FeedBackController {
     }
 
 
+    /*   Offers and Info API */
+
+    @RequestMapping(value = {"/company/{companyId}/offersAndInfo"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public OffersInfo addOffersInfo(@PathVariable("companyId") int companyId, @RequestBody OffersInfo offersInfo,
+                                    HttpServletResponse httpResponse_p) throws Exception {
+        offersService.addOffersInfo(companyId, offersInfo);
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        return offersInfo;
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/offersAndInfo/{offerId}"}, method = {RequestMethod.PUT})
+    @ResponseBody
+    public OffersInfo addOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("offerId") int offerId, @RequestBody OffersInfo offersInfo,
+                                    HttpServletResponse httpResponse_p) throws Exception {
+        offersService.updateOffersInfo(companyId, offerId, offersInfo);
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        return offersInfo;
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/offersAndInfo"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public List<OffersInfo> addOffersInfo(@PathVariable("companyId") int companyId) throws Exception {
+        return offersService.getOffersInfo(companyId);
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/offersAndInfo"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public List<OffersInfo> addOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId) throws Exception {
+        return offersService.getOffersInfo(companyId, branchId);
+    }
+
     /*  Responses API  */
 
     @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/responses"}, method = {RequestMethod.POST})
@@ -249,7 +284,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Response refreshCompanyData(@PathVariable("companyId") int companyId,
-                                       HttpServletResponse httpResponse_p, WebRequest request_p) throws Exception {
+                                       HttpServletResponse httpResponse_p) throws Exception {
         statisticsService.resetCompanyData(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
