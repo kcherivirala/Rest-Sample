@@ -91,10 +91,9 @@ public class GraphService {
         try {
             logger.info("deleting graph for company : " + companyId + " and graph : " + graphId);
             GraphDbType graphDbEntry = graphsDao.find(graphId);
-
-            graphsDao.delete(graphDbEntry);
             graphAttributesDao.deleteGraphAttributes(graphId);
             graphFiltersDao.deleteGraphFilters(graphId);
+            graphsDao.delete(graphDbEntry);
             logger.info("done deleting graph for company : " + companyId + " and graph : " + graphId);
         } catch (Exception e) {
             logger.error("error deleting graph : " + graphId + " : " + e.getMessage());

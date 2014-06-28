@@ -88,9 +88,8 @@ public class QuestionService {
             key.setQuestionId(questionId);
 
             QuestionDbType questionDbEntry = questionDao.find(key);
-            questionDao.delete(questionDbEntry);
-
             answerDao.deleteAnswersOfQuestion(companyId, questionId);
+            questionDao.delete(questionDbEntry);
 
             logger.info("done deleting question for company : " + companyId + " and questionId : " + questionId);
         } catch (Exception e) {
