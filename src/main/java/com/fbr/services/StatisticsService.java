@@ -35,15 +35,21 @@ public class StatisticsService {
     @Autowired
     private CompanyService companyService;
 
+    Timer timer;
+
     private List<CompanyData> listCompanyData;
 
-    private static int DATA_DAY_COUNT = 30;    //for trends API
-    private static int DATA_MONTH_COUNT = 12;  //for trends API
-    //for overview data we have last week last month and last year data.
+    private static int DATA_DAY_COUNT = 30;                             //for trends API
+    private static int DATA_MONTH_COUNT = 12;                           //for trends API
+
+    private long NORMAL_GRAPH_REFRESH_INTERVAL = 24 * 60 * 60 * 1000;   //1day
+    private long TREND_GRAPH_REFRESH_INTERVAL = 60 * 60 * 1000;         //1 hour
+
 
     @PostConstruct
     public void init() {
-        int date = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+        Calendar cal = Calendar.getInstance();
+        int date = FeedbackUtilities.dateFromCal(cal);
         int month = FeedbackUtilities.monthFromDate(date);
 
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
@@ -56,6 +62,21 @@ public class StatisticsService {
                 logger.error("error initialising info for : " + company.getCompanyId());
             }
         }
+
+        timer = new Timer();
+        UpdateNormalGraphsTask updateNormalGraphsTask = new UpdateNormalGraphsTask();
+        UpdateTrendGraphsTask updateTrendGraphsTask = new UpdateTrendGraphsTask();
+
+        cal.add(Calendar.HOUR, 1);
+        timer.schedule(updateTrendGraphsTask, cal.getTime(), TREND_GRAPH_REFRESH_INTERVAL);
+
+        cal.add(Calendar.DATE, 1);
+        cal.set(Calendar.HOUR, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        timer.schedule(updateNormalGraphsTask, cal.getTime(), NORMAL_GRAPH_REFRESH_INTERVAL);
     }
 
     public void resetCompanyData(int companyId) throws Exception {
@@ -781,6 +802,24 @@ public class StatisticsService {
 
         List<GraphData> listGraphData;
     }
+
+    class UpdateTrendGraphsTask extends TimerTask {
+
+        @Override
+        public void run() {
+            refreshTrendGraphs();
+        }
+    }
+
+    class UpdateNormalGraphsTask extends TimerTask {
+
+        @Override
+        public void run() {
+            refreshNormalGraphs();
+        }
+    }
 }
+
+
 
 
