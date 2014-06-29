@@ -95,6 +95,5 @@ public class FeedbackUtilities {
         cal2.set(Calendar.MILLISECOND, 0);
 
         return (cal1.getTimeInMillis() - cal2.getTimeInMillis()) / (24 * 60 * 60 * 1000);
-
     }
 }
