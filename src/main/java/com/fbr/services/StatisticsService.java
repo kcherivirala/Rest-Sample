@@ -129,6 +129,85 @@ public class StatisticsService {
         }
     }
 
+    public void refreshTrendGraphs(int companyId) {
+        try {
+            int index = getIndex(listCompanyData, companyId);
+
+            if (index == -1) {
+                resetCompanyData(companyId);
+            } else {
+                CompanyData companyData = listCompanyData.get(index);
+                Date currTimeStamp = companyData.lastUpdatedTimeStamp;
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId, currTimeStamp);
+                Date lastTime = getLastDate(listResponse);
+
+                for (GraphData graphData : companyData.listGraphData) {
+                    if (graphData.type.equals("trend")) {
+                        addResponsesToTrendGraphsData(graphData, listResponse);
+                        removeTrendGraphStatistics(graphData);
+                    }
+                }
+
+                companyData.lastUpdatedTimeStamp = lastTime;
+            }
+        } catch (Exception e) {
+            logger.error("error adding new data to trends for company: " + companyId);
+        }
+    }
+
+    public void refreshNormalGraphs(int companyId) {
+        try {
+            int index = getIndex(listCompanyData, companyId);
+
+            if (index == -1) {
+                resetCompanyData(companyId);
+            } else {
+                CompanyData companyData = listCompanyData.get(index);
+
+                //responses for the previous day
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.HOUR, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                Date end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                Date start = cal.getTime();
+
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId, start, end);
+
+                //responses for 7th previous day
+                cal.add(Calendar.DATE, -6);
+                end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                start = cal.getTime();
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse7th = customerResponseDao.getResponses(companyId, start, end);
+
+                //responses for 30th previous day
+                cal.add(Calendar.DATE, -22);
+                end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                start = cal.getTime();
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse30th = customerResponseDao.getResponses(companyId, start, end);
+
+                //responses for 365th previous day
+                cal.add(Calendar.DATE, -334);
+                end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                start = cal.getTime();
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse365th = customerResponseDao.getResponses(companyId, start, end);
+
+                for (GraphData graphData : companyData.listGraphData) {
+                    if (graphData.type.equals("normal"))
+                        updateNormalGraphsData(graphData, listResponse, listResponse7th, listResponse30th, listResponse365th);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("error adding new data to normal graph for company: " + companyId);
+        }
+    }
+
     /*      Functions to add data to the out list for teh get API   */
 
     private void populateFromGraphData(List<AttributeLevelStatistics> listAttributeStatistics, Map<String, Integer> mapOfFilters, GraphData graphData) {
@@ -205,29 +284,7 @@ public class StatisticsService {
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
-            try {
-                int index = getIndex(listCompanyData, company.getCompanyId());
-
-                if (index == -1) {
-                    resetCompanyData(company.getCompanyId());
-                } else {
-                    CompanyData companyData = listCompanyData.get(index);
-                    Date currTimeStamp = companyData.lastUpdatedTimeStamp;
-                    List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(company.getCompanyId(), currTimeStamp);
-                    Date lastTime = getLastDate(listResponse);
-
-                    for (GraphData graphData : companyData.listGraphData) {
-                        if (graphData.type.equals("trend")) {
-                            addResponsesToTrendGraphsData(graphData, listResponse);
-                            removeTrendGraphStatistics(graphData);
-                        }
-                    }
-
-                    companyData.lastUpdatedTimeStamp = lastTime;
-                }
-            } catch (Exception e) {
-                logger.error("error adding new data to trends for company: " + company.getCompanyId());
-            }
+            refreshTrendGraphs(company.getCompanyId());
         }
     }
 
@@ -256,62 +313,12 @@ public class StatisticsService {
 
     }
 
-
     private void refreshNormalGraphs() {
         //refresh at 12 midnight
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
-            try {
-                int index = getIndex(listCompanyData, company.getCompanyId());
-
-                if (index == -1) {
-                    resetCompanyData(company.getCompanyId());
-                } else {
-                    CompanyData companyData = listCompanyData.get(index);
-
-                    //responses for the previous day
-                    Calendar cal = Calendar.getInstance();
-                    cal.set(Calendar.HOUR, 0);
-                    cal.set(Calendar.MINUTE, 0);
-                    cal.set(Calendar.SECOND, 0);
-                    cal.set(Calendar.MILLISECOND, 0);
-
-                    Date end = cal.getTime();
-                    cal.add(Calendar.DATE, -1);
-                    Date start = cal.getTime();
-
-                    List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(company.getCompanyId(), start, end);
-
-                    //responses for 7th previous day
-                    cal.add(Calendar.DATE, -6);
-                    end = cal.getTime();
-                    cal.add(Calendar.DATE, -1);
-                    start = cal.getTime();
-                    List<CustomerResponseDao.CustomerResponseAndValues> listResponse7th = customerResponseDao.getResponses(company.getCompanyId(), start, end);
-
-                    //responses for 30th previous day
-                    cal.add(Calendar.DATE, -22);
-                    end = cal.getTime();
-                    cal.add(Calendar.DATE, -1);
-                    start = cal.getTime();
-                    List<CustomerResponseDao.CustomerResponseAndValues> listResponse30th = customerResponseDao.getResponses(company.getCompanyId(), start, end);
-
-                    //responses for 365th previous day
-                    cal.add(Calendar.DATE, -334);
-                    end = cal.getTime();
-                    cal.add(Calendar.DATE, -1);
-                    start = cal.getTime();
-                    List<CustomerResponseDao.CustomerResponseAndValues> listResponse365th = customerResponseDao.getResponses(company.getCompanyId(), start, end);
-
-                    for (GraphData graphData : companyData.listGraphData) {
-                        if (graphData.type.equals("normal"))
-                            updateNormalGraphsData(graphData, listResponse, listResponse7th, listResponse30th, listResponse365th);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("error adding new data to normal graph for company: " + company.getCompanyId());
-            }
+            refreshNormalGraphs(company.getCompanyId());
         }
     }
 

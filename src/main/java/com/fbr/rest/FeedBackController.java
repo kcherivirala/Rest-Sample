@@ -249,7 +249,7 @@ public class FeedBackController {
     @RequestMapping(value = {"/company/{companyId}/offersAndInfo/{offerId}"}, method = {RequestMethod.PUT})
     @ResponseBody
     public OffersInfo updateOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("offerId") int offerId, @RequestBody OffersInfo offersInfo,
-                                    HttpServletResponse httpResponse_p) throws Exception {
+                                       HttpServletResponse httpResponse_p) throws Exception {
         offersService.updateOffersInfo(companyId, offerId, offersInfo);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return offersInfo;
@@ -289,8 +289,8 @@ public class FeedBackController {
 
     @RequestMapping(value = {"/company/{companyId}/refresh"}, method = {RequestMethod.PUT})
     @ResponseBody
-    public Response refreshCompanyData(@PathVariable("companyId") int companyId,
-                                       HttpServletResponse httpResponse_p) throws Exception {
+    public Response resetCompanyData(@PathVariable("companyId") int companyId,
+                                     HttpServletResponse httpResponse_p) throws Exception {
         statisticsService.resetCompanyData(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
@@ -304,6 +304,26 @@ public class FeedBackController {
         return statisticsService.getGraphData(companyId, graphId, mapOfFilters);
     }
 
+
+    /*      TEST APIs  */
+
+    @RequestMapping(value = {"/company/{companyId}/trendRefreshTest"}, method = {RequestMethod.PUT})
+    @ResponseBody
+    public Response trendRefresh(@PathVariable("companyId") int companyId,
+                                 HttpServletResponse httpResponse_p) throws Exception {
+        statisticsService.refreshTrendGraphs(companyId);
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        return null;
+    }
+
+    @RequestMapping(value = {"/company/{companyId}/normalRefreshTest"}, method = {RequestMethod.PUT})
+    @ResponseBody
+    public Response normalRefresh(@PathVariable("companyId") int companyId,
+                                  HttpServletResponse httpResponse_p) throws Exception {
+        statisticsService.refreshNormalGraphs(companyId);
+        httpResponse_p.setStatus(HttpStatus.CREATED.value());
+        return null;
+    }
 
     /* Exception Handler*/
     @ExceptionHandler(Exception.class)
