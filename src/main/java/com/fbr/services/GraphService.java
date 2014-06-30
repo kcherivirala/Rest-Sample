@@ -259,17 +259,21 @@ public class GraphService {
             while (dbIndex < attributes.size()) {
                 Attribute attribute = attributes.get(dbIndex);
 
-                if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) && graphAttributes.get(aIndex).getId().getAttributeId() == attribute.getAttributeId()) {
+                if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) &&
+                        graphAttributes.get(aIndex).getId().getAttributeId() == attribute.getAttributeId()) {
                     attributeList.add(attribute);
                     aIndex++;
                     dbIndex++;
-                } else if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) && graphAttributes.get(aIndex).getId().getAttributeId() < attribute.getAttributeId()) {
+                } else if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) &&
+                        graphAttributes.get(aIndex).getId().getAttributeId() < attribute.getAttributeId()) {
                     aIndex++;
-                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) && graphFilters.get(fIndex).getId().getAttributeId() == attribute.getAttributeId()) {
+                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) &&
+                        graphFilters.get(fIndex).getId().getAttributeId() == attribute.getAttributeId()) {
                     filterList.add(attribute);
                     fIndex++;
                     dbIndex++;
-                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) && graphFilters.get(fIndex).getId().getAttributeId() < attribute.getAttributeId()) {
+                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) &&
+                        graphFilters.get(fIndex).getId().getAttributeId() < attribute.getAttributeId()) {
                     fIndex++;
                 } else {
                     dbIndex++;
