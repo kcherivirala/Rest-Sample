@@ -312,7 +312,7 @@ public class FeedBackController {
     public Response trendRefresh(@PathVariable("companyId") int companyId,
                                  HttpServletResponse httpResponse_p) throws Exception {
 
-        statisticsService.refreshTrendGraphs(companyId);
+        statisticsService.refreshNewResponses(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
     }
