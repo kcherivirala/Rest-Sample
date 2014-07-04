@@ -307,16 +307,17 @@ public class FeedBackController {
 
     /*      TEST APIs  */
 
-    @RequestMapping(value = {"/company/{companyId}/trendRefreshTest"}, method = {RequestMethod.PUT})
+    @RequestMapping(value = {"/company/{companyId}/refreshTest"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Response trendRefresh(@PathVariable("companyId") int companyId,
                                  HttpServletResponse httpResponse_p) throws Exception {
+
         statisticsService.refreshTrendGraphs(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
     }
 
-    @RequestMapping(value = {"/company/{companyId}/normalRefreshTest"}, method = {RequestMethod.PUT})
+    @RequestMapping(value = {"/company/{companyId}/normalGraphRefresh"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Response normalRefresh(@PathVariable("companyId") int companyId,
                                   HttpServletResponse httpResponse_p) throws Exception {

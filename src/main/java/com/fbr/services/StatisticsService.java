@@ -129,85 +129,6 @@ public class StatisticsService {
         }
     }
 
-    public void refreshTrendGraphs(int companyId) {
-        try {
-            int index = getIndex(listCompanyData, companyId);
-
-            if (index == -1) {
-                resetCompanyData(companyId);
-            } else {
-                CompanyData companyData = listCompanyData.get(index);
-                Date currTimeStamp = companyData.lastUpdatedTimeStamp;
-                List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId, currTimeStamp);
-                Date lastTime = getLastDate(listResponse);
-
-                for (GraphData graphData : companyData.listGraphData) {
-                    if (graphData.type.equals("trend")) {
-                        addResponsesToTrendGraphsData(graphData, listResponse);
-                        removeTrendGraphStatistics(graphData);
-                    }
-                }
-
-                companyData.lastUpdatedTimeStamp = lastTime;
-            }
-        } catch (Exception e) {
-            logger.error("error adding new data to trends for company: " + companyId);
-        }
-    }
-
-    public void refreshNormalGraphs(int companyId) {
-        try {
-            int index = getIndex(listCompanyData, companyId);
-
-            if (index == -1) {
-                resetCompanyData(companyId);
-            } else {
-                CompanyData companyData = listCompanyData.get(index);
-
-                //responses for the previous day
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.HOUR, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-
-                Date end = cal.getTime();
-                cal.add(Calendar.DATE, -1);
-                Date start = cal.getTime();
-
-                List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId, start, end);
-
-                //responses for 7th previous day
-                cal.add(Calendar.DATE, -6);
-                end = cal.getTime();
-                cal.add(Calendar.DATE, -1);
-                start = cal.getTime();
-                List<CustomerResponseDao.CustomerResponseAndValues> listResponse7th = customerResponseDao.getResponses(companyId, start, end);
-
-                //responses for 30th previous day
-                cal.add(Calendar.DATE, -22);
-                end = cal.getTime();
-                cal.add(Calendar.DATE, -1);
-                start = cal.getTime();
-                List<CustomerResponseDao.CustomerResponseAndValues> listResponse30th = customerResponseDao.getResponses(companyId, start, end);
-
-                //responses for 365th previous day
-                cal.add(Calendar.DATE, -334);
-                end = cal.getTime();
-                cal.add(Calendar.DATE, -1);
-                start = cal.getTime();
-                List<CustomerResponseDao.CustomerResponseAndValues> listResponse365th = customerResponseDao.getResponses(companyId, start, end);
-
-                for (GraphData graphData : companyData.listGraphData) {
-                    if (graphData.type.equals("normal"))
-                        updateNormalGraphsData(graphData, listResponse, listResponse7th, listResponse30th, listResponse365th);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("error adding new data to normal graph for company: " + companyId);
-        }
-    }
-
     /*      Functions to add data to the out list for teh get API   */
 
     private void populateFromGraphData(List<AttributeLevelStatistics> listAttributeStatistics, Map<String, Integer> mapOfFilters, GraphData graphData) {
@@ -247,26 +168,38 @@ public class StatisticsService {
     private void copyFromDailyAttributeStatisticValues(List<DailyAttributeStatisticValues> outList, List<DailyAttributeStatisticValues> inList) {
         if (outList == null) return;
 
+        int k = 0;
         for (int i = 0; i < outList.size(); i++) {
             DailyAttributeStatisticValues out = outList.get(i);
-            DailyAttributeStatisticValues in = inList.get(i);
+            DailyAttributeStatisticValues in = inList.get(k);
 
-            for (int j = 0; j < out.getListCountPPL().size(); j++) {
-                out.getListCountPPL().set(j, out.getListCountPPL().get(j) + in.getListCountPPL().get(j));
+            if (out.getDate() < in.getDate()) continue;
+
+            if (out.getDate() == in.getDate()) {
+                for (int j = 0; j < out.getListCountPPL().size(); j++) {
+                    out.getListCountPPL().set(j, out.getListCountPPL().get(j) + in.getListCountPPL().get(j));
+                }
             }
+            k++;
         }
     }
 
     private void copyFromMonthlyAttributeLevelStatisticValues(List<MonthlyAttributeLevelStatisticValues> outList, List<MonthlyAttributeLevelStatisticValues> inList) {
         if (outList == null) return;
 
+        int k = 0;
         for (int i = 0; i < outList.size(); i++) {
             MonthlyAttributeLevelStatisticValues out = outList.get(i);
-            MonthlyAttributeLevelStatisticValues in = inList.get(i);
+            MonthlyAttributeLevelStatisticValues in = inList.get(k);
 
-            for (int j = 0; j < out.getListCountPPL().size(); j++) {
-                out.getListCountPPL().set(j, out.getListCountPPL().get(j) + in.getListCountPPL().get(j));
+            if (out.getMonth() < in.getMonth()) continue;
+
+            if (out.getMonth() == in.getMonth()) {
+                for (int j = 0; j < out.getListCountPPL().size(); j++) {
+                    out.getListCountPPL().set(j, out.getListCountPPL().get(j) + in.getListCountPPL().get(j));
+                }
             }
+            k++;
         }
     }
 
@@ -280,33 +213,74 @@ public class StatisticsService {
 
     /*          refreshing the cache       */
 
-    private void refreshTrendGraphs() {
+    private void RefreshNewResponses() {
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
-            refreshTrendGraphs(company.getCompanyId());
+            try {
+                int index = getIndex(listCompanyData, company.getCompanyId());
+                if (index == -1) {
+                    resetCompanyData(company.getCompanyId());
+                } else {
+                    refreshNewResponses(company.getCompanyId());
+                }
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
+    public void refreshNewResponses(int companyId) {
+        try {
+            int index = getIndex(listCompanyData, companyId);
+
+            CompanyData companyData = listCompanyData.get(index);
+            Date currTimeStamp = companyData.lastUpdatedTimeStamp;
+            List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId, currTimeStamp);
+            Date lastTime = getLastDate(listResponse);
+
+            for (GraphData graphData : companyData.listGraphData) {
+                if (graphData.type.equals("trend")) {
+                    addResponsesToTrendGraphsData(graphData, listResponse);
+                    removeTrendGraphStatistics(graphData);
+                } else if (graphData.type.equals("normal")) {
+                    int currentDate = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+                    populateNormalGraphStatistics(graphData, listResponse, currentDate);
+                }
+            }
+
+            companyData.lastUpdatedTimeStamp = lastTime;
+        } catch (Exception e) {
+            logger.error("error adding new data to trends for company: " + companyId);
         }
     }
 
     private void addResponsesToTrendGraphsData(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
         int currentDate = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+        int currentMonth = FeedbackUtilities.monthFromDate(currentDate);
 
         int size = graphData.graphLevelStatistics.getListConstraintLevelStatistics().get(0).getAttributeLevelStatistics().get(0).getListDailyAttributeStatisticValues().size();
         int lastDate = graphData.graphLevelStatistics.getListConstraintLevelStatistics().get(0).getAttributeLevelStatistics().get(0).getListDailyAttributeStatisticValues().get(size - 1).getDate();
         int lastMonth = FeedbackUtilities.monthFromDate(lastDate);
 
         initialiseConstraintLevelStatistics(graphData.graphLevelStatistics.getListConstraintLevelStatistics(), graphData.weigtedAttributes, lastMonth, lastDate, currentDate, graphData.type);
-        populateStatistics(graphData, listResponse);
+        modifyMapOfDates(graphData.mapOfDates, lastDate, currentDate);
+        modifyMapOfMonths(graphData.mapOfMonths, lastMonth, currentMonth);
+        populateTrendGraphStatistics(graphData, listResponse);
     }
 
     private void removeTrendGraphStatistics(GraphData graphData) {
         for (ConstraintLevelStatistics constraintLevelStatistics : graphData.graphLevelStatistics.getListConstraintLevelStatistics()) {
             for (AttributeLevelStatistics attributeLevelStatistics : constraintLevelStatistics.getAttributeLevelStatistics()) {
                 while (attributeLevelStatistics.getListDailyAttributeStatisticValues().size() > 30) {
+                    int date = attributeLevelStatistics.getListDailyAttributeStatisticValues().get(0).getDate();
                     attributeLevelStatistics.getListDailyAttributeStatisticValues().remove(0);
+                    graphData.mapOfDates.remove(date);
                 }
                 while (attributeLevelStatistics.getListMonthlyAttributeLevelStatisticValues().size() > 12) {
+                    int month = attributeLevelStatistics.getListMonthlyAttributeLevelStatisticValues().get(0).getMonth();
                     attributeLevelStatistics.getListMonthlyAttributeLevelStatisticValues().remove(0);
+                    graphData.mapOfMonths.remove(month);
                 }
             }
         }
@@ -322,9 +296,65 @@ public class StatisticsService {
         }
     }
 
+    public void refreshNormalGraphs(int companyId) {
+        try {
+            int index = getIndex(listCompanyData, companyId);
+
+            if (index == -1) {
+                resetCompanyData(companyId);
+            } else {
+                CompanyData companyData = listCompanyData.get(index);
+
+                //responses for the previous day
+                Calendar cal = Calendar.getInstance();
+
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 1);
+
+                Date end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                Date start = cal.getTime();
+
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId, start, end);
+
+                //responses for 7th previous day
+                cal.add(Calendar.DATE, -6);
+                end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                start = cal.getTime();
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse7th = customerResponseDao.getResponses(companyId, start, end);
+
+                //responses for 30th previous day
+                cal.add(Calendar.DATE, -22);
+                end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                start = cal.getTime();
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse30th = customerResponseDao.getResponses(companyId, start, end);
+
+                //responses for 365th previous day
+                cal.add(Calendar.DATE, -334);
+                end = cal.getTime();
+                cal.add(Calendar.DATE, -1);
+                start = cal.getTime();
+                List<CustomerResponseDao.CustomerResponseAndValues> listResponse365th = customerResponseDao.getResponses(companyId, start, end);
+
+                for (GraphData graphData : companyData.listGraphData) {
+                    if (graphData.type.equals("normal"))
+                        updateNormalGraphsData(graphData, listResponse, listResponse7th, listResponse30th, listResponse365th);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("error adding new data to normal graph for company: " + companyId);
+        }
+    }
+
     private void updateNormalGraphsData(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse,
-                                        List<CustomerResponseDao.CustomerResponseAndValues> listResponse7, List<CustomerResponseDao.CustomerResponseAndValues> listResponse30, List<CustomerResponseDao.CustomerResponseAndValues> listResponse365) {
-        populateNormalGraphStatistics(graphData, listResponse);
+                                        List<CustomerResponseDao.CustomerResponseAndValues> listResponse7, List<CustomerResponseDao.CustomerResponseAndValues> listResponse30,
+                                        List<CustomerResponseDao.CustomerResponseAndValues> listResponse365) {
+        int currentDate = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+        populateNormalGraphStatistics(graphData, listResponse, currentDate);
         reduceNormalGraphStatistics(graphData, listResponse7, listResponse30, listResponse365);
     }
 
@@ -417,8 +447,13 @@ public class StatisticsService {
                 graphData.weigtedAttributes = weightedAttributes;
 
                 if (graph.getType().equals("trend")) {
-                    graphData.mapOfDates = getMapOfDates(currentDate);
-                    graphData.mapOfMonths = getMapOfMonths(currentMonth);
+                    graphData.mapOfDates = new HashMap<Integer, Integer>(DATA_DAY_COUNT + 1);
+                    int startDate = FeedbackUtilities.addToDate(currentDate, -1 * DATA_DAY_COUNT);
+                    modifyMapOfDates(graphData.mapOfDates, startDate, currentDate);
+
+                    graphData.mapOfMonths = new HashMap<Integer, Integer>(DATA_MONTH_COUNT + 1);
+                    int startMonth = FeedbackUtilities.addToMonth(currentMonth, -1 * DATA_MONTH_COUNT);
+                    modifyMapOfMonths(graphData.mapOfMonths, startMonth, currentMonth);
                 }
 
 
@@ -484,15 +519,17 @@ public class StatisticsService {
         }
     }
 
-    private void initialiseConstraintLevelStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics, List<Attribute> weightedAttributes, int currentDate, String graphType) {
+    private void initialiseConstraintLevelStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics, List<Attribute> weightedAttributes,
+                                                     int currentDate, String graphType) {
         int startDate = FeedbackUtilities.addToDate(currentDate, -1 * DATA_DAY_COUNT);
-        int currentMonth = FeedbackUtilities.monthFromDate(startDate);
+        int currentMonth = FeedbackUtilities.monthFromDate(currentDate);
         int startMonth = FeedbackUtilities.addToMonth(currentMonth, -1 * DATA_MONTH_COUNT);
 
         initialiseConstraintLevelStatistics(listConstraintLevelStatistics, weightedAttributes, startMonth, startDate, currentDate, graphType);
     }
 
-    private void initialiseConstraintLevelStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics, List<Attribute> weightedAttributes, int startMonth, int startDate, int currentDate, String graphType) {
+    private void initialiseConstraintLevelStatistics(List<ConstraintLevelStatistics> listConstraintLevelStatistics, List<Attribute> weightedAttributes,
+                                                     int startMonth, int startDate, int currentDate, String graphType) {
         for (ConstraintLevelStatistics constraintLevelStatistics : listConstraintLevelStatistics) {
             if (constraintLevelStatistics.getAttributeLevelStatistics() == null) {
                 List<AttributeLevelStatistics> listAttributeStatistics = new ArrayList<AttributeLevelStatistics>(weightedAttributes.size());
@@ -505,7 +542,7 @@ public class StatisticsService {
 
     private void initialiseAttributeLevelStatistics(List<AttributeLevelStatistics> listAttributeStatistics, List<Attribute> weightedAttributes, int currentDate, String graphType) {
         int startDate = FeedbackUtilities.addToDate(currentDate, -1 * DATA_DAY_COUNT);
-        int currentMonth = FeedbackUtilities.monthFromDate(startDate);
+        int currentMonth = FeedbackUtilities.monthFromDate(currentDate);
         int startMonth = FeedbackUtilities.addToMonth(currentMonth, -1 * DATA_MONTH_COUNT);
 
         initialiseAttributeLevelStatistics(listAttributeStatistics, weightedAttributes, startMonth, startDate, currentDate, graphType);
@@ -515,21 +552,32 @@ public class StatisticsService {
         int currentMonth = FeedbackUtilities.monthFromDate(currentDate);
 
         for (Attribute attribute : weightedAttributes) {
+            AttributeLevelStatistics attributeLevelStatistics;
+            if (listAttributeStatistics.size() != weightedAttributes.size()) {
+                attributeLevelStatistics = new AttributeLevelStatistics();
 
-            AttributeLevelStatistics attributeLevelStatistics = new AttributeLevelStatistics();
+                attributeLevelStatistics.setAttributeId(attribute.getAttributeId());
+                attributeLevelStatistics.setName(attribute.getAttributeString());
+                attributeLevelStatistics.setListAttributeValue(attribute.getAttributeValues());
 
-            attributeLevelStatistics.setAttributeId(attribute.getAttributeId());
-            attributeLevelStatistics.setName(attribute.getAttributeString());
-            attributeLevelStatistics.setListAttributeValue(attribute.getAttributeValues());
+                listAttributeStatistics.add(attributeLevelStatistics);
+            } else {
+                attributeLevelStatistics = listAttributeStatistics.get(getAttributeStatisticsIndex(listAttributeStatistics, attribute.getAttributeId()));
+            }
 
             if (graphType.equals("trend")) {
-                List<DailyAttributeStatisticValues> listDailyAttributeStatisticValues = new ArrayList<DailyAttributeStatisticValues>(31);
-                attributeLevelStatistics.setListDailyAttributeStatisticValues(listDailyAttributeStatisticValues);
-                initialiseDailyValues(listDailyAttributeStatisticValues, startDate, currentDate, attribute.getAttributeValues().size());
+                if (attributeLevelStatistics.getListDailyAttributeStatisticValues() == null) {
+                    List<DailyAttributeStatisticValues> listDailyAttributeStatisticValues = new ArrayList<DailyAttributeStatisticValues>(31);
+                    attributeLevelStatistics.setListDailyAttributeStatisticValues(listDailyAttributeStatisticValues);
+                }
 
-                List<MonthlyAttributeLevelStatisticValues> listMonthlyAttributeLevelStatisticValues = new ArrayList<MonthlyAttributeLevelStatisticValues>(12);
-                attributeLevelStatistics.setListMonthlyAttributeLevelStatisticValues(listMonthlyAttributeLevelStatisticValues);
-                initialiseMonthlyValues(listMonthlyAttributeLevelStatisticValues, startMonth, currentMonth, attribute.getAttributeValues().size());
+                if (attributeLevelStatistics.getListMonthlyAttributeLevelStatisticValues() == null) {
+                    List<MonthlyAttributeLevelStatisticValues> listMonthlyAttributeLevelStatisticValues = new ArrayList<MonthlyAttributeLevelStatisticValues>(12);
+                    attributeLevelStatistics.setListMonthlyAttributeLevelStatisticValues(listMonthlyAttributeLevelStatisticValues);
+                }
+
+                initialiseDailyValues(attributeLevelStatistics.getListDailyAttributeStatisticValues(), startDate, currentDate, attribute.getAttributeValues().size());
+                initialiseMonthlyValues(attributeLevelStatistics.getListMonthlyAttributeLevelStatisticValues(), startMonth, currentMonth, attribute.getAttributeValues().size());
             } else {
                 List<Integer> listCountPPl_7Days = new ArrayList<Integer>(attribute.getAttributeValues().size());
                 List<Integer> listCountPPl_30Days = new ArrayList<Integer>(attribute.getAttributeValues().size());
@@ -541,8 +589,6 @@ public class StatisticsService {
 
                 initialiseNormalAttributeStatisticValues(listCountPPl_7Days, listCountPPl_30Days, listCountPPl_365Days, attribute.getAttributeValues().size());
             }
-
-            listAttributeStatistics.add(attributeLevelStatistics);
         }
     }
 
@@ -555,7 +601,7 @@ public class StatisticsService {
     }
 
     private void initialiseDailyValues(List<DailyAttributeStatisticValues> listDailyAttributeStatisticValues, int startDate, int currentDate, int noOfValues) {
-        int date = startDate;
+        int date = FeedbackUtilities.nextDate(startDate);
 
         while (date <= currentDate) {
             DailyAttributeStatisticValues dailyAttributeStatisticValues = new DailyAttributeStatisticValues();
@@ -573,7 +619,7 @@ public class StatisticsService {
     }
 
     private void initialiseMonthlyValues(List<MonthlyAttributeLevelStatisticValues> listMonthlyAttributeLevelStatisticValues, int startMonth, int currentMonth, int noOfValues) {
-        int month = startMonth;
+        int month = FeedbackUtilities.nextMonth(startMonth);
 
         while (month <= currentMonth) {
             MonthlyAttributeLevelStatisticValues monthlyAttributeLevelStatisticValues = new MonthlyAttributeLevelStatisticValues();
@@ -594,12 +640,12 @@ public class StatisticsService {
 
     private void populateStatistics(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
         if (graphData.type.equals("trend"))
-            populateFilterGraphStatistics(graphData, listResponse);
+            populateTrendGraphStatistics(graphData, listResponse);
         else if (graphData.type.equals("normal"))
-            populateNormalGraphStatistics(graphData, listResponse);
+            populateNormalGraphStatistics(graphData, listResponse, FeedbackUtilities.dateFromCal(Calendar.getInstance()));
     }
 
-    private void populateFilterGraphStatistics(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+    private void populateTrendGraphStatistics(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
             Map<String, Integer> mapFilter = getMapConstraintsFromResponse(graphData.filterAttributes, response);
             int constraintIndex = graphData.mapOFConstraints.get(mapFilter);
@@ -628,9 +674,7 @@ public class StatisticsService {
         }
     }
 
-    private void populateNormalGraphStatistics(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
-        int currentDate = FeedbackUtilities.dateFromCal(Calendar.getInstance());
-
+    private void populateNormalGraphStatistics(GraphData graphData, List<CustomerResponseDao.CustomerResponseAndValues> listResponse, int currentDate) {
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
             Map<String, Integer> mapFilter = getMapConstraintsFromResponse(graphData.filterAttributes, response);
             int constraintIndex = graphData.mapOFConstraints.get(mapFilter);
@@ -704,6 +748,15 @@ public class StatisticsService {
         return -1;
     }
 
+    private static int getAttributeStatisticsIndex(List<AttributeLevelStatistics> list, int attributeId) {
+        int index = 0;
+        for (AttributeLevelStatistics attributeLevelStatistics : list) {
+            if (attributeLevelStatistics.getAttributeId() == attributeId) return index;
+            index++;
+        }
+        return -1;
+    }
+
     private int getAttributeValueIndex(List<AttributeValue> attributeValueList, int value) {
         int i = 0;
         for (AttributeValue attributeValue : attributeValueList) {
@@ -744,11 +797,10 @@ public class StatisticsService {
         return outMap;
     }
 
-    private Map<Integer, Integer> getMapOfDates(int currentDate) {
-        Map<Integer, Integer> outMap = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> modifyMapOfDates(Map<Integer, Integer> outMap, int startDate, int endDate) {
         int i = 0;
-        int date = FeedbackUtilities.addToDate(currentDate, -DATA_DAY_COUNT);
-        while (date <= currentDate) {
+        int date = FeedbackUtilities.nextDate(startDate);
+        while (date <= endDate) {
             outMap.put(date, i);
             date = FeedbackUtilities.nextDate(date);
             i++;
@@ -756,11 +808,10 @@ public class StatisticsService {
         return outMap;
     }
 
-    private Map<Integer, Integer> getMapOfMonths(int currentMonth) {
-        Map<Integer, Integer> outMap = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> modifyMapOfMonths(Map<Integer, Integer> outMap, int startMonth, int endMonth) {
         int i = 0;
-        int month = FeedbackUtilities.addToMonth(currentMonth, -DATA_MONTH_COUNT);
-        while (month <= currentMonth) {
+        int month = FeedbackUtilities.nextMonth(startMonth);
+        while (month <= endMonth) {
             outMap.put(month, i);
             month = FeedbackUtilities.nextMonth(month);
             i++;
@@ -814,7 +865,7 @@ public class StatisticsService {
 
         @Override
         public void run() {
-            refreshTrendGraphs();
+            RefreshNewResponses();
         }
     }
 

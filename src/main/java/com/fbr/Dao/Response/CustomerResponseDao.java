@@ -9,10 +9,12 @@ package com.fbr.Dao.Response;
 import com.fbr.Dao.ProjectDaoImpl;
 import com.fbr.Dao.Response.Entities.CustomerResponseDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
+import com.fbr.Utilities.Comparators;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
 
     public List<CustomerResponseAndValues> getResponses(int companyId, Date timeStamp) {
         try {
-            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.timeStamp > ?2  a.responseId = b.id.responseId");
+            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.timestamp > ?2 and a.responseId = b.id.responseId");
             q.setParameter(1, companyId);
             q.setParameter(2, timeStamp);
             List<Object[]> listObject = q.getResultList();
@@ -47,7 +49,7 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
 
     public List<CustomerResponseAndValues> getResponses(int companyId, Date start, Date end) {
         try {
-            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.timeStamp >= ?2 and a.timeStamp <= ?3 a.responseId = b.id.responseId");
+            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.timestamp >= ?2 and a.timestamp <= ?3 and a.responseId = b.id.responseId order by a.responseId");
             q.setParameter(1, companyId);
             q.setParameter(2, start);
             q.setParameter(3, end);
