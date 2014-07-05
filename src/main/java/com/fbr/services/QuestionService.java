@@ -34,6 +34,13 @@ public class QuestionService {
     @Autowired
     private AttributeService attributeService;
 
+    /*
+    placement of question
+    0 -> before
+    1 -> normal
+    2 -> after
+     */
+
     @Transactional
     public Question addQuestionAndAnswers(int companyId, Question question) throws Exception {
         try {
@@ -113,6 +120,21 @@ public class QuestionService {
         }
     }
 
+    public List<Question> getEnabledQuestionAndAnswers(int companyId) throws Exception {
+        try {
+            logger.info("getting questions for company : " + companyId);
+            List<QuestionDbType> questionDbEntries = questionDao.getEnabledQuestions(companyId);
+            List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
+
+            List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
+            logger.info("done getting questions for company : " + companyId);
+            return out;
+        } catch (Exception e) {
+            logger.error("error getting question for company : " + companyId + " : " + e.getMessage());
+            throw new Exception("error getting question for company : " + companyId + " : " + e.getMessage());
+        }
+    }
+
     public Question getQuestionAndAnswers(int companyId, int questionId) throws Exception {
         try {
             logger.info("getting question for company : " + companyId + " and questionId : " + questionId);
@@ -181,10 +203,14 @@ public class QuestionService {
             List<Answer> answerList = new ArrayList<Answer>();
             question.setAnswers(answerList);
 
+            while (aIndex < answerDbEntries.size() && answerDbEntries.get(aIndex).getId().getQuestionId() < questionId) {
+                aIndex++;
+            }
             while (aIndex < answerDbEntries.size() && answerDbEntries.get(aIndex).getId().getQuestionId() == questionId) {
                 answerList.add(Conversions.getAnswer(answerDbEntries.get(aIndex)));
                 aIndex++;
             }
+
             questionList.add(question);
             qIndex++;
         }
@@ -215,6 +241,14 @@ public class QuestionService {
         if ((questionDbEntry.getFunction() != question.getFunction()) ||
                 (questionDbEntry.getFunction() != null && question.getFunction() != null && !questionDbEntry.getFunction().equals(question.getFunction()))) {
             questionDbEntry.setFunction(question.getFunction());
+            updated = true;
+        }
+        if (questionDbEntry.isEnabled() != question.isEnabled()) {
+            questionDbEntry.setEnabled(question.isEnabled());
+            updated = true;
+        }
+        if (questionDbEntry.getPlacement() != question.getPlacement()) {
+            questionDbEntry.setPlacement(question.getPlacement());
             updated = true;
         }
         if (updated)
@@ -284,6 +318,9 @@ public class QuestionService {
             questionDbEntry.setFunction(question.getFunction());
             questionDbEntry.setQuestionString(question.getQuestion());
 
+            questionDbEntry.setEnabled(question.isEnabled());
+            questionDbEntry.setPlacement(question.getPlacement());
+
             return questionDbEntry;
         }
 
@@ -294,6 +331,9 @@ public class QuestionService {
             question.setParentId(questionDbEntry.getParentId());
             question.setQuestion(questionDbEntry.getQuestionString());
             question.setQuestionId(questionDbEntry.getId().getQuestionId());
+
+            question.setEnabled(questionDbEntry.isEnabled());
+            question.setPlacement(questionDbEntry.getPlacement());
 
             return question;
         }

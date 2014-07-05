@@ -25,6 +25,26 @@ public class QuestionDbType implements Serializable, ProjectEntity<QuestionPrima
     int parentId;
     @Column(name = "function")
     String function;
+    @Column(name = "enabled")
+    boolean enabled;
+    @Column(name = "placement")
+    int placement;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public int getPlacement() {
+        return placement;
+    }
+
+    public void setPlacement(int placement) {
+        this.placement = placement;
+    }
 
     public String getFunction() {
         return function;

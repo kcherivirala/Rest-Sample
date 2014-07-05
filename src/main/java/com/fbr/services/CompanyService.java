@@ -149,6 +149,9 @@ public class CompanyService {
             List<Branch> listBranches = new ArrayList<Branch>();
             company.setBranches(listBranches);
 
+            while (bIndex < listDbBranches.size() && company.getId() > listDbBranches.get(bIndex).getId().getCompanyId()) {
+                bIndex++;
+            }
             while (bIndex < listDbBranches.size() && company.getId() == listDbBranches.get(bIndex).getId().getCompanyId()) {
                 listBranches.add(Conversions.getBranch(listDbBranches.get(bIndex)));
                 bIndex++;

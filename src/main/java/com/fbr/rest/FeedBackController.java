@@ -146,6 +146,12 @@ public class FeedBackController {
         return questionService.getQuestionAndAnswers(companyId);
     }
 
+    @RequestMapping(value = {"/company/{companyId}/enabledQuestions"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public List<Question> getEnabledQuestionsAndAnswers(@PathVariable("companyId") int companyId) throws Exception {
+        return questionService.getEnabledQuestionAndAnswers(companyId);
+    }
+
 
     /* Company API */
 

@@ -14,6 +14,24 @@ public class Question {
     List<Answer> answers;
     int parentId;
     String function;
+    boolean enabled;
+    int placement;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public int getPlacement() {
+        return placement;
+    }
+
+    public void setPlacement(int placement) {
+        this.placement = placement;
+    }
 
     public int getQuestionId() {
         return questionId;

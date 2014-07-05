@@ -292,7 +292,9 @@ public class AttributeService {
             Attribute outAttribute = Conversions.getAttribute(attributeDbEntry);
             List<AttributeValue> valueList = new ArrayList<AttributeValue>();
             outAttribute.setAttributeValues(valueList);
-
+            while (vIndex < attributeValuesList.size() && attributeId > attributeValuesList.get(vIndex).getId().getAttributeId()) {
+                vIndex++;
+            }
             while (vIndex < attributeValuesList.size() && attributeId == attributeValuesList.get(vIndex).getId().getAttributeId()) {
                 AttributeValue attributeValue = Conversions.getAttributeValue(attributeValuesList.get(vIndex));
                 valueList.add(attributeValue);
