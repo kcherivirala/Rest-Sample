@@ -8,6 +8,7 @@ import com.fbr.domain.Question.Question;
 import com.fbr.domain.Response.Response;
 import com.fbr.domain.Response.ResponseList;
 import com.fbr.domain.Statistic.AttributeLevelStatistics;
+import com.fbr.domain.Statistic.DashboardInfo;
 import com.fbr.services.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -305,23 +306,30 @@ public class FeedBackController {
     }
 
 
+    @RequestMapping(value = {"/company/{companyId}/dashboard"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public DashboardInfo getDashboard(@PathVariable("companyId") int companyId) throws Exception {
+        return statisticsService.getDashboardInfo(companyId);
+    }
+
+
     /*      TEST APIs  */
 
-    @RequestMapping(value = {"/company/{companyId}/refreshTest"}, method = {RequestMethod.PUT})
+    @RequestMapping(value = {"/company/{companyId}/hourlyRefresh"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Response trendRefresh(@PathVariable("companyId") int companyId,
                                  HttpServletResponse httpResponse_p) throws Exception {
 
-        statisticsService.refreshNewResponses(companyId);
+        statisticsService.refreshHourlyResponses(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
     }
 
-    @RequestMapping(value = {"/company/{companyId}/normalGraphRefresh"}, method = {RequestMethod.PUT})
+    @RequestMapping(value = {"/company/{companyId}/dailyRefresh"}, method = {RequestMethod.PUT})
     @ResponseBody
     public Response normalRefresh(@PathVariable("companyId") int companyId,
                                   HttpServletResponse httpResponse_p) throws Exception {
-        statisticsService.refreshNormalGraphs(companyId);
+        statisticsService.refreshDailyLevelResponses(companyId);
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
     }

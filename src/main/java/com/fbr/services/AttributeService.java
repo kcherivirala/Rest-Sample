@@ -192,6 +192,15 @@ public class AttributeService {
         mapCompanyAttributes.put(companyId, getCompanyAttributeData(companyId));
     }
 
+    public int getNPSAttr(int companyId) {
+        List<Attribute> list = getAttributesByCompany(companyId);
+        for (Attribute attribute : list) {
+            if (attribute.getAttributeString().equals("NPS"))
+                return attribute.getAttributeId();
+        }
+        return -1;
+    }
+
     /*          Private functions           */
 
     private void updateAttributeDbEntry(AttributeDbType attributeDbEntry, Attribute attribute) {

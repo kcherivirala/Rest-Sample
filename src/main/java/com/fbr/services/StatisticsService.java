@@ -42,8 +42,8 @@ public class StatisticsService {
     private static int DATA_DAY_COUNT = 30;                             //for trends API
     private static int DATA_MONTH_COUNT = 12;                           //for trends API
 
-    private long NORMAL_GRAPH_REFRESH_INTERVAL = 24 * 60 * 60 * 1000;   //1day
-    private long TREND_GRAPH_REFRESH_INTERVAL = 60 * 60 * 1000;         //1 hour
+    private long HOURLY_REFRESH_INTERVAL = 24 * 60 * 60 * 1000;   //1day
+    private long DAILY_REFRESH_INTERVAL = 60 * 60 * 1000;         //1 hour
 
 
     @PostConstruct
@@ -68,7 +68,7 @@ public class StatisticsService {
         UpdateTrendGraphsTask updateTrendGraphsTask = new UpdateTrendGraphsTask();
 
         cal.add(Calendar.HOUR, 1);
-        timer.schedule(updateTrendGraphsTask, cal.getTime(), TREND_GRAPH_REFRESH_INTERVAL);
+        timer.schedule(updateTrendGraphsTask, cal.getTime(), HOURLY_REFRESH_INTERVAL);
 
         cal.add(Calendar.DATE, 1);
         cal.set(Calendar.HOUR, 0);
@@ -76,7 +76,7 @@ public class StatisticsService {
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        timer.schedule(updateNormalGraphsTask, cal.getTime(), NORMAL_GRAPH_REFRESH_INTERVAL);
+        timer.schedule(updateNormalGraphsTask, cal.getTime(), DAILY_REFRESH_INTERVAL);
     }
 
     public void resetCompanyData(int companyId) throws Exception {
@@ -127,6 +127,26 @@ public class StatisticsService {
         } catch (Exception e) {
             throw new Exception("error getting graph data fro company : " + companyId + " and graphId : " + graphId + " : " + e.getMessage());
         }
+    }
+
+    public DashboardInfo getDashboardInfo(int companyId) {
+        DashboardInfo dashboardInfo = new DashboardInfo();
+
+        CompanyData companyData = listCompanyData.get(getIndex(listCompanyData, companyId));
+
+        int sum = companyData.countPplNps[0] + companyData.countPplNps[1] + companyData.countPplNps[2];
+        int nps = 0;
+        if (sum > 0)
+            nps = (companyData.countPplNps[2] - companyData.countPplNps[0]) / (sum);
+
+        dashboardInfo.setNps(nps);
+
+        dashboardInfo.setCountResponsesTotal(companyData.countResponsesTotal);
+        dashboardInfo.setCountResponsesNegativeTotal(companyData.countResponsesNegativeTotal);
+        dashboardInfo.setCountResponsesToday(companyData.countResponsesToday);
+        dashboardInfo.setCountResponsesNegativeToday(companyData.countResponsesNegativeToday);
+
+        return dashboardInfo;
     }
 
     /*      Functions to add data to the out list for teh get API   */
@@ -213,7 +233,7 @@ public class StatisticsService {
 
     /*          refreshing the cache       */
 
-    private void RefreshNewResponses() {
+    private void refreshHourlyResponses() {
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
@@ -222,7 +242,7 @@ public class StatisticsService {
                 if (index == -1) {
                     resetCompanyData(company.getCompanyId());
                 } else {
-                    refreshNewResponses(company.getCompanyId());
+                    refreshHourlyResponses(company.getCompanyId());
                 }
             } catch (Exception e) {
 
@@ -230,7 +250,7 @@ public class StatisticsService {
         }
     }
 
-    public void refreshNewResponses(int companyId) {
+    public void refreshHourlyResponses(int companyId) {
         try {
             int index = getIndex(listCompanyData, companyId);
 
@@ -248,6 +268,8 @@ public class StatisticsService {
                     populateNormalGraphStatistics(graphData, listResponse, currentDate);
                 }
             }
+            collectNPS(companyData.countPplNps, listResponse, attributeService.getNPSAttr(companyId));
+            addCompanyLevelStats(companyData, attributeService.getAttributesByCompany(companyId), listResponse);
 
             companyData.lastUpdatedTimeStamp = lastTime;
         } catch (Exception e) {
@@ -287,16 +309,16 @@ public class StatisticsService {
 
     }
 
-    private void refreshNormalGraphs() {
+    private void refreshDailyLevelResponses() {
         //refresh at 12 midnight
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
-            refreshNormalGraphs(company.getCompanyId());
+            refreshDailyLevelResponses(company.getCompanyId());
         }
     }
 
-    public void refreshNormalGraphs(int companyId) {
+    public void refreshDailyLevelResponses(int companyId) {
         try {
             int index = getIndex(listCompanyData, companyId);
 
@@ -344,6 +366,9 @@ public class StatisticsService {
                     if (graphData.type.equals("normal"))
                         updateNormalGraphsData(graphData, listResponse, listResponse7th, listResponse30th, listResponse365th);
                 }
+
+                removeNPS(companyData.countPplNps, listResponse365th, attributeService.getNPSAttr(companyId));
+                removeCompanyLevelStats(companyData, attributeService.getAttributesByCompany(companyId), listResponse365th);
             }
         } catch (Exception e) {
             logger.error("error adding new data to normal graph for company: " + companyId);
@@ -418,6 +443,7 @@ public class StatisticsService {
             Collections.sort(listResponse, Comparators.COMPARE_RESPONSES);
 
             List<Attribute> listAttribute = attributeService.getAttributesByCompany(companyId);    //already sorted list
+            int npsAttributeID = attributeService.getNPSAttr(companyId);
             List<BranchDbType> branches = companyService.getDbBranches(companyId);
             List<Graph> listGraph = graphService.getGraphs(companyId);
 
@@ -467,6 +493,12 @@ public class StatisticsService {
             companyData.companyName = companyName;
             companyData.listGraphData = listGraphData;
             companyData.lastUpdatedTimeStamp = new Date();
+
+            companyData.countPplNps = new int[3];
+            companyData.countResponsesNegativeToday = companyData.countResponsesToday = companyData.countResponsesNegativeTotal = companyData.countResponsesTotal = 0;
+
+            collectNPS(companyData.countPplNps, listResponse, npsAttributeID);
+            addCompanyLevelStats(companyData, listAttribute, listResponse);
             return companyData;
         } catch (Exception e) {
             logger.error("error processing per company responses : " + e.getMessage());
@@ -707,7 +739,90 @@ public class StatisticsService {
         }
     }
 
+    /*      company level statistics    */
+
+    private void collectNPS(int[] countPplNPS, List<CustomerResponseDao.CustomerResponseAndValues> listResponse, int npsAttrId) {
+        for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
+            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                if (responseValue.getId().getAttributeId() == npsAttrId) {
+                    int value = responseValue.getObtainedValue();
+                    countPplNPS[value]++;
+                }
+            }
+        }
+    }
+
+    private void removeNPS(int[] countPplNPS, List<CustomerResponseDao.CustomerResponseAndValues> listResponse, int npsAttrId) {
+        for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
+            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                if (responseValue.getId().getAttributeId() == npsAttrId) {
+                    int value = responseValue.getObtainedValue();
+                    countPplNPS[value]--;
+                }
+            }
+        }
+    }
+
+    private void addCompanyLevelStats(CompanyData companyData, List<Attribute> listAttribute, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+        companyData.countResponsesTotal = listResponse.size();
+
+        for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
+            int responseDate = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
+            int today = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+
+            float avg = 0;
+            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                if (isWeighted(responseValue.getId().getAttributeId(), listAttribute))
+                    avg += responseValue.getObtainedValue();
+            }
+
+            if (responseDate == today)
+                companyData.countResponsesToday++;
+
+            if (avg < 2) {
+                companyData.countResponsesNegativeTotal++;
+            }
+
+            if (responseDate == today) {
+                if (avg < 2) {
+                    companyData.countResponsesNegativeToday++;
+                }
+                companyData.countResponsesToday++;
+            }
+        }
+    }
+
+    private void removeCompanyLevelStats(CompanyData companyData, List<Attribute> listAttribute, List<CustomerResponseDao.CustomerResponseAndValues> listResponse365) {
+        companyData.countResponsesNegativeToday = companyData.countResponsesTotal = 0;
+
+        for (CustomerResponseDao.CustomerResponseAndValues response : listResponse365) {
+            companyData.countResponsesTotal--;
+            float avg = 0;
+            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                if (isWeighted(responseValue.getId().getAttributeId(), listAttribute)) {
+                    avg += responseValue.getObtainedValue();
+                }
+
+                if (avg < 2) {
+                    companyData.countResponsesNegativeTotal--;
+                }
+            }
+        }
+    }
+
     /*      helper functions     */
+
+    private boolean isWeighted(int attrId, List<Attribute> listAttribute) {
+        for (Attribute attribute : listAttribute) {
+            if (attribute.getAttributeId() == attrId) {
+                if (attribute.getType().equals("weighted"))
+                    return true;
+                else
+                    return false;
+            }
+        }
+        return false;
+    }
 
     private Map<String, Integer> getMapConstraintsFromResponse(List<Attribute> filterAttributes, CustomerResponseDao.CustomerResponseAndValues response) {
         Map<String, Integer> mapFilter = new HashMap<String, Integer>();
@@ -858,6 +973,12 @@ public class StatisticsService {
         String companyName;
         Date lastUpdatedTimeStamp;
 
+        int[] countPplNps;
+        int countResponsesTotal;
+        int countResponsesToday;
+        int countResponsesNegativeTotal;
+        int countResponsesNegativeToday;
+
         List<GraphData> listGraphData;
     }
 
@@ -865,7 +986,7 @@ public class StatisticsService {
 
         @Override
         public void run() {
-            RefreshNewResponses();
+            refreshHourlyResponses();
         }
     }
 
@@ -873,7 +994,7 @@ public class StatisticsService {
 
         @Override
         public void run() {
-            refreshNormalGraphs();
+            refreshDailyLevelResponses();
         }
     }
 }
