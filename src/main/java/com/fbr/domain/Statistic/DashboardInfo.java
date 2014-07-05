@@ -12,6 +12,15 @@ public class DashboardInfo {
     int countResponsesToday;
     int countResponsesNegativeTotal;
     int countResponsesNegativeToday;
+    double avgRating;
+
+    public double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(double avgRating) {
+        this.avgRating = avgRating;
+    }
 
     public int getNps() {
         return nps;

@@ -146,6 +146,8 @@ public class StatisticsService {
         dashboardInfo.setCountResponsesToday(companyData.countResponsesToday);
         dashboardInfo.setCountResponsesNegativeToday(companyData.countResponsesNegativeToday);
 
+        dashboardInfo.setAvgRating(companyData.sumOfAvg / companyData.countResponsesTotal);
+
         return dashboardInfo;
     }
 
@@ -764,21 +766,21 @@ public class StatisticsService {
     }
 
     private void addCompanyLevelStats(CompanyData companyData, List<Attribute> listAttribute, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
-        companyData.countResponsesTotal = listResponse.size();
-
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
             int responseDate = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
             int today = FeedbackUtilities.dateFromCal(Calendar.getInstance());
 
             float avg = 0;
+            int count = 0;
             for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
-                if (isWeighted(responseValue.getId().getAttributeId(), listAttribute))
+                if (isWeighted(responseValue.getId().getAttributeId(), listAttribute)) {
                     avg += responseValue.getObtainedValue();
+                    count++;
+                }
             }
+            avg = avg / count;
 
-            if (responseDate == today)
-                companyData.countResponsesToday++;
-
+            companyData.countResponsesTotal++;
             if (avg < 2) {
                 companyData.countResponsesNegativeTotal++;
             }
@@ -789,6 +791,8 @@ public class StatisticsService {
                 }
                 companyData.countResponsesToday++;
             }
+
+            companyData.sumOfAvg += avg;
         }
     }
 
@@ -798,15 +802,20 @@ public class StatisticsService {
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse365) {
             companyData.countResponsesTotal--;
             float avg = 0;
+            int count = 0;
             for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
                 if (isWeighted(responseValue.getId().getAttributeId(), listAttribute)) {
                     avg += responseValue.getObtainedValue();
-                }
-
-                if (avg < 2) {
-                    companyData.countResponsesNegativeTotal--;
+                    count++;
                 }
             }
+            avg = avg / count;
+
+            if (avg < 2) {
+                companyData.countResponsesNegativeTotal--;
+            }
+
+            companyData.sumOfAvg -= avg;
         }
     }
 
@@ -978,6 +987,8 @@ public class StatisticsService {
         int countResponsesToday;
         int countResponsesNegativeTotal;
         int countResponsesNegativeToday;
+
+        double sumOfAvg;
 
         List<GraphData> listGraphData;
     }

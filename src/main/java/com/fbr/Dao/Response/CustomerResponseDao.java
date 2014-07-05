@@ -24,7 +24,7 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
 
     public List<CustomerResponseAndValues> getResponses(int companyId) {
         try {
-            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.responseId = b.id.responseId");
+            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.responseId = b.id.responseId order by a.responseId");
             q.setParameter(1, companyId);
             List<Object[]> listObject = q.getResultList();
             return processObjectList(listObject);
@@ -35,7 +35,8 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
 
     public List<CustomerResponseAndValues> getResponses(int companyId, Date timeStamp) {
         try {
-            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.timestamp > ?2 and a.responseId = b.id.responseId");
+            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 " +
+                    "and a.timestamp > ?2 and a.responseId = b.id.responseId order by a.responseId");
             q.setParameter(1, companyId);
             q.setParameter(2, timeStamp);
             List<Object[]> listObject = q.getResultList();
@@ -47,7 +48,8 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
 
     public List<CustomerResponseAndValues> getResponses(int companyId, Date start, Date end) {
         try {
-            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 and a.timestamp >= ?2 and a.timestamp <= ?3 and a.responseId = b.id.responseId order by a.responseId");
+            Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 " +
+                    "and a.timestamp >= ?2 and a.timestamp <= ?3 and a.responseId = b.id.responseId order by a.responseId");
             q.setParameter(1, companyId);
             q.setParameter(2, start);
             q.setParameter(3, end);
@@ -60,7 +62,8 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
 
     public List<CustomerResponseAndValues> getResponses() {
         try {
-            Query q = entityManager.createQuery("select a, b  from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.responseId = b.id.responseId");
+            Query q = entityManager.createQuery("select a, b  from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.responseId = b.id.responseId  " +
+                    "order by a.responseId");
             List<Object[]> listObject = q.getResultList();
             return processObjectList(listObject);
         } catch (Exception e) {
