@@ -9,12 +9,10 @@ package com.fbr.Dao.Response;
 import com.fbr.Dao.ProjectDaoImpl;
 import com.fbr.Dao.Response.Entities.CustomerResponseDbType;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
-import com.fbr.Utilities.Comparators;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
