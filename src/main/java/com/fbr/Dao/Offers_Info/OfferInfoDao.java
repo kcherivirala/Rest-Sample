@@ -38,7 +38,7 @@ public class OfferInfoDao extends ProjectDaoImpl<OfferInfoDbType, OfferInfoPrima
     }
 
     public List<OfferInfoDbType> getOffersAndInfo(int companyId, int branchId) {
-        Query q = entityManager.createQuery("select e from " + entityClass.getName() + " e where e.id.companyId = ?1 and e.id.branchId = ?2", entityClass);
+        Query q = entityManager.createQuery("select e from " + entityClass.getName() + " e where e.id.companyId = ?1 and e.branchId = ?2", entityClass);
         q.setParameter(1, companyId);
         q.setParameter(2, branchId);
         return q.getResultList();

@@ -14,8 +14,6 @@ import java.io.Serializable;
 public class OfferInfoPrimaryKey implements Serializable {
     @Column(name = "company_id", nullable = false)
     int companyId;
-    @Column(name = "branch_id", nullable = false)
-    int branchId;
     @Column(name = "offer_id", nullable = false)
     int offerId;
 
@@ -25,14 +23,6 @@ public class OfferInfoPrimaryKey implements Serializable {
 
     public void setCompanyId(int companyId) {
         this.companyId = companyId;
-    }
-
-    public int getBranchId() {
-        return branchId;
-    }
-
-    public void setBranchId(int branchId) {
-        this.branchId = branchId;
     }
 
     public int getOfferId() {

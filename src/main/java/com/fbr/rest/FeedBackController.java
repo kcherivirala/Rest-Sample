@@ -274,6 +274,12 @@ public class FeedBackController {
         return offersService.getOffersInfo(companyId);
     }
 
+    @RequestMapping(value = {"/company/{companyId}/offersAndInfo/{offerId}"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public OffersInfo getOfferOrInfo(@PathVariable("companyId") int companyId, @PathVariable("offerId") int offerId) throws Exception {
+        return offersService.getOfferOrInfo(companyId, offerId);
+    }
+
     @RequestMapping(value = {"/company/{companyId}/branch/{branchId}/offersAndInfo"}, method = {RequestMethod.GET})
     @ResponseBody
     public List<OffersInfo> getOffersInfo(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId) throws Exception {

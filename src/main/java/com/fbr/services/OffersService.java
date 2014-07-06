@@ -42,7 +42,7 @@ public class OffersService {
     @Transactional
     public OffersInfo updateOffersInfo(int companyId, int offerId, OffersInfo offersInfo) throws Exception {
         try {
-            OfferInfoPrimaryKey id = Conversions.getOfferInfoPrimaryKey(companyId, offersInfo.getBranchId(), offerId);
+            OfferInfoPrimaryKey id = Conversions.getOfferInfoPrimaryKey(companyId, offerId);
             OfferInfoDbType dbEntry = offersInfoDao.find(id);
 
             updateOfferInfoDbEntry(dbEntry, offersInfo);
@@ -101,6 +101,17 @@ public class OffersService {
         }
     }
 
+    public OffersInfo getOfferOrInfo(int companyId, int offerId) throws Exception {
+        try {
+            OfferInfoDbType dbEntry = offersInfoDao.find(Conversions.getOfferInfoPrimaryKey(companyId, offerId));
+            OffersInfo out = Conversions.getOffersInfo(dbEntry);
+            return out;
+        } catch (Exception e) {
+            logger.error("error getting offer for : " + companyId + " and : offer id" + offerId + " : " + e.getMessage());
+            throw new Exception("error getting offers for : " + companyId + " and : offer id" + offerId + " : " + e.getMessage());
+        }
+    }
+
     /*    private functions    */
 
     private void updateOfferInfoDbEntry(OfferInfoDbType dbEntry, OffersInfo offersInfo) {
@@ -145,11 +156,10 @@ public class OffersService {
     }
 
     private static class Conversions {
-        public static OfferInfoPrimaryKey getOfferInfoPrimaryKey(int companyId, int branchId, int offerId) {
+        public static OfferInfoPrimaryKey getOfferInfoPrimaryKey(int companyId, int offerId) {
             OfferInfoPrimaryKey id = new OfferInfoPrimaryKey();
 
             id.setCompanyId(companyId);
-            id.setBranchId(branchId);
             id.setOfferId(offerId);
             return id;
         }
@@ -157,10 +167,11 @@ public class OffersService {
         public static OfferInfoDbType getOfferInfoDbEntry(int companyId, int branchId, int offerId, OffersInfo offersInfo) {
             OfferInfoDbType dbEntry = new OfferInfoDbType();
 
-            dbEntry.setId(getOfferInfoPrimaryKey(companyId, branchId, offerId));
+            dbEntry.setId(getOfferInfoPrimaryKey(companyId, offerId));
 
             dbEntry.setType(offersInfo.getType());
             dbEntry.setDetails(offersInfo.getDetails());
+            dbEntry.setBranchId(branchId);
 
             dbEntry.setStartTS(offersInfo.getStart());
             dbEntry.setEndTS(offersInfo.getEnd());
@@ -176,7 +187,7 @@ public class OffersService {
         public static OffersInfo getOffersInfo(OfferInfoDbType dbEntry) {
             OffersInfo offersInfo = new OffersInfo();
 
-            offersInfo.setBranchId(dbEntry.getId().getBranchId());
+            offersInfo.setBranchId(dbEntry.getBranchId());
             offersInfo.setOfferId(dbEntry.getId().getOfferId());
             offersInfo.setType(dbEntry.getType());
             offersInfo.setDetails(dbEntry.getDetails());

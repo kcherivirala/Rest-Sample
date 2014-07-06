@@ -17,10 +17,11 @@ public class OfferInfoDbType implements ProjectEntity<OfferInfoPrimaryKey> {
     @EmbeddedId
     @AttributeOverrides({
             @AttributeOverride(name = "companyId", column = @Column(name = "company_id", nullable = false)),
-            @AttributeOverride(name = "branchId", column = @Column(name = "branch_id", nullable = false)),
             @AttributeOverride(name = "offerId", column = @Column(name = "offer_id", nullable = false))})
     OfferInfoPrimaryKey id;
 
+    @Column(name = "branch_id", nullable = false)
+    int branchId;
     @Column(name = "type")
     String type;
     @Column(name = "details")
@@ -40,6 +41,14 @@ public class OfferInfoDbType implements ProjectEntity<OfferInfoPrimaryKey> {
     boolean hourlyPush;
     @Column(name = "client_app_visibility")
     boolean clientAppVisibility;
+
+    public int getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(int branchId) {
+        this.branchId = branchId;
+    }
 
     public String getType() {
         return type;
