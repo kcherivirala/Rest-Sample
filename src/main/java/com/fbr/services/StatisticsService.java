@@ -125,30 +125,66 @@ public class StatisticsService {
             logger.info("done getting the statistics for companyId : " + companyId + " and graph : " + graphId);
             return listAttributeStatistics;
         } catch (Exception e) {
+            logger.error("error getting graph data fro company : " + companyId + " and graphId : " + graphId + " : " + e.getMessage());
             throw new Exception("error getting graph data fro company : " + companyId + " and graphId : " + graphId + " : " + e.getMessage());
         }
     }
 
-    public DashboardInfo getDashboardInfo(int companyId) {
-        DashboardInfo dashboardInfo = new DashboardInfo();
+    public DashboardInfo getDashboardInfo(int companyId) throws Exception {
+        try {
+            DashboardInfo dashboardInfo = new DashboardInfo();
 
-        CompanyData companyData = listCompanyData.get(getIndex(listCompanyData, companyId));
+            CompanyData companyData = listCompanyData.get(getIndex(listCompanyData, companyId));
 
-        int sum = companyData.countPplNps[0] + companyData.countPplNps[1] + companyData.countPplNps[2];
-        int nps = 0;
-        if (sum > 0)
-            nps = (companyData.countPplNps[2] - companyData.countPplNps[0]) / (sum);
+            double sumOfAvg = 0;
+            for (BranchLevelDashboardData branchLevelDashboardData : companyData.listBranchLevelDashboardData) {
+                dashboardInfo.setNpsNegative(dashboardInfo.getNpsNegative() + branchLevelDashboardData.countPplNps[0]);
+                dashboardInfo.setNpsPassive(dashboardInfo.getNpsPassive() + branchLevelDashboardData.countPplNps[1]);
+                dashboardInfo.setNpsPositive(dashboardInfo.getNpsPositive() + branchLevelDashboardData.countPplNps[2]);
 
-        dashboardInfo.setNps(nps);
+                dashboardInfo.setCountResponsesTotal(dashboardInfo.getCountResponsesTotal() + branchLevelDashboardData.countResponsesTotal);
+                dashboardInfo.setCountResponsesNegativeTotal(dashboardInfo.getCountResponsesNegativeTotal() + branchLevelDashboardData.countResponsesNegativeTotal);
+                dashboardInfo.setCountResponsesPositiveTotal(dashboardInfo.getCountResponsesPositiveTotal() + branchLevelDashboardData.countResponsesPositiveTotal);
 
-        dashboardInfo.setCountResponsesTotal(companyData.countResponsesTotal);
-        dashboardInfo.setCountResponsesNegativeTotal(companyData.countResponsesNegativeTotal);
-        dashboardInfo.setCountResponsesToday(companyData.countResponsesToday);
-        dashboardInfo.setCountResponsesNegativeToday(companyData.countResponsesNegativeToday);
+                dashboardInfo.setCountResponsesToday(dashboardInfo.getCountResponsesToday() + branchLevelDashboardData.countResponsesToday);
+                dashboardInfo.setCountResponsesNegativeToday(dashboardInfo.getCountResponsesNegativeToday() + branchLevelDashboardData.countResponsesNegativeToday);
+                dashboardInfo.setCountResponsesPositiveToday(dashboardInfo.getCountResponsesPositiveToday() + branchLevelDashboardData.countResponsesPositiveToday);
 
-        dashboardInfo.setAvgRating(companyData.sumOfAvg / companyData.countResponsesTotal);
+                sumOfAvg += branchLevelDashboardData.sumOfAvg;
+            }
+            dashboardInfo.setAvgRating(sumOfAvg / dashboardInfo.getCountResponsesTotal());
+            return dashboardInfo;
+        } catch (Exception e) {
+            logger.error("error getting dashboard info fro company : " + companyId);
+            e.printStackTrace();
+            throw new Exception("error getting dashboard info fro company : " + companyId + " : " + e.getMessage());
+        }
+    }
 
-        return dashboardInfo;
+    public DashboardInfo getDashboardInfo(int companyId, int branchId) throws Exception {
+        try {
+            DashboardInfo dashboardInfo = new DashboardInfo();
+            CompanyData companyData = listCompanyData.get(getIndex(listCompanyData, companyId));
+            BranchLevelDashboardData branchLevelDashboardData = companyData.listBranchLevelDashboardData.get(branchId);
+
+            dashboardInfo.setNpsNegative(branchLevelDashboardData.countPplNps[0]);
+            dashboardInfo.setNpsPassive(branchLevelDashboardData.countPplNps[1]);
+            dashboardInfo.setNpsPositive(branchLevelDashboardData.countPplNps[2]);
+
+            dashboardInfo.setCountResponsesTotal(branchLevelDashboardData.countResponsesTotal);
+            dashboardInfo.setCountResponsesNegativeTotal(branchLevelDashboardData.countResponsesNegativeTotal);
+            dashboardInfo.setCountResponsesPositiveTotal(branchLevelDashboardData.countResponsesPositiveTotal);
+
+            dashboardInfo.setCountResponsesToday(branchLevelDashboardData.countResponsesToday);
+            dashboardInfo.setCountResponsesNegativeToday(branchLevelDashboardData.countResponsesNegativeToday);
+            dashboardInfo.setCountResponsesPositiveToday(branchLevelDashboardData.countResponsesPositiveToday);
+
+            dashboardInfo.setAvgRating(branchLevelDashboardData.sumOfAvg / branchLevelDashboardData.countResponsesTotal);
+            return dashboardInfo;
+        } catch (Exception e) {
+            logger.error("error getting dashboard info fro company : " + companyId + " and branch : " + branchId + " : " + e.getMessage());
+            throw new Exception("error getting dashboard info fro company : " + companyId + " and branch : " + branchId + " : " + e.getMessage());
+        }
     }
 
     /*      Functions to add data to the out list for teh get API   */
@@ -270,8 +306,8 @@ public class StatisticsService {
                     populateNormalGraphStatistics(graphData, listResponse, currentDate);
                 }
             }
-            collectNPS(companyData.countPplNps, listResponse, attributeService.getNPSAttr(companyId));
-            addCompanyLevelStats(companyData, attributeService.getAttributesByCompany(companyId), listResponse);
+            collectNPS(companyData.listBranchLevelDashboardData, listResponse, attributeService.getNPSAttr(companyId));
+            addCompanyLevelStats(companyData.listBranchLevelDashboardData, attributeService.getAttributesByCompany(companyId), listResponse);
 
             companyData.lastUpdatedTimeStamp = lastTime;
         } catch (Exception e) {
@@ -369,8 +405,8 @@ public class StatisticsService {
                         updateNormalGraphsData(graphData, listResponse, listResponse7th, listResponse30th, listResponse365th);
                 }
 
-                removeNPS(companyData.countPplNps, listResponse365th, attributeService.getNPSAttr(companyId));
-                removeCompanyLevelStats(companyData, attributeService.getAttributesByCompany(companyId), listResponse365th);
+                removeNPS(companyData.listBranchLevelDashboardData, listResponse365th, attributeService.getNPSAttr(companyId));
+                removeCompanyLevelStats(companyData.listBranchLevelDashboardData, attributeService.getAttributesByCompany(companyId), listResponse365th);
             }
         } catch (Exception e) {
             logger.error("error adding new data to normal graph for company: " + companyId);
@@ -447,6 +483,7 @@ public class StatisticsService {
             List<Attribute> listAttribute = attributeService.getAttributesByCompany(companyId);    //already sorted list
             int npsAttributeID = attributeService.getNPSAttr(companyId);
             List<BranchDbType> branches = companyService.getDbBranches(companyId);
+            Collections.sort(branches, Comparators.COMPARE_DB_BRANCHES);
             List<Graph> listGraph = graphService.getGraphs(companyId);
 
             List<GraphData> listGraphData = new ArrayList<GraphData>(listGraph.size());
@@ -495,12 +532,13 @@ public class StatisticsService {
             companyData.companyName = companyName;
             companyData.listGraphData = listGraphData;
             companyData.lastUpdatedTimeStamp = new Date();
+            companyData.listBranchLevelDashboardData = new ArrayList<BranchLevelDashboardData>(branches.size());
+            companyData.mapOfBranches = getMapOfBranches(branches);
 
-            companyData.countPplNps = new int[3];
-            companyData.countResponsesNegativeToday = companyData.countResponsesToday = companyData.countResponsesNegativeTotal = companyData.countResponsesTotal = 0;
+            initialiseBranchLevelDashBoard(companyData.listBranchLevelDashboardData, branches);
+            collectNPS(companyData.listBranchLevelDashboardData, listResponse, npsAttributeID);
+            addCompanyLevelStats(companyData.listBranchLevelDashboardData, listAttribute, listResponse);
 
-            collectNPS(companyData.countPplNps, listResponse, npsAttributeID);
-            addCompanyLevelStats(companyData, listAttribute, listResponse);
             return companyData;
         } catch (Exception e) {
             logger.error("error processing per company responses : " + e.getMessage());
@@ -741,81 +779,124 @@ public class StatisticsService {
         }
     }
 
-    /*      company level statistics    */
+    /*      company-branch level dashboard statistics    */
 
-    private void collectNPS(int[] countPplNPS, List<CustomerResponseDao.CustomerResponseAndValues> listResponse, int npsAttrId) {
+    private void initialiseBranchLevelDashBoard(List<BranchLevelDashboardData> list, List<BranchDbType> branches) {
+        for (BranchDbType branch : branches) {
+            BranchLevelDashboardData branchLevelDashboardData = new BranchLevelDashboardData();
+            branchLevelDashboardData.branchId = branch.getId().getBranchId();
+
+            branchLevelDashboardData.countPplNps = new int[3];
+            branchLevelDashboardData.countResponsesNegativeToday = branchLevelDashboardData.countResponsesToday = branchLevelDashboardData.countResponsesPositiveToday =
+                    branchLevelDashboardData.countResponsesNegativeTotal = branchLevelDashboardData.countResponsesTotal = branchLevelDashboardData.countResponsesPositiveTotal = 0;
+            branchLevelDashboardData.sumOfAvg = 0;
+
+            list.add(branchLevelDashboardData);
+        }
+    }
+
+    private void collectNPS(List<BranchLevelDashboardData> listBranchLevelDashboard, List<CustomerResponseDao.CustomerResponseAndValues> listResponse, int npsAttrId) {
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
-            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
-                if (responseValue.getId().getAttributeId() == npsAttrId) {
-                    int value = responseValue.getObtainedValue();
-                    countPplNPS[value]++;
+            int branchId = response.getResponse().getBranchId();
+            BranchLevelDashboardData branchLevelDashboardData = listBranchLevelDashboard.get(branchId);
+            if (branchLevelDashboardData != null) {
+                for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                    if (responseValue.getId().getAttributeId() == npsAttrId) {
+                        int value = responseValue.getObtainedValue(); //1,2,3
+                        branchLevelDashboardData.countPplNps[value - 1]++;
+                    }
                 }
             }
         }
     }
 
-    private void removeNPS(int[] countPplNPS, List<CustomerResponseDao.CustomerResponseAndValues> listResponse, int npsAttrId) {
+    private void removeNPS(List<BranchLevelDashboardData> listBranchLevelDashboard, List<CustomerResponseDao.CustomerResponseAndValues> listResponse, int npsAttrId) {
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
-            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
-                if (responseValue.getId().getAttributeId() == npsAttrId) {
-                    int value = responseValue.getObtainedValue();
-                    countPplNPS[value]--;
+            int branchId = response.getResponse().getBranchId();
+            BranchLevelDashboardData branchLevelDashboardData = listBranchLevelDashboard.get(branchId);
+            if (branchLevelDashboardData != null) {
+                for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                    if (responseValue.getId().getAttributeId() == npsAttrId) {
+                        int value = responseValue.getObtainedValue(); //1,2,3
+                        branchLevelDashboardData.countPplNps[value - 1]--;
+                    }
                 }
             }
         }
     }
 
-    private void addCompanyLevelStats(CompanyData companyData, List<Attribute> listAttribute, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+    private void addCompanyLevelStats(List<BranchLevelDashboardData> listBranchLevelDashboard,
+                                      List<Attribute> listAttribute, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
-            int responseDate = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
-            int today = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+            int branchId = response.getResponse().getBranchId();
+            BranchLevelDashboardData branchLevelDashboardData = listBranchLevelDashboard.get(branchId);
 
-            float avg = 0;
-            int count = 0;
-            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
-                if (isWeighted(responseValue.getId().getAttributeId(), listAttribute)) {
-                    avg += responseValue.getObtainedValue();
-                    count++;
+            if (branchLevelDashboardData != null) {
+                int responseDate = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
+                int today = FeedbackUtilities.dateFromCal(Calendar.getInstance());
+
+                float avg = 0;
+                int count = 0;
+                for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                    if (isWeighted(responseValue.getId().getAttributeId(), listAttribute)) {
+                        avg += responseValue.getObtainedValue();
+                        count++;
+                    }
                 }
-            }
-            avg = avg / count;
+                avg = avg / count;
 
-            companyData.countResponsesTotal++;
-            if (avg < 2) {
-                companyData.countResponsesNegativeTotal++;
-            }
-
-            if (responseDate == today) {
+                branchLevelDashboardData.countResponsesTotal++;
                 if (avg < 2) {
-                    companyData.countResponsesNegativeToday++;
+                    branchLevelDashboardData.countResponsesNegativeTotal++;
+                } else if (avg > 3) {
+                    branchLevelDashboardData.countResponsesPositiveTotal++;
                 }
-                companyData.countResponsesToday++;
-            }
 
-            companyData.sumOfAvg += avg;
+                if (responseDate == today) {
+                    if (avg < 2) {
+                        branchLevelDashboardData.countResponsesNegativeToday++;
+                    } else if (avg > 3) {
+                        branchLevelDashboardData.countResponsesPositiveToday++;
+                    }
+                    branchLevelDashboardData.countResponsesToday++;
+                }
+
+                branchLevelDashboardData.sumOfAvg += avg;
+            }
         }
     }
 
-    private void removeCompanyLevelStats(CompanyData companyData, List<Attribute> listAttribute, List<CustomerResponseDao.CustomerResponseAndValues> listResponse365) {
-        companyData.countResponsesNegativeToday = companyData.countResponsesTotal = 0;
+    private void removeCompanyLevelStats(List<BranchLevelDashboardData> listBranchLevelDashboard,
+                                         List<Attribute> listAttribute, List<CustomerResponseDao.CustomerResponseAndValues> listResponse365) {
+        for (BranchLevelDashboardData branchLevelDashboardData : listBranchLevelDashboard) {
+            branchLevelDashboardData.countResponsesNegativeToday = branchLevelDashboardData.countResponsesTotal =
+                    branchLevelDashboardData.countResponsesPositiveToday = 0;
+        }
 
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse365) {
-            companyData.countResponsesTotal--;
-            float avg = 0;
-            int count = 0;
-            for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
-                if (isWeighted(responseValue.getId().getAttributeId(), listAttribute)) {
-                    avg += responseValue.getObtainedValue();
-                    count++;
+            int branchId = response.getResponse().getBranchId();
+            BranchLevelDashboardData branchLevelDashboardData = listBranchLevelDashboard.get(branchId);
+
+            if (branchLevelDashboardData != null) {
+                branchLevelDashboardData.countResponsesTotal--;
+                float avg = 0;
+                int count = 0;
+                for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+                    if (isWeighted(responseValue.getId().getAttributeId(), listAttribute)) {
+                        avg += responseValue.getObtainedValue();
+                        count++;
+                    }
                 }
-            }
-            avg = avg / count;
+                avg = avg / count;
 
-            if (avg < 2) {
-                companyData.countResponsesNegativeTotal--;
-            }
+                if (avg < 2) {
+                    branchLevelDashboardData.countResponsesNegativeTotal--;
+                } else if (avg > 3) {
+                    branchLevelDashboardData.countResponsesPositiveTotal--;
+                }
 
-            companyData.sumOfAvg -= avg;
+                branchLevelDashboardData.sumOfAvg -= avg;
+            }
         }
     }
 
@@ -911,6 +992,16 @@ public class StatisticsService {
         return mapOfMaps;
     }
 
+    private Map<Integer, Integer> getMapOfBranches(List<BranchDbType> branches) {
+        Map<Integer, Integer> outMap = new HashMap<Integer, Integer>(branches.size());
+        int i = 0;
+        for (BranchDbType branch : branches) {
+            outMap.put(branch.getId().getBranchId(), i);
+            i++;
+        }
+        return outMap;
+    }
+
     private Map<Integer, Integer> getMapOfAttributes(List<Attribute> attributes) {
         Map<Integer, Integer> outMap = new HashMap<Integer, Integer>(attributes.size());
         int i = 0;
@@ -982,15 +1073,25 @@ public class StatisticsService {
         String companyName;
         Date lastUpdatedTimeStamp;
 
-        int[] countPplNps;
-        int countResponsesTotal;
-        int countResponsesToday;
-        int countResponsesNegativeTotal;
-        int countResponsesNegativeToday;
+        Map<Integer, Integer> mapOfBranches;
+        List<BranchLevelDashboardData> listBranchLevelDashboardData;
+
+        List<GraphData> listGraphData;
+    }
+
+    class BranchLevelDashboardData {
+        int branchId;
 
         double sumOfAvg;
 
-        List<GraphData> listGraphData;
+        int[] countPplNps;
+        int countResponsesTotal;
+        int countResponsesNegativeTotal;
+        int countResponsesPositiveTotal;
+
+        int countResponsesToday;
+        int countResponsesNegativeToday;
+        int countResponsesPositiveToday;
     }
 
     class UpdateTrendGraphsTask extends TimerTask {

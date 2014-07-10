@@ -7,12 +7,36 @@ package com.fbr.domain.Statistic;
  */
 
 public class DashboardInfo {
-    int nps;
+    int npsPositive;
+    int npsNegative;
+    int npsPassive;
+
+
     int countResponsesTotal;
-    int countResponsesToday;
     int countResponsesNegativeTotal;
+    int countResponsesPositiveTotal;
+
+    int countResponsesToday;
     int countResponsesNegativeToday;
+    int countResponsesPositiveToday;
+
     double avgRating;
+
+    public int getCountResponsesPositiveTotal() {
+        return countResponsesPositiveTotal;
+    }
+
+    public void setCountResponsesPositiveTotal(int countResponsesPositiveTotal) {
+        this.countResponsesPositiveTotal = countResponsesPositiveTotal;
+    }
+
+    public int getCountResponsesPositiveToday() {
+        return countResponsesPositiveToday;
+    }
+
+    public void setCountResponsesPositiveToday(int countResponsesPositiveToday) {
+        this.countResponsesPositiveToday = countResponsesPositiveToday;
+    }
 
     public double getAvgRating() {
         return avgRating;
@@ -22,12 +46,28 @@ public class DashboardInfo {
         this.avgRating = avgRating;
     }
 
-    public int getNps() {
-        return nps;
+    public int getNpsPositive() {
+        return npsPositive;
     }
 
-    public void setNps(int nps) {
-        this.nps = nps;
+    public void setNpsPositive(int npsPositive) {
+        this.npsPositive = npsPositive;
+    }
+
+    public int getNpsNegative() {
+        return npsNegative;
+    }
+
+    public void setNpsNegative(int npsNegative) {
+        this.npsNegative = npsNegative;
+    }
+
+    public int getNpsPassive() {
+        return npsPassive;
+    }
+
+    public void setNpsPassive(int npsPassive) {
+        this.npsPassive = npsPassive;
     }
 
     public int getCountResponsesTotal() {
