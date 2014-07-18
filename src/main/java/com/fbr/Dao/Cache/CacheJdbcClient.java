@@ -6,15 +6,13 @@ package com.fbr.Dao.Cache;
  *  ***********************************************************
  */
 
+import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Attribute.Attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository("cacheJdbc")
 public class CacheJdbcClient {
@@ -29,6 +27,11 @@ public class CacheJdbcClient {
 
     public void deleteTable(int companyId) {
         String sql = getDeleteTableString(companyId);
+        jdbcTemplate.execute(sql);
+    }
+
+    public void updateTable(int companyId, List<Attribute> filterAttributesOld, List<Attribute> filterAttributesNew) {
+        String sql = getUpdateTableString(companyId, filterAttributesOld, filterAttributesNew);
         jdbcTemplate.execute(sql);
     }
 
@@ -100,8 +103,26 @@ public class CacheJdbcClient {
         return "drop table cache_company_" + companyId;
     }
 
-    private String getUpdateTableString(int companyId, List<Attribute> filterAttributesOld, List<Attribute> filterAttributesNew){
-        return "";
+    private String getUpdateTableString(int companyId, List<Attribute> filterAttributesOld, List<Attribute> filterAttributesNew) {
+        String updateAttribute = "alter table cache_company_" + companyId;
+        Collections.sort(filterAttributesNew, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
+        Collections.sort(filterAttributesOld, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
+
+        int newIndex = 0, oldIndex = 0;
+        while (newIndex < filterAttributesNew.size() && oldIndex < filterAttributesOld.size()) {
+            Attribute newAttr = filterAttributesNew.get(newIndex);
+            Attribute oldAttr = filterAttributesOld.get(oldIndex);
+
+            if (newAttr.getAttributeId() == oldAttr.getAttributeId()) {
+                newIndex++;
+                oldIndex++;
+            } else if (newAttr.getAttributeId() < oldAttr.getAttributeId()) {
+                updateAttribute += " add column filter_attribute_" + newAttr.getAttributeId() + " integer";
+            } else {
+                updateAttribute += " drop column filter_attribute_" + oldAttr.getAttributeId();
+            }
+        }
+        return updateAttribute;
     }
 
     private String getSearchString(int companyId, int branchId, Map<Integer, Integer> mapFilters, int startDate, int endDate) {
@@ -220,48 +241,3 @@ public class CacheJdbcClient {
     }
 }
 
-/*
-  List<Attribute> filterAttributes = new ArrayList<Attribute>(2);
-        Attribute attribute = new Attribute();
-        attribute.setAttributeId(3);
-        filterAttributes.add(attribute);
-
-        Attribute attribute2 = new Attribute();
-        attribute2.setAttributeId(11);
-        filterAttributes.add(attribute2);
-
-
-        try{
-        cacheJdbcClient.createTable(1, filterAttributes);
-        }catch(Exception e){
-            System.out.println();
-        }
-
-
-        //insertion
-
-        for(int i=20140701;i<20140718;i++){
-            CacheDbEntry dbEntry = new CacheDbEntry();
-            dbEntry.setBranchId(1);
-            dbEntry.setDate(i);
-
-            Map<Integer, Integer> mapOfFilters = new HashMap<Integer, Integer>(2);
-            mapOfFilters.put(3, 1);
-            mapOfFilters.put(11, 1);
-            dbEntry.setMapOfFilters(mapOfFilters);
-
-            dbEntry.setWeightedAttributeId(1);
-            dbEntry.setCount_1(1);
-            dbEntry.setCount_2(2);
-            dbEntry.setCount_3(3);
-            dbEntry.setCount_4(4);
-            dbEntry.setCount_5(5);
-
-            try{
-            cacheJdbcClient.addEntry(1, dbEntry);
-            }catch(Exception e){
-                System.out.println();
-            }
-        }
-
- */
