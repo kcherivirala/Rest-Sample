@@ -33,12 +33,12 @@ public class CustomerResponseDao extends ProjectDaoImpl<CustomerResponseDbType, 
         }
     }
 
-    public List<CustomerResponseAndValues> getResponses(int companyId, Date timeStamp) {
+    public List<CustomerResponseAndValues> getResponses(int companyId, Date startTimestamp) {
         try {
             Query q = entityManager.createQuery("select a, b from CustomerResponseDbType  a, CustomerResponseValuesDbType b  where a.companyId = ?1 " +
                     "and a.timestamp > ?2 and a.responseId = b.id.responseId order by a.responseId");
             q.setParameter(1, companyId);
-            q.setParameter(2, timeStamp);
+            q.setParameter(2, startTimestamp);
             List<Object[]> listObject = q.getResultList();
             return processObjectList(listObject);
         } catch (Exception e) {

@@ -8,6 +8,9 @@ package com.fbr.services;
 
 import com.fbr.Dao.Cache.CacheDbEntry;
 import com.fbr.Dao.Cache.CacheJdbcClient;
+import com.fbr.Dao.Company.Entities.CompanyDbType;
+import com.fbr.Dao.Response.CustomerResponseDao;
+import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
 import com.fbr.Utilities.FeedbackUtilities;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Response.AttributeTuple;
@@ -17,10 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.PostConstruct;
+import java.util.*;
 
 @Service("aggregatorService")
 public class AggregatorService {
@@ -28,42 +29,177 @@ public class AggregatorService {
     @Autowired
     private AttributeService attributeService;
     @Autowired
+    private CompanyService companyService;
+    @Autowired
     private CacheJdbcClient cacheJdbcClient;
+    @Autowired
+    private CustomerResponseDao customerResponseDao;
 
-    @Transactional
+    Map<Integer, Integer> companyCacheExistsMap;
+
+    @PostConstruct
+    public void init() {
+        companyCacheExistsMap = new HashMap<Integer, Integer>(100);//random initial value
+
+        List<CompanyDbType> companies = companyService.getCompanyDbEntries();
+
+        for (CompanyDbType company : companies) {
+            try {
+                createCompanyCache(company.getCompanyId());
+                companyCacheExistsMap.put(company.getCompanyId(), 1);
+            } catch (Exception e) {
+                logger.error("error initialising info for : " + company.getCompanyId());
+            }
+        }
+    }
+
     public void addResponses(int companyId, int branchId, List<Response> responseList) {
         try {
             logger.info("adding customer responses for aggregator service : (" + companyId + "," + branchId + ")");
             List<Attribute> filterAttributes = attributeService.getFilterAttributes(companyId);
 
+            if (!companyCacheExistsMap.containsKey(companyId)) {
+                createCompanyCache(companyId);
+                companyCacheExistsMap.put(companyId, 1);
+            }
+
             for (Response response : responseList) {
-                List<CacheDbEntry> dbEntry = getCacheDbEntry(branchId, response, filterAttributes);
+                processSingleResponse(companyId, branchId, response, filterAttributes);
             }
         } catch (Exception e) {
             logger.error("error processing responses for aggregator service : " + companyId + "," + branchId);
         }
     }
 
+    public void addResponses(int companyId, List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
+        try {
+            logger.info("adding customer responses for aggregator service : (" + companyId + ")");
+            List<Attribute> filterAttributes = attributeService.getFilterAttributes(companyId);
 
-    private List<CacheDbEntry> getCacheDbEntry(int branchId, Response response, List<Attribute> filterAttributes) {
-        List<CacheDbEntry> listDb = new ArrayList<CacheDbEntry>();
+            for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
+                processSingleResponse(companyId, response.getResponse().getBranchId(), response, filterAttributes);
+            }
+        } catch (Exception e) {
+            logger.error("error processing responses for aggregator service : " + companyId);
+        }
+    }
 
+    private void createCompanyCache(int companyId) {
+        if (cacheJdbcClient.checkCacheExists(companyId)) return;
+
+        cacheJdbcClient.createTable(companyId, attributeService.getFilterAttributes(companyId));
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -364);//>365
+        List<CustomerResponseDao.CustomerResponseAndValues> listResponse = customerResponseDao.getResponses(companyId, cal.getTime());
+
+        addResponses(companyId, listResponse);
+    }
+
+    @Transactional
+    private void processSingleResponse(int companyId, int branchId, Response response, List<Attribute> filterAttributes) {
         int date = FeedbackUtilities.dateFromCal(response.getDate());
         Map<Integer, Integer> map = new HashMap<Integer, Integer>(filterAttributes.size());
         for (Attribute attribute : filterAttributes) {
             map.put(attribute.getAttributeId(), -1);
         }
 
-
         for (AttributeTuple attributeTuple : response.getAttributeTuples()) {
             if (checkFilter(attributeTuple.getAttributeId(), filterAttributes))
                 map.put(attributeTuple.getAttributeId(), attributeTuple.getObtainedValue());
         }
 
-
-        return listDb;
+        for (AttributeTuple attributeTuple : response.getAttributeTuples()) {
+            if (!checkFilter(attributeTuple.getAttributeId(), filterAttributes)) {
+                CacheDbEntry key = getDbClientKey(branchId, date, map, attributeTuple.getAttributeId());
+                CacheDbEntry cacheDbEntry = cacheJdbcClient.getEntry(companyId, key, filterAttributes);
+                if (cacheDbEntry == null) {
+                    cacheDbEntry = getNewCacheDbEntry(branchId, date, map, attributeTuple.getAttributeId(), attributeTuple.getObtainedValue());
+                    cacheJdbcClient.addEntry(companyId, cacheDbEntry);
+                } else {
+                    updateCacheDbEntry(cacheDbEntry, attributeTuple.getAttributeId(), attributeTuple.getObtainedValue());
+                    cacheJdbcClient.updateEntry(companyId, cacheDbEntry);
+                }
+            }
+        }
     }
 
+    @Transactional
+    private void processSingleResponse(int companyId, int branchId, CustomerResponseDao.CustomerResponseAndValues response, List<Attribute> filterAttributes) {
+        int date = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>(filterAttributes.size());
+        for (Attribute attribute : filterAttributes) {
+            map.put(attribute.getAttributeId(), -1);
+        }
+
+        for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+            if (checkFilter(responseValue.getId().getAttributeId(), filterAttributes))
+                map.put(responseValue.getId().getAttributeId(), responseValue.getObtainedValue());
+        }
+
+        for (CustomerResponseValuesDbType responseValue : response.getResponseValues()) {
+            if (!checkFilter(responseValue.getId().getAttributeId(), filterAttributes)) {
+                CacheDbEntry key = getDbClientKey(branchId, date, map, responseValue.getId().getAttributeId());
+                CacheDbEntry cacheDbEntry = cacheJdbcClient.getEntry(companyId, key, filterAttributes);
+                if (cacheDbEntry == null) {
+                    cacheDbEntry = getNewCacheDbEntry(branchId, date, map, responseValue.getId().getAttributeId(), responseValue.getObtainedValue());
+                    cacheJdbcClient.addEntry(companyId, cacheDbEntry);
+                } else {
+                    updateCacheDbEntry(cacheDbEntry, responseValue.getId().getAttributeId(), responseValue.getObtainedValue());
+                    cacheJdbcClient.updateEntry(companyId, cacheDbEntry);
+                }
+            }
+        }
+    }
+
+    private CacheDbEntry getDbClientKey(int branchId, int date, Map<Integer, Integer> map, int attributeId) {
+        CacheDbEntry dbEntry = new CacheDbEntry();
+        dbEntry.setBranchId(branchId);
+        dbEntry.setMapOfFilters(map);
+        dbEntry.setWeightedAttributeId(attributeId);
+        dbEntry.setDate(date);
+
+        return dbEntry;
+    }
+
+    private CacheDbEntry getNewCacheDbEntry(int branchId, int date, Map<Integer, Integer> map, int attributeId, int attributeValue) {
+        CacheDbEntry key = getDbClientKey(branchId, date, map, attributeId);
+        key.setCount_1(0);
+        key.setCount_2(0);
+        key.setCount_3(0);
+        key.setCount_4(0);
+        key.setCount_5(0);
+
+        switch (attributeValue) {
+            case 1:
+                key.setCount_1(1);
+            case 2:
+                key.setCount_2(1);
+            case 3:
+                key.setCount_3(1);
+            case 4:
+                key.setCount_4(1);
+            case 5:
+                key.setCount_5(1);
+        }
+
+        return key;
+    }
+
+    private void updateCacheDbEntry(CacheDbEntry cacheDbEntry, int attributeId, int attributeValue) {
+        switch (attributeValue) {
+            case 1:
+                cacheDbEntry.setCount_1(cacheDbEntry.getCount_1() + 1);
+            case 2:
+                cacheDbEntry.setCount_2(cacheDbEntry.getCount_2() + 1);
+            case 3:
+                cacheDbEntry.setCount_3(cacheDbEntry.getCount_3() + 1);
+            case 4:
+                cacheDbEntry.setCount_4(cacheDbEntry.getCount_4() + 1);
+            case 5:
+                cacheDbEntry.setCount_5(cacheDbEntry.getCount_5() + 1);
+        }
+    }
 
     private boolean checkFilter(int attrId, List<Attribute> filterAttributes) {
         for (Attribute attribute : filterAttributes) {
@@ -72,5 +208,4 @@ public class AggregatorService {
         }
         return false;
     }
-
 }

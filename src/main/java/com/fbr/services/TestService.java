@@ -23,6 +23,7 @@ public class TestService {
     private CacheJdbcClient cacheJdbcClient;
 
     public Attribute test(){
+        /*
         List<Attribute> filterAttributes = new ArrayList<Attribute>(2);
         Attribute attribute = new Attribute();
         attribute.setAttributeId(3);
@@ -43,6 +44,11 @@ public class TestService {
         } catch (Exception e) {
             System.out.println();
         }
+        */
+        cacheJdbcClient.checkCacheExists(1);
+        cacheJdbcClient.checkCacheExists(2);
+
+
 
         return null;
     }

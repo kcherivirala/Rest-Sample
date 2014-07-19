@@ -19,6 +19,11 @@ public class CacheJdbcClient {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    public boolean checkCacheExists(int companyId) {
+        String sql = getCheckExistsString(companyId);
+        Boolean x = jdbcTemplate.queryForObject(sql, Boolean.class);
+        return x;
+    }
 
     public void createTable(int companyId, List<Attribute> filterAttributes) {
         String sql = getCreateTableString(companyId, filterAttributes);
@@ -74,7 +79,19 @@ public class CacheJdbcClient {
         return processResultSet(resultSet, filterAttributes);
     }
 
+    public CacheDbEntry getEntry(int companyId, CacheDbEntry key, List<Attribute> filterAttributes) {
+        String sql = getSearchString(companyId, key);
+        List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(sql);
+
+        if (resultSet.size() == 0) return null;
+        return processResultSet(resultSet, filterAttributes).get(0);
+    }
+
     /*                    Private Functions     */
+
+    private String getCheckExistsString(int companyId) {
+        return "select exists (select * from information_schema.tables where table_name = 'cache_company_" + companyId + "')";
+    }
 
     private String getCreateTableString(int companyId, List<Attribute> filterAttributes) {
         String filterString = "branch_id integer";
@@ -160,6 +177,24 @@ public class CacheJdbcClient {
 
 
         return "select * from cache_company_" + companyId + searchString;
+    }
+
+    private String getSearchString(int companyId, CacheDbEntry dbEntryKey) {
+        String searchString = " where ";
+        searchString += " branch_id = " + dbEntryKey.branchId;
+
+        Map<Integer, Integer> mapFilters = dbEntryKey.mapOfFilters;
+
+        if (mapFilters != null && mapFilters.size() > 0) {
+            for (Integer key : mapFilters.keySet()) {
+                searchString += " and filter_attribute_" + key + " = " + mapFilters.get(key);
+            }
+        }
+        searchString += " and date = " + dbEntryKey.date;
+        searchString += " and weighted_attribute_id = " + dbEntryKey.weightedAttributeId;
+
+        return "select * from cache_company_" + companyId + searchString;
+
     }
 
     private String getInsertString(int companyId, CacheDbEntry cacheDbEntry) {

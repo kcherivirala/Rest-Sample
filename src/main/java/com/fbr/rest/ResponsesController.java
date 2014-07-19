@@ -8,6 +8,7 @@ package com.fbr.rest;
 
 import com.fbr.domain.Response.Response;
 import com.fbr.domain.Response.ResponseList;
+import com.fbr.services.AggregatorService;
 import com.fbr.services.ResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,8 @@ public class ResponsesController {
     @Autowired
     private ResponseService responseService;
     @Autowired
+    private AggregatorService aggregatorService;
+    @Autowired
     private View jsonView_i;
 
     private static final String DATA_FIELD = "data";
@@ -35,6 +38,7 @@ public class ResponsesController {
     public Response addResponses(@PathVariable("companyId") int companyId, @PathVariable("branchId") int branchId,
                                  @RequestBody ResponseList responseList, HttpServletResponse httpResponse_p, WebRequest request_p) throws Exception {
         responseService.processResponse(companyId, branchId, responseList.getResponses());
+        aggregatorService.addResponses(companyId, branchId, responseList.getResponses());
         httpResponse_p.setStatus(HttpStatus.CREATED.value());
         return null;
     }
