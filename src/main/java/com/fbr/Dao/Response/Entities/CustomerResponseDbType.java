@@ -29,6 +29,16 @@ public class CustomerResponseDbType implements ProjectEntity<String> {
     int branchId;
     @Column(name = "timestamp", nullable = false)
     Date timestamp;
+    @Column(name = "server_timestamp", nullable = false)
+    Date serverTimestamp;
+
+    public Date getServerTimestamp() {
+        return serverTimestamp;
+    }
+
+    public void setServerTimestamp(Date serverTimestamp) {
+        this.serverTimestamp = serverTimestamp;
+    }
 
     public String getResponseId() {
         return responseId;

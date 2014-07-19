@@ -6,6 +6,7 @@ package com.fbr.domain.Response;
  *  ***********************************************************
  */
 
+import java.util.Date;
 import java.util.List;
 
 public class Response {
@@ -13,7 +14,17 @@ public class Response {
     String name;
     String phone;
 
+    Date date;
+
     List<AttributeTuple> attributeTuples;
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     public String getEmail() {
         return email;
