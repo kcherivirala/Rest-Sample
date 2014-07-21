@@ -50,6 +50,7 @@ public class AggregatorService {
                 List<Attribute> filterAttributes = attributeService.getFilterAttributes(company.getCompanyId());
                 createCompanyCache(company.getCompanyId(), filterAttributes);
                 companyCacheExistsMap.put(company.getCompanyId(), filterAttributes);
+
             } catch (Exception e) {
                 logger.error("error initialising info for : " + company.getCompanyId());
             }

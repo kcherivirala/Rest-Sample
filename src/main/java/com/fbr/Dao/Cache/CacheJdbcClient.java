@@ -98,7 +98,6 @@ public class CacheJdbcClient {
 
     private String getCreateTableString(int companyId, List<Attribute> filterAttributes) {
         String filterString = "branch_id integer";
-
         if (filterAttributes != null) {
             for (Attribute attribute : filterAttributes) {
                 filterString += ", filter_attribute_" + attribute.getAttributeId() + " integer";
@@ -113,7 +112,7 @@ public class CacheJdbcClient {
                 + ", count_4 integer"
                 + ", count_5 integer";
 
-        String primaryKey = getAddDeletePrimaryKey(true, companyId, filterAttributes);
+        String primaryKey = getAddDeletePrimaryKey(1, companyId, filterAttributes);
 
         return "create table cache_company_" + companyId + " (" + filterString + ", " + primaryKey + ")";
     }
@@ -125,7 +124,7 @@ public class CacheJdbcClient {
     private String getUpdateTableString(int companyId, List<Attribute> filterAttributesOld, List<Attribute> filterAttributesNew) {
         String updateAttribute = "alter table cache_company_" + companyId;
 
-        updateAttribute += getAddDeletePrimaryKey(false, companyId, filterAttributesNew);
+        updateAttribute += getAddDeletePrimaryKey(3, companyId, filterAttributesNew);
         Collections.sort(filterAttributesNew, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
         Collections.sort(filterAttributesOld, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
 
@@ -156,7 +155,7 @@ public class CacheJdbcClient {
             oldIndex++;
         }
 
-        updateAttribute += ", " + getAddDeletePrimaryKey(true, companyId, filterAttributesNew);
+        updateAttribute += ", " + getAddDeletePrimaryKey(2, companyId, filterAttributesNew);
 
         return updateAttribute;
     }
@@ -265,9 +264,12 @@ public class CacheJdbcClient {
         return insertString + attributes + " where " + constraint;
     }
 
-    private String getAddDeletePrimaryKey(boolean add, int companyId, List<Attribute> filterAttributes) {
-        if (add) {
-            String primaryKey = " add constraint cache_company_" + companyId + "_pkey Primary Key (branch_id";
+    private String getAddDeletePrimaryKey(int operation, int companyId, List<Attribute> filterAttributes) {
+        //1-create, 2 - update(add), 3- update(delete)
+        if (operation == 1 || operation == 2) {
+            String primaryKey = " constraint cache_company_" + companyId + "_pkey Primary Key (branch_id";
+            if (operation == 2)
+                primaryKey = " add" + primaryKey;
             for (Attribute attribute : filterAttributes) {
                 primaryKey += ",filter_attribute_" + attribute.getAttributeId();
             }
