@@ -134,24 +134,24 @@ public class AttributeService {
         return mapCompanyAttributes.get(companyId).attributeList;
     }
 
-    public List<Attribute> getWeightedAttributes(int companyId){
+    public List<Attribute> getWeightedAttributes(int companyId) {
         List<Attribute> list = getAttributesByCompany(companyId);
         List<Attribute> out = new ArrayList<Attribute>();
 
-        for(Attribute attribute: list){
-            if(attribute.getType().equals("weighted")){
+        for (Attribute attribute : list) {
+            if (attribute.getType().equals("weighted")) {
                 out.add(attribute);
             }
         }
         return out;
     }
 
-    public List<Attribute> getFilterAttributes(int companyId){
+    public List<Attribute> getFilterAttributes(int companyId) {
         List<Attribute> list = getAttributesByCompany(companyId);
         List<Attribute> out = new ArrayList<Attribute>();
 
-        for(Attribute attribute: list){
-            if(attribute.getType().equals("non-weighted")){
+        for (Attribute attribute : list) {
+            if (attribute.getType().equals("non-weighted")) {
                 out.add(attribute);
             }
         }

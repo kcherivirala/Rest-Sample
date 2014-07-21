@@ -6,23 +6,20 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
-import com.fbr.Dao.Cache.CacheDbEntry;
 import com.fbr.Dao.Cache.CacheJdbcClient;
 import com.fbr.domain.Attribute.Attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service("testService")
 public class TestService {
     @Autowired
     private CacheJdbcClient cacheJdbcClient;
 
-    public Attribute test(){
+    public Attribute test() {
         /*
         List<Attribute> filterAttributes = new ArrayList<Attribute>(2);
         Attribute attribute = new Attribute();
@@ -46,8 +43,8 @@ public class TestService {
         }
         */
 
-        List<Attribute>filtersOld = new ArrayList<Attribute>(1);
-        List<Attribute>filtersNew = new ArrayList<Attribute>(2);
+        List<Attribute> filtersOld = new ArrayList<Attribute>(1);
+        List<Attribute> filtersNew = new ArrayList<Attribute>(2);
 
         Attribute one = new Attribute();
         one.setAttributeId(3);
@@ -58,9 +55,9 @@ public class TestService {
         filtersNew.add(one);
         filtersNew.add(two);
 
-        try{
-        cacheJdbcClient.updateTable(1, filtersOld, filtersNew);
-        }catch (Exception e){
+        try {
+            cacheJdbcClient.updateTable(1, filtersOld, filtersNew);
+        } catch (Exception e) {
             System.out.println();
         }
 

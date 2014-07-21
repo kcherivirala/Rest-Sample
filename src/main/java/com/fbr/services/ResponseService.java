@@ -57,7 +57,7 @@ public class ResponseService {
                 else customerId = UUID.randomUUID().toString();
 
                 if (check(companyId, response)) {
-                    addToResponseDb(companyId, branchId, customerId,response.getDate(), response.getAttributeTuples());
+                    addToResponseDb(companyId, branchId, customerId, response.getDate(), response.getAttributeTuples());
 
                     if (customerDbEntry != null)
                         alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);

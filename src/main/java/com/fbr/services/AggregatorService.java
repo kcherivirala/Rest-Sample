@@ -21,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("aggregatorService")
 public class AggregatorService {
@@ -39,9 +42,8 @@ public class AggregatorService {
 
     @PostConstruct
     public void init() {
-        companyCacheExistsMap = new HashMap<Integer, List<Attribute>>(100);//random initial value
-
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
+        companyCacheExistsMap = new HashMap<Integer, List<Attribute>>(companies.size());//random initial value
 
         for (CompanyDbType company : companies) {
             try {
