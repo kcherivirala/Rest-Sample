@@ -45,9 +45,24 @@ public class TestService {
             System.out.println();
         }
         */
-        cacheJdbcClient.checkCacheExists(1);
-        cacheJdbcClient.checkCacheExists(2);
 
+        List<Attribute>filtersOld = new ArrayList<Attribute>(1);
+        List<Attribute>filtersNew = new ArrayList<Attribute>(2);
+
+        Attribute one = new Attribute();
+        one.setAttributeId(3);
+        Attribute two = new Attribute();
+        two.setAttributeId(11);
+
+        filtersOld.add(one);
+        filtersNew.add(one);
+        filtersNew.add(two);
+
+        try{
+        cacheJdbcClient.updateTable(1, filtersOld, filtersNew);
+        }catch (Exception e){
+            System.out.println();
+        }
 
 
         return null;

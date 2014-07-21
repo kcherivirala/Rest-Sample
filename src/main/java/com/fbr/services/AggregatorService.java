@@ -35,18 +35,19 @@ public class AggregatorService {
     @Autowired
     private CustomerResponseDao customerResponseDao;
 
-    Map<Integer, Integer> companyCacheExistsMap;
+    Map<Integer, List<Attribute>> companyCacheExistsMap;
 
     @PostConstruct
     public void init() {
-        companyCacheExistsMap = new HashMap<Integer, Integer>(100);//random initial value
+        companyCacheExistsMap = new HashMap<Integer, List<Attribute>>(100);//random initial value
 
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
 
         for (CompanyDbType company : companies) {
             try {
-                createCompanyCache(company.getCompanyId());
-                companyCacheExistsMap.put(company.getCompanyId(), 1);
+                List<Attribute> filterAttributes = attributeService.getFilterAttributes(company.getCompanyId());
+                createCompanyCache(company.getCompanyId(), filterAttributes);
+                companyCacheExistsMap.put(company.getCompanyId(), filterAttributes);
             } catch (Exception e) {
                 logger.error("error initialising info for : " + company.getCompanyId());
             }
@@ -59,8 +60,13 @@ public class AggregatorService {
             List<Attribute> filterAttributes = attributeService.getFilterAttributes(companyId);
 
             if (!companyCacheExistsMap.containsKey(companyId)) {
-                createCompanyCache(companyId);
-                companyCacheExistsMap.put(companyId, 1);
+                createCompanyCache(companyId, filterAttributes);
+                companyCacheExistsMap.put(companyId, filterAttributes);
+            } else {
+                //exists : check if the filter attributes changed
+                if (checkChangeFilterAttributes(companyCacheExistsMap.get(companyId), filterAttributes)) {
+                    cacheJdbcClient.updateTable(companyId, companyCacheExistsMap.get(companyId), filterAttributes);
+                }
             }
 
             for (Response response : responseList) {
@@ -84,10 +90,10 @@ public class AggregatorService {
         }
     }
 
-    private void createCompanyCache(int companyId) {
+    private void createCompanyCache(int companyId, List<Attribute> filterAttributes) {
         if (cacheJdbcClient.checkCacheExists(companyId)) return;
 
-        cacheJdbcClient.createTable(companyId, attributeService.getFilterAttributes(companyId));
+        cacheJdbcClient.createTable(companyId, filterAttributes);
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -364);//>365
@@ -205,6 +211,22 @@ public class AggregatorService {
         for (Attribute attribute : filterAttributes) {
             if (attrId == attribute.getAttributeId())
                 return true;
+        }
+        return false;
+    }
+
+    private boolean checkChangeFilterAttributes(List<Attribute> oldFilters, List<Attribute> newFilters) {
+        if (oldFilters.size() != newFilters.size())
+            return true;
+
+        int oldIndex = 0, newIndex = 0;
+        while (oldIndex < oldFilters.size() && newIndex < newFilters.size()) {
+            if (oldFilters.get(oldIndex).getAttributeId() == newFilters.get(newIndex).getAttributeId()) {
+                oldIndex++;
+                newIndex++;
+            } else {
+                return true;
+            }
         }
         return false;
     }

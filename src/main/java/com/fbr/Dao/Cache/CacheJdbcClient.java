@@ -21,8 +21,7 @@ public class CacheJdbcClient {
 
     public boolean checkCacheExists(int companyId) {
         String sql = getCheckExistsString(companyId);
-        Boolean x = jdbcTemplate.queryForObject(sql, Boolean.class);
-        return x;
+        return jdbcTemplate.queryForObject(sql, Boolean.class);
     }
 
     public void createTable(int companyId, List<Attribute> filterAttributes) {
@@ -37,7 +36,11 @@ public class CacheJdbcClient {
 
     public void updateTable(int companyId, List<Attribute> filterAttributesOld, List<Attribute> filterAttributesNew) {
         String sql = getUpdateTableString(companyId, filterAttributesOld, filterAttributesNew);
-        jdbcTemplate.execute(sql);
+        try {
+            jdbcTemplate.execute(sql);
+        } catch (Exception e) {
+            System.out.println();
+        }
     }
 
     public void addEntry(int companyId, CacheDbEntry cacheDbEntry) {
@@ -95,16 +98,13 @@ public class CacheJdbcClient {
 
     private String getCreateTableString(int companyId, List<Attribute> filterAttributes) {
         String filterString = "branch_id integer";
-        String primaryKey = "branch_id";
 
         if (filterAttributes != null) {
             for (Attribute attribute : filterAttributes) {
                 filterString += ", filter_attribute_" + attribute.getAttributeId() + " integer";
-                primaryKey += ",filter_attribute_" + attribute.getAttributeId();
             }
         }
         filterString += ", date integer";
-        primaryKey += ",date,weighted_attribute_id";
 
         filterString += ", weighted_attribute_id integer"
                 + ", count_1 integer"
@@ -113,7 +113,9 @@ public class CacheJdbcClient {
                 + ", count_4 integer"
                 + ", count_5 integer";
 
-        return "create table cache_company_" + companyId + " (" + filterString + ", Primary Key (" + primaryKey + "))";
+        String primaryKey = getAddDeletePrimaryKey(true, companyId, filterAttributes);
+
+        return "create table cache_company_" + companyId + " (" + filterString + ", " + primaryKey + ")";
     }
 
     private String getDeleteTableString(int companyId) {
@@ -122,6 +124,8 @@ public class CacheJdbcClient {
 
     private String getUpdateTableString(int companyId, List<Attribute> filterAttributesOld, List<Attribute> filterAttributesNew) {
         String updateAttribute = "alter table cache_company_" + companyId;
+
+        updateAttribute += getAddDeletePrimaryKey(false, companyId, filterAttributesNew);
         Collections.sort(filterAttributesNew, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
         Collections.sort(filterAttributesOld, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
 
@@ -134,11 +138,26 @@ public class CacheJdbcClient {
                 newIndex++;
                 oldIndex++;
             } else if (newAttr.getAttributeId() < oldAttr.getAttributeId()) {
-                updateAttribute += " add column filter_attribute_" + newAttr.getAttributeId() + " integer";
+                updateAttribute += ", " + getAddDeleteColumnString(true, filterAttributesNew.get(newIndex).getAttributeId());
+                newIndex++;
             } else {
-                updateAttribute += " drop column filter_attribute_" + oldAttr.getAttributeId();
+                updateAttribute += ", " + getAddDeleteColumnString(false, filterAttributesOld.get(oldIndex).getAttributeId());
+                oldIndex++;
             }
         }
+
+        while (newIndex < filterAttributesNew.size()) {
+            updateAttribute += ", " + getAddDeleteColumnString(true, filterAttributesNew.get(newIndex).getAttributeId());
+            newIndex++;
+        }
+
+        while (oldIndex < filterAttributesOld.size()) {
+            updateAttribute += ", " + getAddDeleteColumnString(false, filterAttributesOld.get(oldIndex).getAttributeId());
+            oldIndex++;
+        }
+
+        updateAttribute += ", " + getAddDeletePrimaryKey(true, companyId, filterAttributesNew);
+
         return updateAttribute;
     }
 
@@ -244,6 +263,28 @@ public class CacheJdbcClient {
                 + ", count_5 = " + cacheDbEntry.getCount_5();
 
         return insertString + attributes + " where " + constraint;
+    }
+
+    private String getAddDeletePrimaryKey(boolean add, int companyId, List<Attribute> filterAttributes) {
+        if (add) {
+            String primaryKey = " add constraint cache_company_" + companyId + "_pkey Primary Key (branch_id";
+            for (Attribute attribute : filterAttributes) {
+                primaryKey += ",filter_attribute_" + attribute.getAttributeId();
+            }
+            primaryKey += ",date,weighted_attribute_id)";
+
+            return primaryKey;
+        } else {
+            return " drop constraint cache_company_" + companyId + "_pkey";
+        }
+    }
+
+    private String getAddDeleteColumnString(boolean add, int attributeId) {
+        if (add) {
+            return " add column filter_attribute_" + attributeId + " integer default -1";
+        } else {
+            return " drop column filter_attribute_" + attributeId;
+        }
     }
 
     /*                   Object mapper         */
