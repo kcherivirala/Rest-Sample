@@ -39,33 +39,44 @@ public class ResponseService {
     private CustomerService customerService;
     @Autowired
     private AttributeService attributeService;
+    @Autowired
+    private AggregatorService aggregatorService;
 
     private Timer timer;
     long AGGREGATE_TIME_INTERVAL = 24 * 3600 * 1000; // 24 hours
 
     @Transactional
-    public void processResponse(int companyId, int branchId, List<Response> responseList) {
+    public void processResponse(int companyId, int branchId, List<Response> responseList) throws Exception {
         //processes teh list of responses from various customer for the given company and branch.
         try {
             logger.info("adding customer responses for : (" + companyId + "," + branchId + ")");
-            List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
-            for (Response response : responseList) {
-                CustomerDbType customerDbEntry = customerService.addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
 
-                String customerId;
-                if (customerDbEntry != null) customerId = customerDbEntry.getCustomerId();
-                else customerId = UUID.randomUUID().toString();
+            addToResponses(companyId, branchId, responseList);
+            aggregatorService.addResponses(companyId, branchId, responseList);
 
-                if (check(companyId, response)) {
-                    addToResponseDb(companyId, branchId, customerId, response.getDate(), response.getAttributeTuples());
-
-                    if (customerDbEntry != null)
-                        alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);
-                }
-            }
             logger.info("done adding customer responses for : (" + companyId + "," + branchId + ")");
         } catch (Exception e) {
-            logger.error("error processing responses : " + companyId + "," + branchId);
+            logger.error("error processing responses : " + companyId + "," + branchId + " : " + e.getMessage());
+            throw new Exception("error processing responses : " + companyId + "," + branchId + " : " + e.getMessage());
+        }
+    }
+
+    private void addToResponses(int companyId, int branchId, List<Response> responseList) throws Exception {
+        logger.info("adding customer responses to responses table for : (" + companyId + "," + branchId + ")");
+        List<Attribute> attributeList = attributeService.getAttributesByCompany(companyId);
+        for (Response response : responseList) {
+            CustomerDbType customerDbEntry = customerService.addCustomerInfo(response.getEmail(), response.getPhone(), response.getName());
+
+            String customerId;
+            if (customerDbEntry != null) customerId = customerDbEntry.getCustomerId();
+            else customerId = UUID.randomUUID().toString();
+
+            if (check(companyId, response)) {
+                addToResponseDb(companyId, branchId, customerId, response.getDate(), response.getAttributeTuples());
+
+                if (customerDbEntry != null)
+                    alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);
+            }
         }
     }
 

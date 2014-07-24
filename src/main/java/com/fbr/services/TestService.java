@@ -7,6 +7,7 @@ package com.fbr.services;
  */
 
 import com.fbr.Dao.Cache.CacheJdbcClient;
+import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.domain.Attribute.Attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,11 @@ import java.util.List;
 public class TestService {
     @Autowired
     private CacheJdbcClient cacheJdbcClient;
+
+    @Autowired
+    private CustomerResponseDao customerResponseDao;
+    @Autowired
+    private AggregatorService aggregatorService;
 
     public Attribute test() {
         /*
@@ -43,23 +49,8 @@ public class TestService {
         }
         */
 
-        List<Attribute> filtersOld = new ArrayList<Attribute>(1);
-        List<Attribute> filtersNew = new ArrayList<Attribute>(2);
-
-        Attribute one = new Attribute();
-        one.setAttributeId(3);
-        Attribute two = new Attribute();
-        two.setAttributeId(11);
-
-        filtersOld.add(one);
-        filtersNew.add(one);
-        filtersNew.add(two);
-
-        try {
-            cacheJdbcClient.updateTable(1, filtersOld, filtersNew);
-        } catch (Exception e) {
-            System.out.println();
-        }
+        List<CustomerResponseDao.CustomerResponseAndValues> responses = customerResponseDao.getResponses(1);
+        aggregatorService.addResponses(1, responses);
 
 
         return null;

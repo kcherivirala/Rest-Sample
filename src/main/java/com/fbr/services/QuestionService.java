@@ -284,19 +284,20 @@ public class QuestionService {
     }
 
     private void addAnswer(int companyId, int questionId, Answer inputAnswer) {
-        AnswerDbType answerDbEntry = Conversions.getAnswerDbEntry(companyId, questionId, inputAnswer);
+        int answerId = answerDao.getMaxQuestionIdValue(companyId, questionId) + 1;
+        AnswerDbType answerDbEntry = Conversions.getAnswerDbEntry(companyId, questionId, answerId, inputAnswer);
         answerDao.add(answerDbEntry);
     }
 
     public static class Conversions {
-        public static AnswerDbType getAnswerDbEntry(int companyId, int questionId, Answer answer) {
+        public static AnswerDbType getAnswerDbEntry(int companyId, int questionId, int answerId, Answer answer) {
             AnswerDbType answerDbEntry = new AnswerDbType();
             AnswerPrimaryKey aKey = new AnswerPrimaryKey();
             answerDbEntry.setId(aKey);
 
             aKey.setCompanyId(companyId);
             aKey.setQuestionId(questionId);
-            aKey.setAnswerId(answer.getAnswerId());
+            aKey.setAnswerId(answerId);
 
             answerDbEntry.setAnswerString(answer.getAnswer());
             answerDbEntry.setAttributeId(answer.getAttributeId());

@@ -46,4 +46,15 @@ public class AnswerDao extends ProjectDaoImpl<AnswerDbType, AnswerPrimaryKey> {
         q.setParameter(2, questionId);
         q.executeUpdate();
     }
+
+    public int getMaxQuestionIdValue(int companyId, int questionId) {
+        Query q = entityManager.createQuery("select max(e.id.answerId) from " + entityClass.getName() + " e where e.id.companyId = ?1 and e.id.questionId = ?2");
+        q.setParameter(1, companyId);
+        q.setParameter(2, questionId);
+        List x = q.getResultList();
+        if (x.get(0) != null) {
+            return ((Number) x.get(0)).intValue();
+        }
+        return -1;
+    }
 }

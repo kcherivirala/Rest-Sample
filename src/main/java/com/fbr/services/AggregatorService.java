@@ -42,6 +42,7 @@ public class AggregatorService {
 
     @PostConstruct
     public void init() {
+        /*
         List<CompanyDbType> companies = companyService.getCompanyDbEntries();
         companyCacheExistsMap = new HashMap<Integer, List<Attribute>>(companies.size());//random initial value
 
@@ -55,9 +56,10 @@ public class AggregatorService {
                 logger.error("error initialising info for : " + company.getCompanyId());
             }
         }
+        */
     }
 
-    public void addResponses(int companyId, int branchId, List<Response> responseList) {
+    public void addResponses(int companyId, int branchId, List<Response> responseList) throws Exception {
         try {
             logger.info("adding customer responses for aggregator service : (" + companyId + "," + branchId + ")");
             List<Attribute> filterAttributes = attributeService.getFilterAttributes(companyId);
@@ -77,6 +79,7 @@ public class AggregatorService {
             }
         } catch (Exception e) {
             logger.error("error processing responses for aggregator service : " + companyId + "," + branchId);
+            throw new Exception("error processing responses for aggregator service : " + companyId + "," + branchId);
         }
     }
 
@@ -182,14 +185,19 @@ public class AggregatorService {
         switch (attributeValue) {
             case 1:
                 key.setCount_1(1);
+                break;
             case 2:
                 key.setCount_2(1);
+                break;
             case 3:
                 key.setCount_3(1);
+                break;
             case 4:
                 key.setCount_4(1);
+                break;
             case 5:
                 key.setCount_5(1);
+                break;
         }
 
         return key;
@@ -199,14 +207,19 @@ public class AggregatorService {
         switch (attributeValue) {
             case 1:
                 cacheDbEntry.setCount_1(cacheDbEntry.getCount_1() + 1);
+                break;
             case 2:
                 cacheDbEntry.setCount_2(cacheDbEntry.getCount_2() + 1);
+                break;
             case 3:
                 cacheDbEntry.setCount_3(cacheDbEntry.getCount_3() + 1);
+                break;
             case 4:
                 cacheDbEntry.setCount_4(cacheDbEntry.getCount_4() + 1);
+                break;
             case 5:
                 cacheDbEntry.setCount_5(cacheDbEntry.getCount_5() + 1);
+                break;
         }
     }
 

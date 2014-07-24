@@ -251,11 +251,10 @@ public class CacheJdbcClient {
             constraint += " and filter_attribute_" + key + " = " + cacheDbEntry.mapOfFilters.get(key);
         }
 
-        attributes += ", date = " + cacheDbEntry.getDate();
         constraint += " and date = " + cacheDbEntry.getDate();
+        constraint += " and weighted_attribute_id = " + cacheDbEntry.getWeightedAttributeId() ;
 
-        attributes += ", weighted_attribute_id = " + cacheDbEntry.getWeightedAttributeId()
-                + ", count_1 = " + cacheDbEntry.getCount_1()
+        attributes +=  ", count_1 = " + cacheDbEntry.getCount_1()
                 + ", count_2 = " + cacheDbEntry.getCount_2()
                 + ", count_3 = " + cacheDbEntry.getCount_3()
                 + ", count_4 = " + cacheDbEntry.getCount_4()
@@ -311,6 +310,7 @@ public class CacheJdbcClient {
             dbEntry.setCount_3((Integer) result.get("count_3"));
             dbEntry.setCount_4((Integer) result.get("count_4"));
             dbEntry.setCount_5((Integer) result.get("count_5"));
+            dbEntry.setMapOfFilters(map);
 
             outList.add(dbEntry);
         }
