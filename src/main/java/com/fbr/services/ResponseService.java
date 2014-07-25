@@ -52,7 +52,7 @@ public class ResponseService {
             logger.info("adding customer responses for : (" + companyId + "," + branchId + ")");
 
             addToResponses(companyId, branchId, responseList);
-            aggregatorService.addResponses(companyId, branchId, responseList);
+            //aggregatorService.addResponses(companyId, branchId, responseList);
 
             logger.info("done adding customer responses for : (" + companyId + "," + branchId + ")");
         } catch (Exception e) {
