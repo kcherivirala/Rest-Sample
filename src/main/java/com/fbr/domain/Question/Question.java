@@ -16,6 +16,15 @@ public class Question {
     String function;
     boolean enabled;
     int placement;
+    String link;
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
 
     public boolean isEnabled() {
         return enabled;

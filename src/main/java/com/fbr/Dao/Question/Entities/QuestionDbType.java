@@ -29,6 +29,16 @@ public class QuestionDbType implements Serializable, ProjectEntity<QuestionPrima
     boolean enabled;
     @Column(name = "placement")
     int placement;
+    @Column(name = "link", nullable = false)
+    String link;
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
 
     public boolean isEnabled() {
         return enabled;

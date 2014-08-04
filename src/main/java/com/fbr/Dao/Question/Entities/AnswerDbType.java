@@ -22,7 +22,16 @@ public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKe
     AnswerPrimaryKey id;
     @Column(name = "answer_string", nullable = false)
     String answerString;
+    @Column(name = "link", nullable = false)
+    String link;
 
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
 
     public String getAnswerString() {
         return answerString;

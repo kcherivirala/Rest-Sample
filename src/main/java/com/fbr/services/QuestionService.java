@@ -182,6 +182,10 @@ public class QuestionService {
             questionDbEntry.setPlacement(question.getPlacement());
             updated = true;
         }
+        if (!questionDbEntry.getLink().equals(question.getLink())) {
+            questionDbEntry.setLink(question.getLink());
+            updated = true;
+        }
         if (updated)
             questionDao.update(questionDbEntry);
     }
@@ -280,6 +284,10 @@ public class QuestionService {
         boolean updated = false;
         if (!answerDbEntry.getAnswerString().equals(inputAnswer.getAnswer())) {
             answerDbEntry.setAnswerString(inputAnswer.getAnswer());
+            updated = true;
+        }
+        if (!answerDbEntry.getLink().equals(inputAnswer.getLink())) {
+            answerDbEntry.setLink(inputAnswer.getLink());
             updated = true;
         }
 
@@ -384,6 +392,7 @@ public class QuestionService {
             aKey.setAnswerId(answerId);
 
             answerDbEntry.setAnswerString(answer.getAnswer());
+            answerDbEntry.setLink(answer.getLink());
 
             return answerDbEntry;
         }
@@ -402,6 +411,7 @@ public class QuestionService {
 
             questionDbEntry.setEnabled(question.isEnabled());
             questionDbEntry.setPlacement(question.getPlacement());
+            questionDbEntry.setLink(question.getLink());
 
             return questionDbEntry;
         }
@@ -416,6 +426,7 @@ public class QuestionService {
 
             question.setEnabled(questionDbEntry.isEnabled());
             question.setPlacement(questionDbEntry.getPlacement());
+            question.setLink(questionDbEntry.getLink());
 
             return question;
         }
@@ -425,6 +436,7 @@ public class QuestionService {
 
             answer.setAnswer(answerDbEntry.getAnswerString());
             answer.setAnswerId(answerDbEntry.getId().getAnswerId());
+            answer.setLink(answerDbEntry.getLink());
 
             return answer;
         }
