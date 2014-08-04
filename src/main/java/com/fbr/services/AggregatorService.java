@@ -8,7 +8,6 @@ package com.fbr.services;
 
 import com.fbr.Dao.Cache.CacheDbEntry;
 import com.fbr.Dao.Cache.CacheJdbcClient;
-import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
 import com.fbr.Dao.Response.Entities.CustomerResponseValuesDbType;
 import com.fbr.Utilities.FeedbackUtilities;

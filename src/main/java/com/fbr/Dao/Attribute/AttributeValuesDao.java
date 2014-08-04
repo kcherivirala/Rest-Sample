@@ -21,7 +21,7 @@ public class AttributeValuesDao extends ProjectDaoImpl<AttributeValuesDbType, At
     }
 
     public List<AttributeValuesDbType> getAttributeValuesByCompany(int companyId) {
-        Query q = entityManager.createQuery("select distinct a from AttributeValuesDbType  a, AnswerDbType b  where b.id.companyId = ?1 and a.id.attributeId = b.attributeId", entityClass);
+        Query q = entityManager.createQuery("select distinct a from AttributeValuesDbType  a, AnswerAttributeDbType b  where b.id.companyId = ?1 and a.id.attributeId = b.id.attributeId", entityClass);
         q.setParameter(1, companyId);
         return q.getResultList();
     }

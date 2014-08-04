@@ -6,12 +6,13 @@ package com.fbr.domain.Question;
  *  ***********************************************************
  */
 
+import java.util.List;
+
 public class Answer {
     int answerId;
     String answer;
-    int attributeId;
-    int maxValue;
-    int attainedValue;
+
+    List<AnswerAttribute> answerAttributeList;
 
     public int getAnswerId() {
         return answerId;
@@ -29,27 +30,11 @@ public class Answer {
         this.answer = answer;
     }
 
-    public int getAttributeId() {
-        return attributeId;
+    public List<AnswerAttribute> getAnswerAttributeList() {
+        return answerAttributeList;
     }
 
-    public void setAttributeId(int attributeId) {
-        this.attributeId = attributeId;
-    }
-
-    public int getMaxValue() {
-        return maxValue;
-    }
-
-    public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue;
-    }
-
-    public int getAttainedValue() {
-        return attainedValue;
-    }
-
-    public void setAttainedValue(int attainedValue) {
-        this.attainedValue = attainedValue;
+    public void setAnswerAttributeList(List<AnswerAttribute> answerAttributeList) {
+        this.answerAttributeList = answerAttributeList;
     }
 }

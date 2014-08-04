@@ -10,7 +10,6 @@ import com.fbr.Dao.ProjectDaoImpl;
 import com.fbr.Dao.Question.Entities.AnswerDbType;
 import com.fbr.Dao.Question.Entities.AnswerPrimaryKey;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -39,7 +38,6 @@ public class AnswerDao extends ProjectDaoImpl<AnswerDbType, AnswerPrimaryKey> {
         return query.getResultList();
     }
 
-    @Transactional
     public void deleteAnswersOfQuestion(int companyId, int questionId) {
         Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1 and a.id.questionId = ?2");
         q.setParameter(1, companyId);

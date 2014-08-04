@@ -12,35 +12,46 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "answers")
-public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKey> {
+@Table(name = "answer_attributes")
+public class AnswerAttributeDbType implements Serializable, ProjectEntity<AnswerAttributePrimaryKey> {
     @EmbeddedId
     @AttributeOverrides({
             @AttributeOverride(name = "companyId", column = @Column(name = "company_id", nullable = false)),
             @AttributeOverride(name = "questionId", column = @Column(name = "question_id", nullable = false)),
+            @AttributeOverride(name = "attributeId", column = @Column(name = "attribute_id", nullable = false)),
             @AttributeOverride(name = "answerId", column = @Column(name = "answer_id", nullable = false))})
-    AnswerPrimaryKey id;
-    @Column(name = "answer_string", nullable = false)
-    String answerString;
+    AnswerAttributePrimaryKey id;
+
+    @Column(name = "value", nullable = false)
+    int value;
+    @Column(name = "max_value", nullable = false)
+    int maxValue;
 
 
-    public String getAnswerString() {
-        return answerString;
+    public int getMaxValue() {
+        return maxValue;
     }
 
-    public void setAnswerString(String answerString) {
-        this.answerString = answerString;
+    public void setMaxValue(int maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 
     @Override
     @Transient
-    public void setId(AnswerPrimaryKey s) {
+    public void setId(AnswerAttributePrimaryKey s) {
         this.id = s;
     }
 
     @Override
-    public AnswerPrimaryKey getId() {
+    public AnswerAttributePrimaryKey getId() {
         return this.id;
     }
 }
-

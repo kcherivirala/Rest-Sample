@@ -13,6 +13,7 @@ import com.fbr.Dao.Company.Entities.CompanyDbType;
 import com.fbr.Dao.Graph.Entities.GraphAttributesDbType;
 import com.fbr.Dao.Graph.Entities.GraphDbType;
 import com.fbr.Dao.Graph.Entities.GraphFiltersDbType;
+import com.fbr.Dao.Question.Entities.AnswerAttributeDbType;
 import com.fbr.Dao.Question.Entities.AnswerDbType;
 import com.fbr.Dao.Question.Entities.QuestionDbType;
 import com.fbr.Dao.Response.CustomerResponseDao;
@@ -30,6 +31,19 @@ public class Comparators {
         public int compare(AnswerDbType first, AnswerDbType second) {
             if (first.getId().getQuestionId() == second.getId().getQuestionId())
                 return first.getId().getAnswerId() - second.getId().getAnswerId();
+            return first.getId().getQuestionId() - second.getId().getQuestionId();
+        }
+    };
+
+    public static Comparator<AnswerAttributeDbType> COMPARE_DB_ANSWER_ATTRIBUTES = new Comparator<AnswerAttributeDbType>() {
+        @Override
+        public int compare(AnswerAttributeDbType first, AnswerAttributeDbType second) {
+            if (first.getId().getQuestionId() == second.getId().getQuestionId()) {
+                if (first.getId().getAnswerId() == second.getId().getAnswerId()) {
+                    return first.getId().getAttributeId() - second.getId().getAttributeId();
+                }
+                return first.getId().getAnswerId() - second.getId().getAnswerId();
+            }
             return first.getId().getQuestionId() - second.getId().getQuestionId();
         }
     };

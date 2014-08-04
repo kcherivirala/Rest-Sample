@@ -8,7 +8,6 @@ package com.fbr.rest;
 
 import com.fbr.domain.Response.Response;
 import com.fbr.domain.Response.ResponseList;
-import com.fbr.services.AggregatorService;
 import com.fbr.services.ResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -6,14 +6,13 @@ package com.fbr.services;
  *  ***********************************************************
  */
 
+import com.fbr.Dao.Question.AnswerAttributeDao;
 import com.fbr.Dao.Question.AnswerDao;
-import com.fbr.Dao.Question.Entities.AnswerDbType;
-import com.fbr.Dao.Question.Entities.AnswerPrimaryKey;
-import com.fbr.Dao.Question.Entities.QuestionDbType;
-import com.fbr.Dao.Question.Entities.QuestionPrimaryKey;
+import com.fbr.Dao.Question.Entities.*;
 import com.fbr.Dao.Question.QuestionDao;
 import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Question.Answer;
+import com.fbr.domain.Question.AnswerAttribute;
 import com.fbr.domain.Question.Question;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,8 @@ public class QuestionService {
     private QuestionDao questionDao;
     @Autowired
     private AttributeService attributeService;
+    @Autowired
+    private AnswerAttributeDao answerAttributeDao;
 
     /*
     placement of question
@@ -71,9 +72,10 @@ public class QuestionService {
 
             QuestionDbType questionDbEntry = questionDao.find(key);
             List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
+            List<AnswerAttributeDbType> answerAttributeDbEntries = answerAttributeDao.getAnswerAttributes(companyId, questionId);
 
             updateQuestion(questionDbEntry, question);
-            updateAnswers(companyId, questionId, answerDbEntries, question.getAnswers());
+            updateAnswers(companyId, questionId, answerDbEntries, answerAttributeDbEntries, question.getAnswers());
 
             attributeService.resetCompanyAttributes(companyId);
 
@@ -95,6 +97,7 @@ public class QuestionService {
             key.setQuestionId(questionId);
 
             QuestionDbType questionDbEntry = questionDao.find(key);
+            answerAttributeDao.deleteAnswerAttributesOfQuestion(companyId, questionId);
             answerDao.deleteAnswersOfQuestion(companyId, questionId);
             questionDao.delete(questionDbEntry);
 
@@ -110,8 +113,9 @@ public class QuestionService {
             logger.info("getting questions for company : " + companyId);
             List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId);
             List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
+            List<AnswerAttributeDbType> answerAttributeDbEntries = answerAttributeDao.getAnswerAttributes(companyId);
 
-            List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
+            List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries, answerAttributeDbEntries);
             logger.info("done getting questions for company : " + companyId);
             return out;
         } catch (Exception e) {
@@ -125,8 +129,9 @@ public class QuestionService {
             logger.info("getting questions for company : " + companyId);
             List<QuestionDbType> questionDbEntries = questionDao.getEnabledQuestions(companyId);
             List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId);
+            List<AnswerAttributeDbType> answerAttributeDbEntries = answerAttributeDao.getAnswerAttributes(companyId);
 
-            List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries);
+            List<Question> out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries, answerAttributeDbEntries);
             logger.info("done getting questions for company : " + companyId);
             return out;
         } catch (Exception e) {
@@ -140,8 +145,9 @@ public class QuestionService {
             logger.info("getting question for company : " + companyId + " and questionId : " + questionId);
             List<QuestionDbType> questionDbEntries = questionDao.getQuestions(companyId, questionId);
             List<AnswerDbType> answerDbEntries = answerDao.getAnswers(companyId, questionId);
+            List<AnswerAttributeDbType> answerAttributeDbEntries = answerAttributeDao.getAnswerAttributes(companyId, questionId);
 
-            Question out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries).get(0);
+            Question out = matchQuestionAndAnswers(questionDbEntries, answerDbEntries, answerAttributeDbEntries).get(0);
             logger.info("done getting question for company : " + companyId + " and questionId : " + questionId);
             return out;
         } catch (Exception e) {
@@ -151,81 +157,6 @@ public class QuestionService {
     }
 
     /*   private functions */
-
-    private void updateAnswers(int companyId, int questionId, List<AnswerDbType> answerDbEntries, List<Answer> inputAnswers) {
-        Collections.sort(answerDbEntries, Comparators.COMPARE_DB_ANSWERS);
-        Collections.sort(inputAnswers, Comparators.COMPARE_DOMAIN_ANSWERS);
-
-        int dbIndex = 0, inputIndex = 0;
-        while (dbIndex < answerDbEntries.size() && inputIndex < inputAnswers.size()) {
-            AnswerDbType answerDbEntry = answerDbEntries.get(dbIndex);
-            Answer inputAnswer = inputAnswers.get(inputIndex);
-
-            if (inputAnswer.getAnswerId() == answerDbEntry.getId().getAnswerId()) {
-                logger.debug("modifying : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
-                updateAnswer(answerDbEntry, inputAnswer);
-                dbIndex++;
-                inputIndex++;
-            } else if (inputAnswers.get(inputIndex).getAnswerId() < answerDbEntries.get(dbIndex).getId().getAnswerId()) {
-                logger.debug("adding : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
-                addAnswer(companyId, questionId, inputAnswer);
-                inputIndex++;
-            } else {
-                logger.debug("deleting : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
-                deleteAnswer(answerDbEntry);
-                dbIndex++;
-            }
-        }
-        while (dbIndex < answerDbEntries.size()) {
-            logger.debug("deleting : (" + companyId + "," + questionId + "," + answerDbEntries.get(dbIndex).getValue() + ")");
-            deleteAnswer(answerDbEntries.get(dbIndex));
-            dbIndex++;
-        }
-        while (inputIndex < inputAnswers.size()) {
-            logger.debug("adding : (" + companyId + "," + questionId + "," + inputAnswers.get(inputIndex).getAnswerId() + ")");
-            addAnswer(companyId, questionId, inputAnswers.get(inputIndex));
-            inputIndex++;
-        }
-    }
-
-    private List<Question> matchQuestionAndAnswers(List<QuestionDbType> questionDbEntries, List<AnswerDbType> answerDbEntries) {
-        List<Question> questionList = new ArrayList<Question>(questionDbEntries.size());
-
-        Collections.sort(questionDbEntries, Comparators.COMPARE_DB_QUESTIONS);
-        Collections.sort(answerDbEntries, Comparators.COMPARE_DB_ANSWERS);
-
-        int qIndex = 0, aIndex = 0;
-        while (qIndex < questionDbEntries.size()) {
-            QuestionDbType questionDbentry = questionDbEntries.get(qIndex);
-            int questionId = questionDbentry.getId().getQuestionId();
-
-            Question question = Conversions.getQuestion(questionDbentry);
-            List<Answer> answerList = new ArrayList<Answer>();
-            question.setAnswers(answerList);
-
-            while (aIndex < answerDbEntries.size() && answerDbEntries.get(aIndex).getId().getQuestionId() < questionId) {
-                aIndex++;
-            }
-            while (aIndex < answerDbEntries.size() && answerDbEntries.get(aIndex).getId().getQuestionId() == questionId) {
-                answerList.add(Conversions.getAnswer(answerDbEntries.get(aIndex)));
-                aIndex++;
-            }
-
-            questionList.add(question);
-            qIndex++;
-        }
-        return questionList;
-    }
-
-    private void addQuestion(int companyId, int questionId, Question inputQuestion) {
-        QuestionDbType questionDbEntry = Conversions.getQuestionDbEntry(companyId, questionId, inputQuestion);
-        try {
-            questionDao.add(questionDbEntry);
-        } catch (Exception e) {
-            logger.error("");
-        }
-
-    }
 
     private void updateQuestion(QuestionDbType questionDbEntry, Question question) {
         logger.debug("modifying question for company : " + questionDbEntry.getId().getCompanyId() + " and questionID : " + questionDbEntry.getId().getQuestionId());
@@ -255,38 +186,133 @@ public class QuestionService {
             questionDao.update(questionDbEntry);
     }
 
+    private void updateAnswers(int companyId, int questionId, List<AnswerDbType> answerDbEntries, List<AnswerAttributeDbType> answerAttributeDbEntries,
+                               List<Answer> inputAnswers) {
+        Collections.sort(answerDbEntries, Comparators.COMPARE_DB_ANSWERS);
+        Collections.sort(inputAnswers, Comparators.COMPARE_DOMAIN_ANSWERS);
+        Collections.sort(answerAttributeDbEntries, Comparators.COMPARE_DB_ANSWER_ATTRIBUTES);
+
+        int dbIndex = 0, inputIndex = 0;
+        while (dbIndex < answerDbEntries.size() && inputIndex < inputAnswers.size()) {
+            AnswerDbType answerDbEntry = answerDbEntries.get(dbIndex);
+            Answer inputAnswer = inputAnswers.get(inputIndex);
+
+            if (inputAnswer.getAnswerId() == answerDbEntry.getId().getAnswerId()) {
+                logger.debug("modifying : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
+                updateAnswer(answerDbEntry, inputAnswer);
+                dbIndex++;
+                inputIndex++;
+            } else if (inputAnswers.get(inputIndex).getAnswerId() < answerDbEntries.get(dbIndex).getId().getAnswerId()) {
+                logger.debug("adding : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
+                addAnswer(companyId, questionId, inputAnswer);
+                inputIndex++;
+            } else {
+                logger.debug("deleting : (" + companyId + "," + questionId + "," + answerDbEntry.getId().getAnswerId() + ")");
+                deleteAnswer(answerDbEntry);
+                dbIndex++;
+            }
+        }
+        while (dbIndex < answerDbEntries.size()) {
+            logger.debug("deleting : (" + companyId + "," + questionId + "," + answerDbEntries.get(dbIndex).getId().getAnswerId() + ")");
+            deleteAnswer(answerDbEntries.get(dbIndex));
+            dbIndex++;
+        }
+        while (inputIndex < inputAnswers.size()) {
+            logger.debug("adding : (" + companyId + "," + questionId + "," + inputAnswers.get(inputIndex).getAnswerId() + ")");
+            addAnswer(companyId, questionId, inputAnswers.get(inputIndex));
+            inputIndex++;
+        }
+    }
+
+    private List<Question> matchQuestionAndAnswers(List<QuestionDbType> questionDbEntries, List<AnswerDbType> answerDbEntries,
+                                                   List<AnswerAttributeDbType> answerAttributeDbEntries) {
+        List<Question> questionList = new ArrayList<Question>(questionDbEntries.size());
+
+        Collections.sort(questionDbEntries, Comparators.COMPARE_DB_QUESTIONS);
+        Collections.sort(answerDbEntries, Comparators.COMPARE_DB_ANSWERS);
+        Collections.sort(answerAttributeDbEntries, Comparators.COMPARE_DB_ANSWER_ATTRIBUTES);
+
+        int qIndex = 0, aIndex = 0, attributeIndex = 0;
+        while (qIndex < questionDbEntries.size()) {
+            QuestionDbType questionDbEntry = questionDbEntries.get(qIndex);
+            int questionId = questionDbEntry.getId().getQuestionId();
+
+            Question question = Conversions.getQuestion(questionDbEntry);
+            List<Answer> answerList = new ArrayList<Answer>();
+            question.setAnswers(answerList);
+
+            while (aIndex < answerDbEntries.size() && answerDbEntries.get(aIndex).getId().getQuestionId() < questionId) {
+                aIndex++;
+            }
+            while (aIndex < answerDbEntries.size() && answerDbEntries.get(aIndex).getId().getQuestionId() == questionId) {
+                Answer answer = Conversions.getAnswer(answerDbEntries.get(aIndex));
+                answerList.add(answer);
+
+                List<AnswerAttribute> answerAttributeList = new ArrayList<AnswerAttribute>();
+                answer.setAnswerAttributeList(answerAttributeList);
+
+                while (attributeIndex < answerAttributeDbEntries.size() && answerAttributeDbEntries.get(attributeIndex).getId().getQuestionId() < questionId) {
+                    attributeIndex++;
+                }
+                while (attributeIndex < answerAttributeDbEntries.size() && answerAttributeDbEntries.get(attributeIndex).getId().getQuestionId() == questionId
+                        && answerAttributeDbEntries.get(attributeIndex).getId().getAnswerId() < answer.getAnswerId()) {
+                    attributeIndex++;
+                }
+                while (attributeIndex < answerAttributeDbEntries.size() && answerAttributeDbEntries.get(attributeIndex).getId().getQuestionId() == questionId
+                        && answerAttributeDbEntries.get(attributeIndex).getId().getAnswerId() == answer.getAnswerId()) {
+                    AnswerAttribute answerAttribute = Conversions.getAnswerAttribute(answerAttributeDbEntries.get(attributeIndex));
+                    answerAttributeList.add(answerAttribute);
+                    attributeIndex++;
+                }
+
+                aIndex++;
+            }
+
+            questionList.add(question);
+            qIndex++;
+        }
+        return questionList;
+    }
+
+
     private void updateAnswer(AnswerDbType answerDbEntry, Answer inputAnswer) {
         boolean updated = false;
         if (!answerDbEntry.getAnswerString().equals(inputAnswer.getAnswer())) {
             answerDbEntry.setAnswerString(inputAnswer.getAnswer());
             updated = true;
         }
-        if (answerDbEntry.getAttributeId() != (inputAnswer.getAttributeId())) {
-            answerDbEntry.setAttributeId(inputAnswer.getAttributeId());
-            updated = true;
-        }
-        if (answerDbEntry.getValue() != inputAnswer.getAttainedValue()) {
-            answerDbEntry.setValue(inputAnswer.getAttainedValue());
-            updated = true;
-        }
-        if (answerDbEntry.getMaxValue() != inputAnswer.getMaxValue()) {
-            answerDbEntry.setMaxValue(inputAnswer.getMaxValue());
-            updated = true;
-        }
 
         if (updated) {
             answerDao.update(answerDbEntry);
         }
+
+        //updateAnswerAttribute()
     }
 
     private void deleteAnswer(AnswerDbType answerDbEntry) {
+        answerAttributeDao.deleteAnswerAttributesOfQuestion(answerDbEntry.getId().getCompanyId(), answerDbEntry.getId().getQuestionId(), answerDbEntry.getId().getAnswerId());
         answerDao.delete(answerDbEntry);
+    }
+
+    private void addQuestion(int companyId, int questionId, Question inputQuestion) {
+        QuestionDbType questionDbEntry = Conversions.getQuestionDbEntry(companyId, questionId, inputQuestion);
+        try {
+            questionDao.add(questionDbEntry);
+        } catch (Exception e) {
+            logger.error("");
+        }
+
     }
 
     private void addAnswer(int companyId, int questionId, Answer inputAnswer) {
         int answerId = answerDao.getMaxQuestionIdValue(companyId, questionId) + 1;
         AnswerDbType answerDbEntry = Conversions.getAnswerDbEntry(companyId, questionId, answerId, inputAnswer);
         answerDao.add(answerDbEntry);
+
+        for (AnswerAttribute answerAttribute : inputAnswer.getAnswerAttributeList()) {
+            AnswerAttributeDbType answerAttributeDbEntry = Conversions.getAnswerAttributeDbEntry(companyId, questionId, answerId, answerAttribute);
+            answerAttributeDao.add(answerAttributeDbEntry);
+        }
     }
 
     public static class Conversions {
@@ -300,9 +326,6 @@ public class QuestionService {
             aKey.setAnswerId(answerId);
 
             answerDbEntry.setAnswerString(answer.getAnswer());
-            answerDbEntry.setAttributeId(answer.getAttributeId());
-            answerDbEntry.setValue(answer.getAttainedValue());
-            answerDbEntry.setMaxValue(answer.getMaxValue());
 
             return answerDbEntry;
         }
@@ -344,12 +367,34 @@ public class QuestionService {
 
             answer.setAnswer(answerDbEntry.getAnswerString());
             answer.setAnswerId(answerDbEntry.getId().getAnswerId());
-            answer.setAttainedValue(answerDbEntry.getValue());
-            answer.setMaxValue(answerDbEntry.getMaxValue());
-            answer.setAttributeId(answerDbEntry.getAttributeId());
 
             return answer;
         }
 
+        public static AnswerAttributeDbType getAnswerAttributeDbEntry(int companyId, int questionId, int answerId, AnswerAttribute answerAttribute) {
+            AnswerAttributeDbType dbEntry = new AnswerAttributeDbType();
+            AnswerAttributePrimaryKey id = new AnswerAttributePrimaryKey();
+
+            id.setCompanyId(companyId);
+            id.setQuestionId(questionId);
+            id.setAnswerId(answerId);
+            id.setAttributeId(answerAttribute.getAttributeId());
+
+            dbEntry.setId(id);
+            dbEntry.setValue(answerAttribute.getAttainedValue());
+            dbEntry.setMaxValue(answerAttribute.getMaxValue());
+
+            return dbEntry;
+        }
+
+        public static AnswerAttribute getAnswerAttribute(AnswerAttributeDbType dbEntry) {
+            AnswerAttribute answerAttribute = new AnswerAttribute();
+
+            answerAttribute.setAttributeId(dbEntry.getId().getAttributeId());
+            answerAttribute.setAttainedValue(dbEntry.getValue());
+            answerAttribute.setMaxValue(dbEntry.getMaxValue());
+
+            return answerAttribute;
+        }
     }
 }

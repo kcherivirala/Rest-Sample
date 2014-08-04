@@ -252,9 +252,9 @@ public class CacheJdbcClient {
         }
 
         constraint += " and date = " + cacheDbEntry.getDate();
-        constraint += " and weighted_attribute_id = " + cacheDbEntry.getWeightedAttributeId() ;
+        constraint += " and weighted_attribute_id = " + cacheDbEntry.getWeightedAttributeId();
 
-        attributes +=  ", count_1 = " + cacheDbEntry.getCount_1()
+        attributes += ", count_1 = " + cacheDbEntry.getCount_1()
                 + ", count_2 = " + cacheDbEntry.getCount_2()
                 + ", count_3 = " + cacheDbEntry.getCount_3()
                 + ", count_4 = " + cacheDbEntry.getCount_4()
