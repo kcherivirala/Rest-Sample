@@ -199,7 +199,8 @@ public class QuestionService {
 
             if (inputAnswer.getAnswerId() == answerDbEntry.getId().getAnswerId()) {
                 logger.debug("modifying : (" + companyId + "," + questionId + "," + inputAnswer.getAnswerId() + ")");
-                updateAnswer(answerDbEntry, inputAnswer);
+                List<AnswerAttributeDbType> answerAttributes = getAnswerAttributes(questionId, answerDbEntry.getId().getAnswerId(), answerAttributeDbEntries);
+                updateAnswer(companyId, questionId, answerDbEntry, answerAttributes, inputAnswer);
                 dbIndex++;
                 inputIndex++;
             } else if (inputAnswers.get(inputIndex).getAnswerId() < answerDbEntries.get(dbIndex).getId().getAnswerId()) {
@@ -275,7 +276,7 @@ public class QuestionService {
     }
 
 
-    private void updateAnswer(AnswerDbType answerDbEntry, Answer inputAnswer) {
+    private void updateAnswer(int companyId, int questionId, AnswerDbType answerDbEntry, List<AnswerAttributeDbType> answerAttributeDbEntries, Answer inputAnswer) {
         boolean updated = false;
         if (!answerDbEntry.getAnswerString().equals(inputAnswer.getAnswer())) {
             answerDbEntry.setAnswerString(inputAnswer.getAnswer());
@@ -286,7 +287,64 @@ public class QuestionService {
             answerDao.update(answerDbEntry);
         }
 
-        //updateAnswerAttribute()
+        updateAnswerAttributes(companyId, questionId, answerDbEntry.getId().getAnswerId(), answerAttributeDbEntries, inputAnswer);
+    }
+
+    private void updateAnswerAttributes(int companyId, int questionId, int answerId,
+                                        List<AnswerAttributeDbType> answerAttributeDbEntries, Answer inputAnswer) {
+        List<AnswerAttribute> inputList = inputAnswer.getAnswerAttributeList();
+
+        int dbIndex = 0, inputIndex = 0;
+        while (inputIndex < inputList.size() && dbIndex < answerAttributeDbEntries.size()) {
+            AnswerAttributeDbType dbEntry = answerAttributeDbEntries.get(dbIndex);
+            AnswerAttribute answerAttribute = inputList.get(inputIndex);
+
+            if (dbEntry.getId().getAttributeId() == answerAttribute.getAttributeId()) {
+                updateAnswerAttribute(dbEntry, answerAttribute);
+                inputIndex++;
+                dbIndex++;
+            } else if (dbEntry.getId().getAttributeId() < answerAttribute.getAttributeId()) {
+                answerAttributeDao.delete(dbEntry);
+                dbIndex++;
+            } else {
+                answerAttributeDao.add(Conversions.getAnswerAttributeDbEntry(companyId, questionId, answerId, answerAttribute));
+                inputIndex++;
+            }
+        }
+        while (dbIndex < answerAttributeDbEntries.size()) {
+            answerAttributeDao.delete(answerAttributeDbEntries.get(dbIndex));
+            dbIndex++;
+        }
+        while (inputIndex < inputList.size()) {
+            answerAttributeDao.add(Conversions.getAnswerAttributeDbEntry(companyId, questionId, answerId, inputList.get(inputIndex)));
+            inputIndex++;
+        }
+    }
+
+    private void updateAnswerAttribute(AnswerAttributeDbType dbEntry, AnswerAttribute answerAttribute) {
+        boolean updated = false;
+        if (dbEntry.getValue() != answerAttribute.getAttainedValue()) {
+            dbEntry.setValue(answerAttribute.getAttainedValue());
+            updated = true;
+        }
+        if (dbEntry.getMaxValue() != answerAttribute.getMaxValue()) {
+            dbEntry.setMaxValue(answerAttribute.getMaxValue());
+            updated = true;
+        }
+        if (updated) {
+            answerAttributeDao.update(dbEntry);
+        }
+    }
+
+    private List<AnswerAttributeDbType> getAnswerAttributes(int questionId, int answerId, List<AnswerAttributeDbType> fullList) {
+        List<AnswerAttributeDbType> list = new ArrayList<AnswerAttributeDbType>();
+
+        for (AnswerAttributeDbType dbEntry : fullList) {
+            if (dbEntry.getId().getQuestionId() == questionId && dbEntry.getId().getAnswerId() == answerId) {
+                list.add(dbEntry);
+            }
+        }
+        return list;
     }
 
     private void deleteAnswer(AnswerDbType answerDbEntry) {
