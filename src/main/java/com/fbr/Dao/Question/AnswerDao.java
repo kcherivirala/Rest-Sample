@@ -53,6 +53,6 @@ public class AnswerDao extends ProjectDaoImpl<AnswerDbType, AnswerPrimaryKey> {
         if (x.get(0) != null) {
             return ((Number) x.get(0)).intValue();
         }
-        return -1;
+        return 0;
     }
 }

@@ -53,7 +53,7 @@ public class QuestionDao extends ProjectDaoImpl<QuestionDbType, QuestionPrimaryK
         if (x.get(0) != null) {
             return ((Number) x.get(0)).intValue();
         }
-        return -1;
+        return 0;
     }
 }
 

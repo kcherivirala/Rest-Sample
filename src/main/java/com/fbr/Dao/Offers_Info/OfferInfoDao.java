@@ -28,7 +28,7 @@ public class OfferInfoDao extends ProjectDaoImpl<OfferInfoDbType, OfferInfoPrima
         if (x.get(0) != null) {
             return ((Number) x.get(0)).intValue();
         }
-        return -1;
+        return 0;
     }
 
     public List<OfferInfoDbType> getOffersAndInfo(int companyId) {
