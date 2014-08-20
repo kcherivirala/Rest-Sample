@@ -11,7 +11,6 @@ import java.util.List;
 public class Attribute {
     int attributeId;
     String attributeString;
-    int parentId;
     String type;
 
     List<AttributeValue> attributeValues;
@@ -31,14 +30,6 @@ public class Attribute {
 
     public void setAttributeString(String attributeString) {
         this.attributeString = attributeString;
-    }
-
-    public int getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(int parentId) {
-        this.parentId = parentId;
     }
 
     public String getType() {

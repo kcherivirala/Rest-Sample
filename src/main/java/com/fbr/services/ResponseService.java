@@ -72,7 +72,7 @@ public class ResponseService {
             else customerId = UUID.randomUUID().toString();
 
             if (check(companyId, response)) {
-                addToResponseDb(companyId, branchId, customerId, response.getDate(), response.getAttributeTuples());
+                addToResponseDb(companyId, branchId, customerId, response.getStartDate(), response.getEndDate(), response.getAttributeTuples());
 
                 if (customerDbEntry != null)
                     alertService.addToAlertDb(companyId, branchId, customerDbEntry, response.getAttributeTuples(), attributeList);
@@ -80,23 +80,24 @@ public class ResponseService {
         }
     }
 
-    private void addToResponseDb(int companyId, int branchId, String customerId, Date timestamp, List<AttributeTuple> attributeResponseTuples) {
+    private void addToResponseDb(int companyId, int branchId, String customerId, Date startTimestamp, Date endTimestamp, List<AttributeTuple> attributeResponseTuples) {
         //adds the feedback of one customer into the DB.
         String responseId = UUID.randomUUID().toString();
-        customerResponseDao.add(getCustomerResponseDbEntry(responseId, companyId, branchId, customerId, timestamp));
+        customerResponseDao.add(getCustomerResponseDbEntry(responseId, companyId, branchId, customerId, startTimestamp, endTimestamp));
         for (AttributeTuple attributeTuple : attributeResponseTuples) {
             customerResponseValuesDao.add(getCustomerResponseValuesDbEntry(responseId, attributeTuple));
         }
     }
 
-    private CustomerResponseDbType getCustomerResponseDbEntry(String responseId, int companyId, int branchId, String customerId, Date timestamp) {
+    private CustomerResponseDbType getCustomerResponseDbEntry(String responseId, int companyId, int branchId, String customerId, Date startTimestamp, Date endTimestamp) {
         CustomerResponseDbType customerResponseDbEntry = new CustomerResponseDbType();
 
         customerResponseDbEntry.setResponseId(responseId);
         customerResponseDbEntry.setCompanyId(companyId);
         customerResponseDbEntry.setBranchId(branchId);
         customerResponseDbEntry.setCustomerId(customerId);
-        customerResponseDbEntry.setTimestamp(timestamp);
+        customerResponseDbEntry.setStartTimestamp(startTimestamp);
+        customerResponseDbEntry.setEndTimestamp(endTimestamp);
         customerResponseDbEntry.setServerTimestamp(new Date());
 
         return customerResponseDbEntry;

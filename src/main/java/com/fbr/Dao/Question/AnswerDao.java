@@ -38,17 +38,26 @@ public class AnswerDao extends ProjectDaoImpl<AnswerDbType, AnswerPrimaryKey> {
         return query.getResultList();
     }
 
-    public void deleteAnswersOfQuestion(int companyId, int questionId) {
+    public void delete(int companyId, int questionId) {
         Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1 and a.id.questionId = ?2");
         q.setParameter(1, companyId);
         q.setParameter(2, questionId);
         q.executeUpdate();
     }
 
-    public int getMaxQuestionIdValue(int companyId, int questionId) {
-        Query q = entityManager.createQuery("select max(e.id.answerId) from " + entityClass.getName() + " e where e.id.companyId = ?1 and e.id.questionId = ?2");
+    public void delete(int companyId, int questionId, int answerGroupId) {
+        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1 and a.id.questionId = ?2 and a.id.answerGroupId = ?3");
         q.setParameter(1, companyId);
         q.setParameter(2, questionId);
+        q.setParameter(3, answerGroupId);
+        q.executeUpdate();
+    }
+
+    public int getMaxQuestionIdValue(int companyId, int questionId, int answerGroupId) {
+        Query q = entityManager.createQuery("select max(e.id.answerId) from " + entityClass.getName() + " e where e.id.companyId = ?1 and e.id.questionId = ?2 and e.id.answerGroupId = ?3");
+        q.setParameter(1, companyId);
+        q.setParameter(2, questionId);
+        q.setParameter(3, answerGroupId);
         List x = q.getResultList();
         if (x.get(0) != null) {
             return ((Number) x.get(0)).intValue();

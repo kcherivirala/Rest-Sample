@@ -18,8 +18,6 @@ public class AttributeDbType implements ProjectEntity<Integer> {
     int attributeId;
     @Column(name = "attribute_string", nullable = false)
     String attributeString;
-    @Column(name = "parent_id")
-    int parentId;
     @Column(name = "type")
     String type;
 
@@ -37,14 +35,6 @@ public class AttributeDbType implements ProjectEntity<Integer> {
 
     public void setAttributeString(String attributeString) {
         this.attributeString = attributeString;
-    }
-
-    public int getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(int parentId) {
-        this.parentId = parentId;
     }
 
     public String getType() {

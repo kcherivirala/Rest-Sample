@@ -230,7 +230,6 @@ public class AttributeService {
     private void updateAttributeDbEntry(AttributeDbType attributeDbEntry, Attribute attribute) {
         logger.debug("modifying attribute : " + attributeDbEntry.getAttributeId());
         attributeDbEntry.setAttributeString(attribute.getAttributeString());
-        attributeDbEntry.setParentId(attribute.getParentId());
         attributeDbEntry.setType(attribute.getType());
 
         attributeDao.update(attributeDbEntry);
@@ -361,7 +360,6 @@ public class AttributeService {
             Attribute attribute = new Attribute();
             attribute.setAttributeId(attributeDbEntry.getAttributeId());
             attribute.setAttributeString(attributeDbEntry.getAttributeString());
-            attribute.setParentId(attributeDbEntry.getParentId());
             attribute.setType(attributeDbEntry.getType());
 
             return attribute;
@@ -381,7 +379,6 @@ public class AttributeService {
             AttributeDbType attributeDbEntry = new AttributeDbType();
             attributeDbEntry.setAttributeId(attributeId);
             attributeDbEntry.setAttributeString(attribute.getAttributeString());
-            attributeDbEntry.setParentId(attribute.getParentId());
             attributeDbEntry.setType(attribute.getType());
 
             return attributeDbEntry;

@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -59,6 +58,8 @@ public class AlertService {
     }
 
     private String getAlertString(List<AttributeTuple> attributeResponseTuples, List<Attribute> attributeList) {
+        return "";
+        /*
         List<String> attributeAlerts = new ArrayList<String>(attributeList.size());
         for (int i = 0; i < attributeList.size(); i++) attributeAlerts.add("");
 
@@ -75,7 +76,9 @@ public class AlertService {
             }
         }
         return alert;
+        */
     }
+    /*
 
     private void setAlertStringInRootAttribute(int attributeId, List<Attribute> attributeList, List<String> attributeAlerts) {
         //sets the string of the attribute to the string of the root attribute.
@@ -108,4 +111,5 @@ public class AlertService {
         }
         return -1;
     }
+    */
 }

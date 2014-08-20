@@ -11,7 +11,7 @@ import java.util.List;
 public class Question {
     int questionId;
     String question;
-    List<Answer> answers;
+    List<AnswerGroup> answerGroups;
     int parentId;
     String function;
     boolean enabled;
@@ -58,12 +58,12 @@ public class Question {
         this.question = question;
     }
 
-    public List<Answer> getAnswers() {
-        return answers;
+    public List<AnswerGroup> getAnswerGroups() {
+        return answerGroups;
     }
 
-    public void setAnswers(List<Answer> answers) {
-        this.answers = answers;
+    public void setAnswerGroups(List<AnswerGroup> answerGroups) {
+        this.answerGroups = answerGroups;
     }
 
     public int getParentId() {

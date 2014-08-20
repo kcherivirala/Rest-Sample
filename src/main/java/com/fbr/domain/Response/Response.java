@@ -14,16 +14,25 @@ public class Response {
     String name;
     String phone;
 
-    Date date;
+    Date startDate;
+    Date endDate;
 
     List<AttributeTuple> attributeTuples;
 
-    public Date getDate() {
-        return date;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public String getEmail() {

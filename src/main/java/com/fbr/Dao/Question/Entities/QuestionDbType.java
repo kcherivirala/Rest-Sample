@@ -10,6 +10,8 @@ import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "questions")
@@ -31,6 +33,13 @@ public class QuestionDbType implements Serializable, ProjectEntity<QuestionPrima
     int placement;
     @Column(name = "link")
     String link;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "company_id", referencedColumnName = "company_id"),
+            @JoinColumn(name = "question_id", referencedColumnName = "question_id")
+    })
+    List<AnswerGroupDbType> answerGroups = new ArrayList<AnswerGroupDbType>();
 
     public String getLink() {
         return link;
@@ -78,6 +87,14 @@ public class QuestionDbType implements Serializable, ProjectEntity<QuestionPrima
 
     public void setParentId(int parentId) {
         this.parentId = parentId;
+    }
+
+    public List<AnswerGroupDbType> getAnswerGroups() {
+        return answerGroups;
+    }
+
+    public void setAnswerGroups(List<AnswerGroupDbType> answerGroups) {
+        this.answerGroups = answerGroups;
     }
 
     @Override

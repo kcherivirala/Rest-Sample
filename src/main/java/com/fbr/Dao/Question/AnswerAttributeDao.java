@@ -49,7 +49,7 @@ public class AnswerAttributeDao extends ProjectDaoImpl<AnswerAttributeDbType, An
     }
 
 
-    public void deleteAnswerAttributesOfQuestion(int companyId, int questionId) {
+    public void delete(int companyId, int questionId) {
         Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1 and a.id.questionId = ?2");
         q.setParameter(1, companyId);
         q.setParameter(2, questionId);
@@ -57,11 +57,21 @@ public class AnswerAttributeDao extends ProjectDaoImpl<AnswerAttributeDbType, An
         q.executeUpdate();
     }
 
-    public void deleteAnswerAttributesOfQuestion(int companyId, int questionId, int answerId) {
-        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1 and a.id.questionId = ?2 and a.id.answerId = ?3");
+    public void delete(int companyId, int questionId, int answerGroupId) {
+        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1 and a.id.questionId = ?2 and a.id.answerGroupId = ?3");
         q.setParameter(1, companyId);
         q.setParameter(2, questionId);
-        q.setParameter(3, answerId);
+        q.setParameter(3, answerGroupId);
+
+        q.executeUpdate();
+    }
+
+    public void delete(int companyId, int questionId, int answerGroupId, int answerId) {
+        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.companyId = ?1 and a.id.questionId = ?2 and a.id.answerGroupId = ?3 and a.id.answerId = ?4");
+        q.setParameter(1, companyId);
+        q.setParameter(2, questionId);
+        q.setParameter(3, answerGroupId);
+        q.setParameter(4, answerId);
 
         q.executeUpdate();
     }

@@ -27,8 +27,10 @@ public class CustomerResponseDbType implements ProjectEntity<String> {
     int companyId;
     @Column(name = "branch_id", nullable = false)
     int branchId;
-    @Column(name = "timestamp", nullable = false)
-    Date timestamp;
+    @Column(name = "start_timestamp", nullable = false)
+    Date startTimestamp;
+    @Column(name = "end_timestamp", nullable = false)
+    Date endTimestamp;
     @Column(name = "server_timestamp", nullable = false)
     Date serverTimestamp;
 
@@ -72,12 +74,20 @@ public class CustomerResponseDbType implements ProjectEntity<String> {
         this.branchId = branchId;
     }
 
-    public Date getTimestamp() {
-        return timestamp;
+    public Date getEndTimestamp() {
+        return endTimestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
+    public void setEndTimestamp(Date endTimestamp) {
+        this.endTimestamp = endTimestamp;
+    }
+
+    public Date getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    public void setStartTimestamp(Date startTimestamp) {
+        this.startTimestamp = startTimestamp;
     }
 
     @Override

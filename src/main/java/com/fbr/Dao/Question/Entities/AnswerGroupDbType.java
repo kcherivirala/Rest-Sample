@@ -14,29 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "answers")
-public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKey> {
+@Table(name = "answer_groups")
+public class AnswerGroupDbType implements Serializable, ProjectEntity<AnswerGroupPrimaryKey> {
     @EmbeddedId
     @AttributeOverrides({
             @AttributeOverride(name = "companyId", column = @Column(name = "company_id", nullable = false)),
             @AttributeOverride(name = "questionId", column = @Column(name = "question_id", nullable = false)),
-            @AttributeOverride(name = "answerGroupId", column = @Column(name = "answer_group_id", nullable = false)),
-            @AttributeOverride(name = "answerId", column = @Column(name = "answer_id", nullable = false))})
-    AnswerPrimaryKey id;
-    @Column(name = "answer_string", nullable = false)
-    String answerString;
+            @AttributeOverride(name = "answerGroupId", column = @Column(name = "answer_group_id", nullable = false))})
+    AnswerGroupPrimaryKey id;
+    @Column(name = "answer_group_string", nullable = false)
+    String answerGroupString;
     @Column(name = "link")
     String link;
-
+    @Column(name = "display_enum")
+    int displayEnum;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumns({
             @JoinColumn(name = "company_id", referencedColumnName = "company_id"),
             @JoinColumn(name = "question_id", referencedColumnName = "question_id"),
-            @JoinColumn(name = "answer_group_id", referencedColumnName = "answer_group_id"),
-            @JoinColumn(name = "answer_id", referencedColumnName = "answer_id")
+            @JoinColumn(name = "answer_group_id", referencedColumnName = "answer_group_id")
     })
-    List<AnswerAttributeDbType> answerAttributes = new ArrayList<AnswerAttributeDbType>();
+    List<AnswerDbType> answers = new ArrayList<AnswerDbType>();
 
     public String getLink() {
         return link;
@@ -46,30 +45,38 @@ public class AnswerDbType implements Serializable, ProjectEntity<AnswerPrimaryKe
         this.link = link;
     }
 
-    public String getAnswerString() {
-        return answerString;
+    public String getAnswerGroupString() {
+        return answerGroupString;
     }
 
-    public void setAnswerString(String answerString) {
-        this.answerString = answerString;
+    public void setAnswerGroupString(String answerGroupString) {
+        this.answerGroupString = answerGroupString;
     }
 
-    public List<AnswerAttributeDbType> getAnswerAttributes() {
-        return answerAttributes;
+    public List<AnswerDbType> getAnswers() {
+        return answers;
     }
 
-    public void setAnswerAttributes(List<AnswerAttributeDbType> answerAttributes) {
-        this.answerAttributes = answerAttributes;
+    public void setAnswers(List<AnswerDbType> answers) {
+        this.answers = answers;
+    }
+
+    public int getDisplayEnum() {
+        return displayEnum;
+    }
+
+    public void setDisplayEnum(int displayEnum) {
+        this.displayEnum = displayEnum;
     }
 
     @Override
     @Transient
-    public void setId(AnswerPrimaryKey s) {
+    public void setId(AnswerGroupPrimaryKey s) {
         this.id = s;
     }
 
     @Override
-    public AnswerPrimaryKey getId() {
+    public AnswerGroupPrimaryKey getId() {
         return this.id;
     }
 }

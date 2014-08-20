@@ -16,6 +16,8 @@ public class AnswerPrimaryKey implements Serializable {
     int companyId;
     @Column(name = "question_id", nullable = false)
     int questionId;
+    @Column(name = "answer_group_id", nullable = false)
+    int answerGroupId;
     @Column(name = "answer_id", nullable = false)
     int answerId;
 
@@ -33,6 +35,14 @@ public class AnswerPrimaryKey implements Serializable {
 
     public void setQuestionId(int questionId) {
         this.questionId = questionId;
+    }
+
+    public int getAnswerGroupId() {
+        return answerGroupId;
+    }
+
+    public void setAnswerGroupId(int answerGroupId) {
+        this.answerGroupId = answerGroupId;
     }
 
     public int getAnswerId() {

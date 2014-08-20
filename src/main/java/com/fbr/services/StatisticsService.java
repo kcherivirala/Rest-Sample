@@ -722,7 +722,7 @@ public class StatisticsService {
             Map<String, Integer> mapFilter = getMapConstraintsFromResponse(graphData.filterAttributes, response);
             int constraintIndex = graphData.mapOFConstraints.get(mapFilter);
 
-            int date = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
+            int date = FeedbackUtilities.dateFromCal(response.getResponse().getEndTimestamp());
             int month = FeedbackUtilities.monthFromDate(date);
 
             if (graphData.mapOfDates.get(date) == null || graphData.mapOfMonths.get(month) == null)
@@ -751,7 +751,7 @@ public class StatisticsService {
             Map<String, Integer> mapFilter = getMapConstraintsFromResponse(graphData.filterAttributes, response);
             int constraintIndex = graphData.mapOFConstraints.get(mapFilter);
 
-            int date = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
+            int date = FeedbackUtilities.dateFromCal(response.getResponse().getEndTimestamp());
 
             //if todays response then ignore it
             if (date == currentDate) continue;
@@ -834,7 +834,7 @@ public class StatisticsService {
             BranchLevelDashboardData branchLevelDashboardData = listBranchLevelDashboard.get(mapOfBranches.get(branchId));
 
             if (branchLevelDashboardData != null) {
-                int responseDate = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
+                int responseDate = FeedbackUtilities.dateFromCal(response.getResponse().getEndTimestamp());
                 int today = FeedbackUtilities.dateFromCal(Calendar.getInstance());
 
                 float avg = 0;
@@ -1039,10 +1039,10 @@ public class StatisticsService {
     private Date getLastDate(List<CustomerResponseDao.CustomerResponseAndValues> listResponse) {
         if (listResponse.size() == 0) return null;
 
-        Date last = listResponse.get(0).getResponse().getTimestamp();
+        Date last = listResponse.get(0).getResponse().getEndTimestamp();
         for (CustomerResponseDao.CustomerResponseAndValues response : listResponse) {
-            if (last.after(response.getResponse().getTimestamp()))
-                last = response.getResponse().getTimestamp();
+            if (last.after(response.getResponse().getEndTimestamp()))
+                last = response.getResponse().getEndTimestamp();
         }
         return last;
     }

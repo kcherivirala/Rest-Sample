@@ -18,8 +18,9 @@ public class AnswerAttributeDbType implements Serializable, ProjectEntity<Answer
     @AttributeOverrides({
             @AttributeOverride(name = "companyId", column = @Column(name = "company_id", nullable = false)),
             @AttributeOverride(name = "questionId", column = @Column(name = "question_id", nullable = false)),
-            @AttributeOverride(name = "attributeId", column = @Column(name = "attribute_id", nullable = false)),
-            @AttributeOverride(name = "answerId", column = @Column(name = "answer_id", nullable = false))})
+            @AttributeOverride(name = "answerGroupId", column = @Column(name = "answer_group_id", nullable = false)),
+            @AttributeOverride(name = "answerId", column = @Column(name = "answer_id", nullable = false)),
+            @AttributeOverride(name = "attributeId", column = @Column(name = "attribute_id", nullable = false))})
     AnswerAttributePrimaryKey id;
 
     @Column(name = "value", nullable = false)

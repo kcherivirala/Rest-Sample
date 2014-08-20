@@ -7,20 +7,17 @@ package com.fbr.Dao.Question.Entities;
  */
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 
-public class AnswerAttributePrimaryKey implements Serializable {
+@Embeddable
+public class AnswerGroupPrimaryKey implements Serializable {
     @Column(name = "company_id", nullable = false)
     int companyId;
     @Column(name = "question_id", nullable = false)
     int questionId;
     @Column(name = "answer_group_id", nullable = false)
     int answerGroupId;
-    @Column(name = "answer_id", nullable = false)
-    int answerId;
-    @Column(name = "attribute_id", nullable = false)
-    int attributeId;
-
 
     public int getCompanyId() {
         return companyId;
@@ -44,21 +41,5 @@ public class AnswerAttributePrimaryKey implements Serializable {
 
     public void setAnswerGroupId(int answerGroupId) {
         this.answerGroupId = answerGroupId;
-    }
-
-    public int getAnswerId() {
-        return answerId;
-    }
-
-    public void setAnswerId(int answerId) {
-        this.answerId = answerId;
-    }
-
-    public int getAttributeId() {
-        return attributeId;
-    }
-
-    public void setAttributeId(int attributeId) {
-        this.attributeId = attributeId;
     }
 }

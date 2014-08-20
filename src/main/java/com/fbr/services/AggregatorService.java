@@ -109,7 +109,7 @@ public class AggregatorService {
 
     @Transactional
     private void processSingleResponse(int companyId, int branchId, Response response, List<Attribute> filterAttributes) {
-        int date = FeedbackUtilities.dateFromCal(response.getDate());
+        int date = FeedbackUtilities.dateFromCal(response.getEndDate());
         Map<Integer, Integer> map = new HashMap<Integer, Integer>(filterAttributes.size());
         for (Attribute attribute : filterAttributes) {
             map.put(attribute.getAttributeId(), -1);
@@ -137,7 +137,7 @@ public class AggregatorService {
 
     @Transactional
     private void processSingleResponse(int companyId, int branchId, CustomerResponseDao.CustomerResponseAndValues response, List<Attribute> filterAttributes) {
-        int date = FeedbackUtilities.dateFromCal(response.getResponse().getTimestamp());
+        int date = FeedbackUtilities.dateFromCal(response.getResponse().getEndTimestamp());
         Map<Integer, Integer> map = new HashMap<Integer, Integer>(filterAttributes.size());
         for (Attribute attribute : filterAttributes) {
             map.put(attribute.getAttributeId(), -1);
