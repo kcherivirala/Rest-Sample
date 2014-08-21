@@ -181,7 +181,8 @@ public class QuestionService {
             questionDbEntry.setPlacement(question.getPlacement());
             updated = true;
         }
-        if (!questionDbEntry.getLink().equals(question.getLink())) {
+        if (questionDbEntry.getLink() != question.getLink() ||
+                (questionDbEntry.getLink() != null && question.getLink() != null && !questionDbEntry.getLink().equals(question.getLink()))) {
             questionDbEntry.setLink(question.getLink());
             updated = true;
         }
@@ -236,7 +237,8 @@ public class QuestionService {
             dbEntry.setDisplayEnum(answerGroup.getDisplayEnum());
             updated = true;
         }
-        if (!dbEntry.getLink().equals(answerGroup.getLink())) {
+        if (dbEntry.getLink() != answerGroup.getLink() ||
+                (dbEntry.getLink() != null && answerGroup.getLink() != null && !dbEntry.getLink().equals(answerGroup.getLink()))) {
             dbEntry.setLink(answerGroup.getLink());
             updated = true;
         }
@@ -289,7 +291,8 @@ public class QuestionService {
             answerDbEntry.setAnswerString(inputAnswer.getAnswer());
             updated = true;
         }
-        if (!answerDbEntry.getLink().equals(inputAnswer.getLink())) {
+        if (answerDbEntry.getLink() != inputAnswer.getLink() ||
+                (answerDbEntry.getLink() != null && inputAnswer != null && !answerDbEntry.getLink().equals(inputAnswer.getLink()))) {
             answerDbEntry.setLink(inputAnswer.getLink());
             updated = true;
         }
@@ -496,6 +499,7 @@ public class QuestionService {
         public static AnswerGroup getAnswerGroup(AnswerGroupDbType answerGroupDbEntry) {
             AnswerGroup answerGroup = new AnswerGroup();
 
+            answerGroup.setAnswerGroupId(answerGroupDbEntry.getId().getAnswerGroupId());
             answerGroup.setAnswerGroup(answerGroupDbEntry.getAnswerGroupString());
             answerGroup.setDisplayEnum(answerGroupDbEntry.getDisplayEnum());
             answerGroup.setLink(answerGroupDbEntry.getLink());

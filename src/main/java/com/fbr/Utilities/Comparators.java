@@ -44,14 +44,14 @@ public class Comparators {
     public static Comparator<AnswerDbType> COMPARE_DB_ANSWERS = new Comparator<AnswerDbType>() {
         @Override
         public int compare(AnswerDbType first, AnswerDbType second) {
-                return first.getId().getAnswerId() - second.getId().getAnswerId();
+            return first.getId().getAnswerId() - second.getId().getAnswerId();
         }
     };
 
     public static Comparator<AnswerAttributeDbType> COMPARE_DB_ANSWER_ATTRIBUTES = new Comparator<AnswerAttributeDbType>() {
         @Override
         public int compare(AnswerAttributeDbType first, AnswerAttributeDbType second) {
-                return first.getId().getAttributeId() - second.getId().getAttributeId();
+            return first.getId().getAttributeId() - second.getId().getAttributeId();
         }
     };
 
@@ -69,7 +69,6 @@ public class Comparators {
             return first.getAnswerId() - second.getAnswerId();
         }
     };
-
 
 
     public static Comparator<GraphDbType> COMPARE_GRAPHS = new Comparator<GraphDbType>() {
