@@ -75,8 +75,8 @@ public class GraphService {
                 graphsDao.update(graphDbEntry);
             }
 
-            updateGraphAttributes(graphId, graph.getAttributeList());
-            updateGraphFilters(graphId, graph.getFilterList());
+            updateGraphAttributes(graphId, graphDbEntry.getGraphAttributes(), graph.getAttributeList());
+            updateGraphFilters(graphId, graphDbEntry.getGraphFilters(), graph.getFilterList());
 
             logger.info("done updating graph for company : " + companyId + " and graph : " + graph.getName());
             return graph;
@@ -101,6 +101,7 @@ public class GraphService {
         }
     }
 
+    @Transactional
     public List<Graph> getGraphs(int companyId) throws Exception {
         try {
             logger.info("getting graphs for company : " + companyId);
@@ -110,16 +111,9 @@ public class GraphService {
                 return null;
             }
 
-            List<String> graphIds = new ArrayList<String>(graphs.size());
-            for (GraphDbType graph : graphs) {
-                graphIds.add(graph.getGraphId());
-            }
-
-            List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphIds);
-            List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphIds);
             List<Attribute> attributeDbEntries = attributeService.getAttributesByCompany(companyId);
 
-            List<Graph> out = matchGraphsAndAttributes(graphs, graphAttributes, graphFilters, attributeDbEntries);
+            List<Graph> out = Conversions.getGraphs(graphs, attributeDbEntries);
             logger.info("done getting graphs for company : " + companyId);
             return out;
         } catch (Exception e) {
@@ -128,18 +122,14 @@ public class GraphService {
         }
     }
 
+    @Transactional
     public Graph getGraph(int companyId, String graphId) throws Exception {
         try {
             logger.info("getting graph for company : " + companyId + " and graph : " + graphId);
             GraphDbType graphDbEntry = graphsDao.find(graphId);
-            List<GraphDbType> list = new ArrayList<GraphDbType>(1);
-            list.add(graphDbEntry);
-
-            List<GraphAttributesDbType> graphAttributes = graphAttributesDao.getGraphAttributes(graphId);
-            List<GraphFiltersDbType> graphFilters = graphFiltersDao.getGraphFilters(graphId);
             List<Attribute> attributes = attributeService.getAttributesByCompany(graphDbEntry.getCompanyId());
 
-            Graph out = matchGraphsAndAttributes(list, graphAttributes, graphFilters, attributes).get(0);
+            Graph out = Conversions.getGraph(graphDbEntry, attributes);
             logger.info("done getting graph for company : " + companyId + " and graph : " + graphId);
             return out;
         } catch (Exception e) {
@@ -150,9 +140,7 @@ public class GraphService {
 
     /* private functions */
 
-    private void updateGraphAttributes(String graphId, List<Attribute> attributeList) {
-        List<GraphAttributesDbType> graphAttributesDbEntries = graphAttributesDao.getGraphAttributes(graphId);
-
+    private void updateGraphAttributes(String graphId, List<GraphAttributesDbType> graphAttributesDbEntries, List<Attribute> attributeList) {
         Collections.sort(graphAttributesDbEntries, Comparators.COMPARE_GRAPH_ATTRIBUTES);
         Collections.sort(attributeList, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
 
@@ -188,9 +176,7 @@ public class GraphService {
 
     }
 
-    private void updateGraphFilters(String graphId, List<Attribute> filterList) {
-        List<GraphFiltersDbType> graphFiltersDbEntries = graphFiltersDao.getGraphFilters(graphId);
-
+    private void updateGraphFilters(String graphId, List<GraphFiltersDbType> graphFiltersDbEntries, List<Attribute> filterList) {
         Collections.sort(graphFiltersDbEntries, Comparators.COMPARE_GRAPH_FILTERS);
         Collections.sort(filterList, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
 
@@ -237,60 +223,6 @@ public class GraphService {
         }
     }
 
-    private List<Graph> matchGraphsAndAttributes(List<GraphDbType> graphs, List<GraphAttributesDbType> graphAttributes,
-                                                 List<GraphFiltersDbType> graphFilters, List<Attribute> attributes) {
-        List<Graph> out = new ArrayList<Graph>(graphs.size());
-
-        Collections.sort(graphs, Comparators.COMPARE_GRAPHS);
-        Collections.sort(graphAttributes, Comparators.COMPARE_GRAPH_ATTRIBUTES);
-        Collections.sort(graphFilters, Comparators.COMPARE_GRAPH_FILTERS);
-
-        int gIndex = 0, aIndex = 0, fIndex = 0;
-        while (gIndex < graphs.size()) {
-            int dbIndex = 0;
-            GraphDbType graphDbEntry = graphs.get(gIndex);
-            Graph graph = Conversions.getGraph(graphDbEntry);
-            List<Attribute> attributeList = new ArrayList<Attribute>();
-            List<Attribute> filterList = new ArrayList<Attribute>();
-
-            graph.setAttributeList(attributeList);
-            graph.setFilterList(filterList);
-
-            while (dbIndex < attributes.size()) {
-                Attribute attribute = attributes.get(dbIndex);
-
-                if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) &&
-                        graphAttributes.get(aIndex).getId().getAttributeId() == attribute.getAttributeId()) {
-                    attributeList.add(attribute);
-                    aIndex++;
-                    dbIndex++;
-                } else if (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId()) &&
-                        graphAttributes.get(aIndex).getId().getAttributeId() < attribute.getAttributeId()) {
-                    aIndex++;
-                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) &&
-                        graphFilters.get(fIndex).getId().getAttributeId() == attribute.getAttributeId()) {
-                    filterList.add(attribute);
-                    fIndex++;
-                    dbIndex++;
-                } else if (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId()) &&
-                        graphFilters.get(fIndex).getId().getAttributeId() < attribute.getAttributeId()) {
-                    fIndex++;
-                } else {
-                    dbIndex++;
-                }
-            }
-            while (aIndex < graphAttributes.size() && graph.getGraphId().equals(graphAttributes.get(aIndex).getId().getGraphId())) {
-                aIndex++;
-            }
-            while (fIndex < graphFilters.size() && graph.getGraphId().equals(graphFilters.get(fIndex).getId().getGraphId())) {
-                fIndex++;
-            }
-            gIndex++;
-            out.add(graph);
-        }
-        return out;
-    }
-
     private boolean check(List<Attribute> attributeList, List<Attribute> filterList, List<Attribute> attributesOfCompany) {
         Collections.sort(attributeList, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
         Collections.sort(filterList, Comparators.COMPARE_DOMAIN_ATTRIBUTES);
@@ -322,11 +254,33 @@ public class GraphService {
             return graphDbEntry;
         }
 
-        private static Graph getGraph(GraphDbType graphDbEntry) {
+        private static List<Graph> getGraphs(List<GraphDbType> graphs, List<Attribute> attributes) {
+            List<Graph> out = new ArrayList<Graph>(graphs.size());
+            for (GraphDbType graphDbType : graphs) {
+                out.add(getGraph(graphDbType, attributes));
+            }
+            return out;
+        }
+
+        private static Graph getGraph(GraphDbType graphDbEntry, List<Attribute> attributes) {
             Graph graph = new Graph();
             graph.setGraphId(graphDbEntry.getGraphId());
             graph.setName(graphDbEntry.getName());
             graph.setType(graphDbEntry.getType());
+
+            List<Attribute> graphAttributes = new ArrayList<Attribute>(graphDbEntry.getGraphAttributes().size());
+            List<Attribute> graphFilters = new ArrayList<Attribute>(graphDbEntry.getGraphFilters().size());
+
+            graph.setAttributeList(graphAttributes);
+            graph.setFilterList(graphFilters);
+
+            for (GraphAttributesDbType graphAttribute : graphDbEntry.getGraphAttributes()) {
+                graphAttributes.add(attributes.get(attributes.indexOf(graphAttribute.getId().getAttributeId())));
+            }
+
+            for (GraphFiltersDbType graphFilter : graphDbEntry.getGraphFilters()) {
+                graphFilters.add(attributes.get(attributes.indexOf(graphFilter.getId().getAttributeId())));
+            }
 
             return graph;
         }

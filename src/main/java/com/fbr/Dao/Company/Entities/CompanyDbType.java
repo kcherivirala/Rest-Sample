@@ -9,6 +9,8 @@ package com.fbr.Dao.Company.Entities;
 import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "companies")
@@ -46,6 +48,10 @@ public class CompanyDbType implements ProjectEntity<Integer> {
     String industryType;
     @Column(name = "sub_industry_type", nullable = false)
     String subIndustryType;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "company_id", referencedColumnName = "company_id")
+    List<BranchDbType> branches = new ArrayList<BranchDbType>();
 
 
     public int getCompanyId() {
@@ -158,6 +164,14 @@ public class CompanyDbType implements ProjectEntity<Integer> {
 
     public void setSubIndustryType(String subIndustryType) {
         this.subIndustryType = subIndustryType;
+    }
+
+    public List<BranchDbType> getBranches() {
+        return branches;
+    }
+
+    public void setBranches(List<BranchDbType> branches) {
+        this.branches = branches;
     }
 
     @Override

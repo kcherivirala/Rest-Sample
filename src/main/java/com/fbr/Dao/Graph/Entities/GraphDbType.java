@@ -9,6 +9,8 @@ package com.fbr.Dao.Graph.Entities;
 import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "graphs")
@@ -22,6 +24,14 @@ public class GraphDbType implements ProjectEntity<String> {
     String name;
     @Column(name = "type", nullable = false)
     String type;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "graph_id", referencedColumnName = "graph_id")
+    List<GraphAttributesDbType> graphAttributes = new ArrayList<GraphAttributesDbType>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "graph_id", referencedColumnName = "graph_id")
+    List<GraphFiltersDbType> graphFilters = new ArrayList<GraphFiltersDbType>();
 
     public String getType() {
         return type;
@@ -53,6 +63,22 @@ public class GraphDbType implements ProjectEntity<String> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<GraphAttributesDbType> getGraphAttributes() {
+        return graphAttributes;
+    }
+
+    public void setGraphAttributes(List<GraphAttributesDbType> graphAttributes) {
+        this.graphAttributes = graphAttributes;
+    }
+
+    public List<GraphFiltersDbType> getGraphFilters() {
+        return graphFilters;
+    }
+
+    public void setGraphFilters(List<GraphFiltersDbType> graphFilters) {
+        this.graphFilters = graphFilters;
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Company.Branch;
 import com.fbr.domain.Company.Company;
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,10 +66,7 @@ public class CompanyService {
 
         try {
             CompanyDbType companyDbType = companyDao.find(companyId);
-            List<BranchDbType> listBranchDb = branchDao.getBranchesByCompany(companyId);
-
             updateCompanyDbEntry(companyDbType, company);
-            updateBranchDbEntries(companyId, listBranchDb, company.getBranches());
 
             logger.info("done updating a company : " + company.getName() + " and branches : " + company.getBranches().size());
             return company;
@@ -78,13 +76,13 @@ public class CompanyService {
         }
     }
 
+    @Transactional
     public List<Company> getCompanies() throws Exception {
         try {
             logger.info("getting all the companies");
             List<CompanyDbType> listDbCompanies = companyDao.findAll();
-            List<BranchDbType> listDbBranches = branchDao.findAll();
 
-            List<Company> out = matchCompanyAndBranches(listDbCompanies, listDbBranches);
+            List<Company> out = Conversions.getCompanies(listDbCompanies);
             logger.info("done getting all the companies");
             return out;
         } catch (Exception e) {
@@ -93,13 +91,13 @@ public class CompanyService {
         }
     }
 
+    @Transactional
     public Company getCompany(int companyId) throws Exception {
         try {
             logger.info("getting the company : " + companyId);
             CompanyDbType companyDbType = companyDao.find(companyId);
-            List<BranchDbType> listDbBranches = branchDao.getBranchesByCompany(companyId);
 
-            Company out = matchCompanyAndBranches(companyDbType, listDbBranches);
+            Company out = Conversions.getCompany(companyDbType);
             logger.info("done getting the company : " + companyId);
             return out;
         } catch (Exception e) {
@@ -130,38 +128,6 @@ public class CompanyService {
     }
 
     /* private functions */
-
-    private Company matchCompanyAndBranches(CompanyDbType companyDbType, List<BranchDbType> listDbBranches) {
-        List<CompanyDbType> list = new ArrayList<CompanyDbType>(1);
-        list.add(companyDbType);
-        return matchCompanyAndBranches(list, listDbBranches).get(0);
-    }
-
-    private List<Company> matchCompanyAndBranches(List<CompanyDbType> listDbCompanies, List<BranchDbType> listDbBranches) {
-        List<Company> out = new ArrayList<Company>(listDbCompanies.size());
-
-        Collections.sort(listDbBranches, Comparators.COMPARE_DB_BRANCHES);
-        Collections.sort(listDbCompanies, Comparators.COMPARE_DB_COMPANIES);
-
-        int cIndex = 0, bIndex = 0;
-        while (cIndex < listDbCompanies.size()) {
-            Company company = Conversions.getCompany(listDbCompanies.get(cIndex));
-            List<Branch> listBranches = new ArrayList<Branch>();
-            company.setBranches(listBranches);
-
-            while (bIndex < listDbBranches.size() && company.getId() > listDbBranches.get(bIndex).getId().getCompanyId()) {
-                bIndex++;
-            }
-            while (bIndex < listDbBranches.size() && company.getId() == listDbBranches.get(bIndex).getId().getCompanyId()) {
-                listBranches.add(Conversions.getBranch(listDbBranches.get(bIndex)));
-                bIndex++;
-            }
-
-            out.add(company);
-            cIndex++;
-        }
-        return out;
-    }
 
     private void updateCompanyDbEntry(CompanyDbType companyDbEntry, Company company) {
         logger.debug("modifying Company : " + companyDbEntry.getCompanyId());
@@ -225,6 +191,7 @@ public class CompanyService {
 
         if (updated)
             companyDao.update(companyDbEntry);
+        updateBranchDbEntries(companyDbEntry.getCompanyId(), companyDbEntry.getBranches(), company.getBranches());
     }
 
     private void updateBranchDbEntries(int companyId, List<BranchDbType> listBranchDb, List<Branch> inputBranches) {
@@ -385,31 +352,6 @@ public class CompanyService {
             return companyDbEntry;
         }
 
-        public static Company getCompany(CompanyDbType companyDbEntry) {
-            Company company = new Company();
-
-            company.setId(companyDbEntry.getId());
-            company.setName(companyDbEntry.getName());
-
-            company.setMail(companyDbEntry.getMail());
-            company.setContact(companyDbEntry.getContact());
-
-            company.setOwnerName(companyDbEntry.getOwnerName());
-            company.setOwnerAge(companyDbEntry.getOwnerAge());
-            company.setOwnerSex(companyDbEntry.isOwnerSex());
-
-            company.setCountry(companyDbEntry.getCountry());
-            company.setState(companyDbEntry.getState());
-            company.setCity(companyDbEntry.getCity());
-            company.setRegion(companyDbEntry.getRegion());
-
-            company.setCompetitiveAnalysisFlag(companyDbEntry.isCompetitiveAnalysisFlag());
-            company.setIndustryType(companyDbEntry.getIndustryType());
-            company.setSubIndustryType(companyDbEntry.getSubIndustryType());
-
-            return company;
-        }
-
         public static BranchDbType getBranchDbEntry(int companyId, int branchId, Branch branch) {
             BranchDbType branchDbEntry = new BranchDbType();
             BranchPrimaryKey key = new BranchPrimaryKey();
@@ -440,6 +382,47 @@ public class CompanyService {
             branchDbEntry.setOperationalTime(branch.getOperationalTime());
 
             return branchDbEntry;
+        }
+
+        public static List<Company> getCompanies(List<CompanyDbType> companies) {
+            List<Company> out = new ArrayList<Company>(companies.size());
+            for (CompanyDbType companyDbType : companies) {
+                out.add(getCompany(companyDbType));
+            }
+            return out;
+        }
+
+        public static Company getCompany(CompanyDbType companyDbEntry) {
+            Company company = new Company();
+
+            company.setId(companyDbEntry.getId());
+            company.setName(companyDbEntry.getName());
+
+            company.setMail(companyDbEntry.getMail());
+            company.setContact(companyDbEntry.getContact());
+
+            company.setOwnerName(companyDbEntry.getOwnerName());
+            company.setOwnerAge(companyDbEntry.getOwnerAge());
+            company.setOwnerSex(companyDbEntry.isOwnerSex());
+
+            company.setCountry(companyDbEntry.getCountry());
+            company.setState(companyDbEntry.getState());
+            company.setCity(companyDbEntry.getCity());
+            company.setRegion(companyDbEntry.getRegion());
+
+            company.setCompetitiveAnalysisFlag(companyDbEntry.isCompetitiveAnalysisFlag());
+            company.setIndustryType(companyDbEntry.getIndustryType());
+            company.setSubIndustryType(companyDbEntry.getSubIndustryType());
+
+            Hibernate.initialize(companyDbEntry.getBranches());
+            List<Branch> list = new ArrayList<Branch>(companyDbEntry.getBranches().size());
+            company.setBranches(list);
+
+            for (BranchDbType branchDbType : companyDbEntry.getBranches()) {
+                list.add(getBranch(branchDbType));
+            }
+
+            return company;
         }
 
         public static Branch getBranch(BranchDbType branchDbEntry) {
