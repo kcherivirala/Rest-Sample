@@ -106,11 +106,6 @@ public class GraphService {
         try {
             logger.info("getting graphs for company : " + companyId);
             List<GraphDbType> graphs = graphsDao.getGraphs(companyId);
-
-            if (graphs.size() == 0) {
-                return null;
-            }
-
             List<Attribute> attributeDbEntries = attributeService.getAttributesByCompany(companyId);
 
             List<Graph> out = Conversions.getGraphs(graphs, attributeDbEntries);
@@ -243,6 +238,19 @@ public class GraphService {
 
 
     public static class Conversions {
+        private static int getIndex(int attrId, List<Attribute> list) {
+            int index = -1;
+            int i = 0;
+            for (Attribute attribute : list) {
+                if (attribute.getAttributeId() == attrId) {
+                    index = i;
+                    break;
+                }
+                i++;
+            }
+            return index;
+        }
+
         private static GraphDbType getGraphDbEntry(String graphId, int companyId, Graph graph) {
             GraphDbType graphDbEntry = new GraphDbType();
 
@@ -254,7 +262,7 @@ public class GraphService {
             return graphDbEntry;
         }
 
-        private static List<Graph> getGraphs(List<GraphDbType> graphs, List<Attribute> attributes) {
+        private static List<Graph> getGraphs(List<GraphDbType> graphs, List<Attribute> attributes) throws Exception {
             List<Graph> out = new ArrayList<Graph>(graphs.size());
             for (GraphDbType graphDbType : graphs) {
                 out.add(getGraph(graphDbType, attributes));
@@ -262,7 +270,7 @@ public class GraphService {
             return out;
         }
 
-        private static Graph getGraph(GraphDbType graphDbEntry, List<Attribute> attributes) {
+        private static Graph getGraph(GraphDbType graphDbEntry, List<Attribute> attributes) throws Exception {
             Graph graph = new Graph();
             graph.setGraphId(graphDbEntry.getGraphId());
             graph.setName(graphDbEntry.getName());
@@ -275,11 +283,15 @@ public class GraphService {
             graph.setFilterList(graphFilters);
 
             for (GraphAttributesDbType graphAttribute : graphDbEntry.getGraphAttributes()) {
-                graphAttributes.add(attributes.get(attributes.indexOf(graphAttribute.getId().getAttributeId())));
+                int index = getIndex(graphAttribute.getId().getAttributeId(), attributes);
+                if (index == -1) throw new Exception("graph contains attributes which are not assigned yet");
+                graphAttributes.add(attributes.get(index));
             }
 
             for (GraphFiltersDbType graphFilter : graphDbEntry.getGraphFilters()) {
-                graphFilters.add(attributes.get(attributes.indexOf(graphFilter.getId().getAttributeId())));
+                int index = getIndex(graphFilter.getId().getAttributeId(), attributes);
+                if (index == -1) throw new Exception("graph contains attributes which are not assigned yet");
+                graphFilters.add(attributes.get(index));
             }
 
             return graph;
