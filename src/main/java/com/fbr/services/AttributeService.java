@@ -16,6 +16,7 @@ import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,11 +38,15 @@ public class AttributeService {
 
     @PostConstruct
     public void init() {
-        List<CompanyDbType> companies = companyService.getCompanyDbEntries();
-        mapCompanyAttributes = new HashMap<Integer, CompanyAttributeData>(companies.size());
+        try {
+            List<CompanyDbType> companies = companyService.getCompanyDbEntries();
+            mapCompanyAttributes = new HashMap<Integer, CompanyAttributeData>(companies.size());
 
-        for (CompanyDbType company : companies) {
-            mapCompanyAttributes.put(company.getCompanyId(), getCompanyAttributeData(company.getCompanyId()));
+            for (CompanyDbType company : companies) {
+                mapCompanyAttributes.put(company.getCompanyId(), getCompanyAttributeData(company.getCompanyId()));
+            }
+        } catch (Exception e) {
+            logger.error("failed to initialise the attributes for companies" + e.getMessage());
         }
     }
 
@@ -54,7 +59,7 @@ public class AttributeService {
             attributeDao.add(attributeDbEntry);
 
             for (AttributeValue attributeValue : attribute.getAttributeValues()) {
-                addAttributeValueDbEntry(attributeDbEntry.getAttributeId(), attributeValue);
+                attributeValuesDao.add(Conversions.getAttributeValueDbEntry(id, attributeValue));
             }
             attribute.setAttributeId(attributeDbEntry.getAttributeId());
             logger.info("done adding : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
@@ -70,10 +75,8 @@ public class AttributeService {
         try {
             logger.info("updating new attribute : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
             AttributeDbType dbEntry = attributeDao.find(attributeId);
-            List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attributeId);
 
             updateAttributeDbEntry(dbEntry, attribute);
-            updateAttributeValues(dbEntry.getAttributeId(), attributeValuesDbEntries, attribute.getAttributeValues());
             logger.info("done updating : " + attribute.getAttributeString() + " and count of values : " + attribute.getAttributeValues().size());
             return attribute;
         } catch (Exception e) {
@@ -95,28 +98,27 @@ public class AttributeService {
         }
     }
 
+    @Transactional
     public List<Attribute> getAttributeAndValues() throws Exception {
         try {
             logger.info("getting all attributes and values");
             List<AttributeDbType> attributeDbEntries = attributeDao.findAll();
-            List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.findAll();
 
-            List<Attribute> out = matchAttributesAndValues(attributeDbEntries, attributeValuesDbEntries);
             logger.info("done getting all attributes and values");
-            return out;
+            return Conversions.getAttributes(attributeDbEntries);
         } catch (Exception e) {
             logger.error("error getting attributes : " + e.getMessage());
             throw new Exception("error getting attributes : " + e.getMessage());
         }
     }
 
+    @Transactional
     public Attribute getAttributeAndValues(int attrId) throws Exception {
         try {
             logger.info("getting all attributes and values for : " + attrId);
             AttributeDbType attributeDbEntry = attributeDao.find(attrId);
-            List<AttributeValuesDbType> attributeValuesDbEntries = attributeValuesDao.getAttributeValues(attrId);
 
-            Attribute out = matchAttributeAndValues(attributeDbEntry, attributeValuesDbEntries);
+            Attribute out = Conversions.getAttribute(attributeDbEntry);
             logger.info("done getting all attributes and values for : " + attrId);
             return out;
         } catch (Exception e) {
@@ -233,6 +235,8 @@ public class AttributeService {
         attributeDbEntry.setType(attribute.getType());
 
         attributeDao.update(attributeDbEntry);
+
+        updateAttributeValues(attributeDbEntry.getAttributeId(), attributeDbEntry.getAttributeValues(), attribute.getAttributeValues());
     }
 
     private void updateAttributeValueDbEntry(AttributeValuesDbType attributeValueDbEntry, AttributeValue attributeValue) {
@@ -248,15 +252,6 @@ public class AttributeService {
         }
         if (updated)
             attributeValuesDao.update(attributeValueDbEntry);
-    }
-
-    private void addAttributeValueDbEntry(int attributeId, AttributeValue attributeValue) {
-        AttributeValuesDbType attributeValuesDbEntry = Conversions.getAttributeValueDbEntry(attributeId, attributeValue);
-        attributeValuesDao.add(attributeValuesDbEntry);
-    }
-
-    private void deleteAttributeValueDbEntry(AttributeValuesDbType attributeValuesDbEntry) {
-        attributeValuesDao.delete(attributeValuesDbEntry);
     }
 
     private void updateAttributeValues(int attributeId, List<AttributeValuesDbType> attributeValuesDbEntries, List<AttributeValue> inputValues) {
@@ -275,7 +270,7 @@ public class AttributeService {
                 inputIndex++;
             } else if (inputValue.getValue() < attributeValueDbEntry.getId().getValue()) {
                 logger.debug("adding : (" + attributeId + "," + inputValue.getValue() + ")");
-                addAttributeValueDbEntry(attributeId, inputValue);
+                attributeValuesDao.add(Conversions.getAttributeValueDbEntry(attributeId, inputValue));
                 inputIndex++;
             } else {
                 logger.debug("deleting : (" + attributeId + "," + inputValue.getValue() + ")");
@@ -289,45 +284,16 @@ public class AttributeService {
             dbIndex++;
         }
         while (inputIndex < inputValues.size()) {
+            AttributeValue inputValue = inputValues.get(inputIndex);
             logger.debug("adding : (" + attributeId + "," + inputValues.get(inputIndex).getValue() + ")");
-            addAttributeValueDbEntry(attributeId, inputValues.get(inputIndex));
+            attributeValuesDao.add(Conversions.getAttributeValueDbEntry(attributeId, inputValue));
             inputIndex++;
         }
 
     }
 
-    private Attribute matchAttributeAndValues(AttributeDbType attributeDbEntry, List<AttributeValuesDbType> attributeValuesList) {
-        List<AttributeDbType> list = new ArrayList<AttributeDbType>(1);
-        list.add(attributeDbEntry);
-        return matchAttributesAndValues(list, attributeValuesList).get(0);
-    }
-
-    private List<Attribute> matchAttributesAndValues(List<AttributeDbType> attributeList, List<AttributeValuesDbType> attributeValuesList) {
-        List<Attribute> out = new ArrayList<Attribute>();
-        Collections.sort(attributeList, Comparators.COMPARE_ATTRIBUTES);
-        Collections.sort(attributeValuesList, Comparators.COMPARE_ATTRIBUTE_VALUES);
-
-        int aIndex = 0, vIndex = 0;
-        while (aIndex < attributeList.size()) {
-            AttributeDbType attributeDbEntry = attributeList.get(aIndex);
-            int attributeId = attributeDbEntry.getAttributeId();
-
-            Attribute outAttribute = Conversions.getAttribute(attributeDbEntry);
-            List<AttributeValue> valueList = new ArrayList<AttributeValue>();
-            outAttribute.setAttributeValues(valueList);
-            while (vIndex < attributeValuesList.size() && attributeId > attributeValuesList.get(vIndex).getId().getAttributeId()) {
-                vIndex++;
-            }
-            while (vIndex < attributeValuesList.size() && attributeId == attributeValuesList.get(vIndex).getId().getAttributeId()) {
-                AttributeValue attributeValue = Conversions.getAttributeValue(attributeValuesList.get(vIndex));
-                valueList.add(attributeValue);
-                vIndex++;
-            }
-            out.add(outAttribute);
-            aIndex++;
-        }
-
-        return out;
+    private void deleteAttributeValueDbEntry(AttributeValuesDbType attributeValuesDbEntry) {
+        attributeValuesDao.delete(attributeValuesDbEntry);
     }
 
     private int getAttributeValue(List<AttributeValue> attributeValueList, String attrValueString) {
@@ -339,11 +305,10 @@ public class AttributeService {
         return -1;
     }
 
+    @Transactional
     private List<Attribute> calculateAttributesByCompany(int companyId) {
         List<AttributeDbType> attributeList = attributeDao.getAttributesByCompany(companyId);
-        List<AttributeValuesDbType> attributeValuesList = attributeValuesDao.getAttributeValuesByCompany(companyId);
-
-        return matchAttributesAndValues(attributeList, attributeValuesList);
+        return Conversions.getAttributes(attributeList);
     }
 
     private CompanyAttributeData getCompanyAttributeData(int companyId) {
@@ -356,11 +321,28 @@ public class AttributeService {
     }
 
     public static class Conversions {
+        public static List<Attribute> getAttributes(List<AttributeDbType> attributeList) {
+            List<Attribute> out = new ArrayList<Attribute>(attributeList.size());
+            for (AttributeDbType entry : attributeList) {
+                out.add(getAttribute(entry));
+            }
+            return out;
+        }
+
         public static Attribute getAttribute(AttributeDbType attributeDbEntry) {
             Attribute attribute = new Attribute();
             attribute.setAttributeId(attributeDbEntry.getAttributeId());
             attribute.setAttributeString(attributeDbEntry.getAttributeString());
             attribute.setType(attributeDbEntry.getType());
+
+            Hibernate.initialize(attributeDbEntry.getAttributeValues());
+
+            List<AttributeValue> list = new ArrayList<AttributeValue>(attributeDbEntry.getAttributeValues().size());
+            attribute.setAttributeValues(list);
+
+            for (AttributeValuesDbType value : attributeDbEntry.getAttributeValues()) {
+                list.add(getAttributeValue(value));
+            }
 
             return attribute;
         }

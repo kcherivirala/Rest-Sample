@@ -9,6 +9,8 @@ package com.fbr.Dao.Attribute.Entities;
 import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "attributes")
@@ -20,6 +22,10 @@ public class AttributeDbType implements ProjectEntity<Integer> {
     String attributeString;
     @Column(name = "type")
     String type;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "attribute_id", referencedColumnName = "attribute_id")
+    List<AttributeValuesDbType> attributeValues = new ArrayList<AttributeValuesDbType>();
 
     public int getAttributeId() {
         return attributeId;
@@ -43,6 +49,14 @@ public class AttributeDbType implements ProjectEntity<Integer> {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public List<AttributeValuesDbType> getAttributeValues() {
+        return attributeValues;
+    }
+
+    public void setAttributeValues(List<AttributeValuesDbType> attributeValues) {
+        this.attributeValues = attributeValues;
     }
 
     @Override
