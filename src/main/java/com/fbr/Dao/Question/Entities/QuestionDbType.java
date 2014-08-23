@@ -33,6 +33,8 @@ public class QuestionDbType implements Serializable, ProjectEntity<QuestionPrima
     int placement;
     @Column(name = "link")
     String link;
+    @Column(name = "category")
+    String category;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumns({
@@ -95,6 +97,14 @@ public class QuestionDbType implements Serializable, ProjectEntity<QuestionPrima
 
     public void setAnswerGroups(List<AnswerGroupDbType> answerGroups) {
         this.answerGroups = answerGroups;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     @Override

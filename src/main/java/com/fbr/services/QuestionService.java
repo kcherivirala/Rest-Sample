@@ -411,6 +411,7 @@ public class QuestionService {
             questionDbEntry.setEnabled(question.isEnabled());
             questionDbEntry.setPlacement(question.getPlacement());
             questionDbEntry.setLink(question.getLink());
+            questionDbEntry.setCategory(question.getCategory());
 
             return questionDbEntry;
         }
@@ -483,6 +484,7 @@ public class QuestionService {
             question.setEnabled(questionDbEntry.isEnabled());
             question.setPlacement(questionDbEntry.getPlacement());
             question.setLink(questionDbEntry.getLink());
+            question.setCategory(questionDbEntry.getCategory());
 
             Hibernate.initialize(questionDbEntry.getAnswerGroups());
             List<AnswerGroup> list = new ArrayList<AnswerGroup>(questionDbEntry.getAnswerGroups().size());

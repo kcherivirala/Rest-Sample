@@ -17,6 +17,7 @@ public class Question {
     boolean enabled;
     int placement;
     String link;
+    String category;
 
     public String getLink() {
         return link;
@@ -80,6 +81,14 @@ public class Question {
 
     public void setFunction(String function) {
         this.function = function;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
 
