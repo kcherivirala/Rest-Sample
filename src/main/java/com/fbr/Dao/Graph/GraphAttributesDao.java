@@ -14,14 +14,21 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.util.List;
 
 @Repository("graphAttributesDao")
 public class GraphAttributesDao extends ProjectDaoImpl<GraphAttributesDbType, GraphAttributesPrimaryKey> {
     public GraphAttributesDao() {
         this.entityClass = GraphAttributesDbType.class;
     }
+
+    @Transactional
+    public void deleteGraphAttributes(String graphId) {
+        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.graphId = ?1");
+        q.setParameter(1, graphId);
+        q.executeUpdate();
+    }
+}
+/*
 
     public List<GraphAttributesDbType> getGraphAttributes(List<String> graphIdList) {
         String hql = "select e from " + entityClass.getName() + " e where e.id.graphId in (?1)";
@@ -38,11 +45,4 @@ public class GraphAttributesDao extends ProjectDaoImpl<GraphAttributesDbType, Gr
 
         return query.getResultList();
     }
-
-    @Transactional
-    public void deleteGraphAttributes(String graphId) {
-        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.graphId = ?1");
-        q.setParameter(1, graphId);
-        q.executeUpdate();
-    }
-}
+*/

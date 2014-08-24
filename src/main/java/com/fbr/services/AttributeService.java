@@ -12,6 +12,7 @@ import com.fbr.Dao.Attribute.Entities.AttributeDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesDbType;
 import com.fbr.Dao.Attribute.Entities.AttributeValuesPrimaryKey;
 import com.fbr.Dao.Company.Entities.CompanyDbType;
+import com.fbr.Dao.Question.AnswerAttributeDao;
 import com.fbr.Utilities.Comparators;
 import com.fbr.domain.Attribute.Attribute;
 import com.fbr.domain.Attribute.AttributeValue;
@@ -31,6 +32,8 @@ public class AttributeService {
     private AttributeDao attributeDao;
     @Autowired
     private AttributeValuesDao attributeValuesDao;
+    @Autowired
+    private AnswerAttributeDao answerAttributeDao;
     @Autowired
     private CompanyService companyService;
 
@@ -305,17 +308,11 @@ public class AttributeService {
         return -1;
     }
 
-    @Transactional
-    private List<Attribute> calculateAttributesByCompany(int companyId) {
-        List<AttributeDbType> attributeList = attributeDao.getAttributesByCompany(companyId);
-        return Conversions.getAttributes(attributeList);
-    }
-
     private CompanyAttributeData getCompanyAttributeData(int companyId) {
         logger.info("getting attribute data for company : " + companyId);
         CompanyAttributeData companyAttributeData = new CompanyAttributeData();
         companyAttributeData.companyId = companyId;
-        companyAttributeData.attributeList = calculateAttributesByCompany(companyId);
+        companyAttributeData.attributeList = answerAttributeDao.getCompanyAttributesAndValues(companyId);
 
         return companyAttributeData;
     }

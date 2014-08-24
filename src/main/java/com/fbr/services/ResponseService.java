@@ -126,11 +126,12 @@ public class ResponseService {
             int attributeId = attributeTuple.getAttributeId();
             int obtainedVal = attributeTuple.getObtainedValue();
 
+
             boolean flag = false;
             for (Attribute attribute : attributeList) {
                 if (attribute.getAttributeId() == attributeId) {
                     for (AttributeValue attributeValue : attribute.getAttributeValues()) {
-                        if (obtainedVal == attributeValue.getValue()) {
+                        if (obtainedVal == attributeValue.getValue() || attributeValue.getValue() == -1) {
                             flag = true;
                             break;
                         }

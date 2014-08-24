@@ -12,13 +12,20 @@ import com.fbr.Dao.ProjectDaoImpl;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
-import java.util.List;
 
 @Repository("attributeValuesDao")
 public class AttributeValuesDao extends ProjectDaoImpl<AttributeValuesDbType, AttributeValuesPrimaryKey> {
     public AttributeValuesDao() {
         this.entityClass = AttributeValuesDbType.class;
     }
+
+    public void deleteAttributeValues(int attributeId) {
+        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.attributeId = ?1");
+        q.setParameter(1, attributeId);
+        q.executeUpdate();
+    }
+}
+/*
 
     public List<AttributeValuesDbType> getAttributeValuesByCompany(int companyId) {
         Query q = entityManager.createQuery("select distinct a from AttributeValuesDbType  a, AnswerAttributeDbType b  where b.id.companyId = ?1 and a.id.attributeId = b.id.attributeId", entityClass);
@@ -31,10 +38,4 @@ public class AttributeValuesDao extends ProjectDaoImpl<AttributeValuesDbType, At
         q.setParameter(1, attributeId);
         return q.getResultList();
     }
-
-    public void deleteAttributeValues(int attributeId) {
-        Query q = entityManager.createQuery("delete from " + entityClass.getName() + " a where a.id.attributeId = ?1");
-        q.setParameter(1, attributeId);
-        q.executeUpdate();
-    }
-}
+*/
