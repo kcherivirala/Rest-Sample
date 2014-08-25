@@ -17,11 +17,12 @@ public class DerivativeAttributePreRequisiteDbType implements ProjectEntity<Deri
     @AttributeOverrides({
             @AttributeOverride(name = "companyId", column = @Column(name = "company_id", nullable = false)),
             @AttributeOverride(name = "attributeId", column = @Column(name = "attribute_id", nullable = false)),
-            @AttributeOverride(name = "dependentAttribute", column = @Column(name = "dependent_attribute", nullable = false))})
+            @AttributeOverride(name = "dependentAttribute", column = @Column(name = "dependent_attribute", nullable = false)),
+            @AttributeOverride(name = "prerequisiteAttribute", column = @Column(name = "prerequisite_attribute", nullable = false))})
     DerivativeAttributePreRequisitePrimaryKey id;
 
-    @Column(name = "attribute_value", nullable = false)
-    int attributeValue;
+    @Column(name = "prerequisite_attribute_value", nullable = false)
+    int prerequisiteAttributeValue;
 
     public DerivativeAttributePreRequisitePrimaryKey getId() {
         return id;
@@ -31,11 +32,11 @@ public class DerivativeAttributePreRequisiteDbType implements ProjectEntity<Deri
         this.id = id;
     }
 
-    public int getAttributeValue() {
-        return attributeValue;
+    public int getPrerequisiteAttributeValue() {
+        return prerequisiteAttributeValue;
     }
 
-    public void setAttributeValue(int attributeValue) {
-        this.attributeValue = attributeValue;
+    public void setPrerequisiteAttributeValue(int prerequisiteAttributeValue) {
+        this.prerequisiteAttributeValue = prerequisiteAttributeValue;
     }
 }

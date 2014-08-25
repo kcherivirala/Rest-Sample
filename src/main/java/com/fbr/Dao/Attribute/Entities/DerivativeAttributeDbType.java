@@ -9,6 +9,8 @@ package com.fbr.Dao.Attribute.Entities;
 import com.fbr.Dao.ProjectEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "derivative_attributes")
@@ -22,6 +24,14 @@ public class DerivativeAttributeDbType implements ProjectEntity<DerivativeAttrib
 
     @Column(name = "weight", nullable = false)
     int weight;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name = "company_id", referencedColumnName = "company_id"),
+            @JoinColumn(name = "attribute_id", referencedColumnName = "attribute_id"),
+            @JoinColumn(name = "dependent_attribute", referencedColumnName = "dependent_attribute")
+    })
+    List<DerivativeAttributePreRequisiteDbType> attributeValues = new ArrayList<DerivativeAttributePreRequisiteDbType>();
 
     public DerivativeAttributePrimaryKey getId() {
         return id;
@@ -37,5 +47,13 @@ public class DerivativeAttributeDbType implements ProjectEntity<DerivativeAttrib
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public List<DerivativeAttributePreRequisiteDbType> getAttributeValues() {
+        return attributeValues;
+    }
+
+    public void setAttributeValues(List<DerivativeAttributePreRequisiteDbType> attributeValues) {
+        this.attributeValues = attributeValues;
     }
 }

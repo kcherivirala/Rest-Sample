@@ -16,6 +16,8 @@ public class DerivativeAttributePreRequisitePrimaryKey implements Serializable {
     int attributeId;
     @Column(name = "dependent_attribute", nullable = false)
     int dependentAttribute;
+    @Column(name = "prerequisite_attribute", nullable = false)
+    int prerequisiteAttribute;
 
 
     public int getCompanyId() {
@@ -40,5 +42,13 @@ public class DerivativeAttributePreRequisitePrimaryKey implements Serializable {
 
     public void setDependentAttribute(int dependentAttribute) {
         this.dependentAttribute = dependentAttribute;
+    }
+
+    public int getPrerequisiteAttribute() {
+        return prerequisiteAttribute;
+    }
+
+    public void setPrerequisiteAttribute(int prerequisiteAttribute) {
+        this.prerequisiteAttribute = prerequisiteAttribute;
     }
 }
