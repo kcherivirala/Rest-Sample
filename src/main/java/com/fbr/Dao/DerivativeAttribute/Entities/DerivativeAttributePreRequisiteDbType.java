@@ -1,4 +1,4 @@
-package com.fbr.Dao.Attribute.Entities;
+package com.fbr.Dao.DerivativeAttribute.Entities;
 
 /*
  *  ***********************************************************
